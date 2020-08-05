@@ -1,0 +1,37 @@
+<div class="login">
+
+    <div class="login-box">
+        <h1 class="text-relief">COMUNIDAD DE REGANTES<br>LAS CUATRO VEGAS DE ALMERÍA</h1>
+        <div class="row justify-content-md-center">
+            <table class="col">
+                <tr>
+                    <td>
+                        <p>Identifiquese</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input matInput placeholder="Usuario o email" (keyup.enter)="login(user.value, password.value)" #user>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input matInput [type]="'password'" placeholder="Contraseña" (keyup.enter)="login(user.value, password.value)" #password>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button (click)="login(user.value, password.value)" type="button" class="btn btn-dark">Entrar</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p *ngIf="auth" class="ok">{{message}}</p>
+                        <p *ngIf="!auth" class="err">{{message}}</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
