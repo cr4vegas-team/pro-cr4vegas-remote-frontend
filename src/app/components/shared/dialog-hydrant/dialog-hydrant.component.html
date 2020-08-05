@@ -1,1 +1,83 @@
-<p>dialog-hydrant works!</p>
+<h1 mat-dialog-title>{{data.code}} - <span>{{data.sector}}</span></h1>
+<div mat-dialog-content>
+  <div class="row">
+    <div class="col-sm">
+      <img src="assets/img/default.jpg" alt="" width="100%">
+      <hr>
+      <table>
+        <tr>
+          <td>Altitud:</td>
+          <td style="padding-left: 5px;"><b>{{data.altitude}} m</b></td>
+        </tr>
+        <tr>
+          <td>Latitud:</td>
+          <td style="padding-left: 5px;"><b>{{data.latitude}}º</b></td>
+        </tr>
+        <tr>
+          <td>Longitud:</td>
+          <td style="padding-left: 5px;"><b>{{data.longitude}}º</b></td>
+        </tr>
+      </table>
+
+    </div>
+    <div class="col-sm">
+      <table>
+        <tr>
+          <td style="padding-left: 5px;">
+            <button mat-raised-button [disabled]="data.valve" (click)="openValve()">Abrir</button>
+          </td>
+          <td style="padding-left: 5px;">
+            <button mat-raised-button [disabled]="!data.valve" (click)="closeValve()">Cerrar</button>
+          </td>
+        </tr>
+        <br>
+        <tr>
+          <td>Electroválvula:</td>
+          <td style="padding-left: 5px; color: green" *ngIf="data.valve"><b>Abierta</b></td>
+          <td style="padding-left: 5px; color: red" *ngIf="!data.valve"><b>Cerrada</b></td>
+        </tr>
+        <tr>
+          <td>Caudal:</td>
+          <td style="padding-left: 5px;"><b>{{data.flow}}</b></td>
+        </tr>
+        <hr>
+        <tr>
+          <td>Temperatura:</td>
+          <td style="padding-left: 5px;"><b>{{data.temperature}}&deg;</b></td>
+        </tr>
+        <tr>
+          <td>Humedad:</td>
+          <td style="padding-left: 5px;"><b>{{data.humidity}}%</b></td>
+        </tr>
+        <hr>
+        <tr>
+          <td>Boya alta:</td>
+          <td style="padding-left: 5px;" *ngIf="data.bouyHight"><b>Arriba</b></td>
+          <td style="padding-left: 5px;" *ngIf="!data.bouyHight"><b>Abajo</b></td>
+        </tr>
+        <tr>
+          <td>Boya media:</td>
+          <td style="padding-left: 5px;" *ngIf="data.bouyMedium"><b>Arriba</b></td>
+          <td style="padding-left: 5px;" *ngIf="!data.bouyMedium"><b>Abajo</b></td>
+        </tr>
+        <tr>
+          <td>Boya baja:</td>
+          <td style="padding-left: 5px;" *ngIf="data.bouyLow"><b>Arriba</b></td>
+          <td style="padding-left: 5px;" *ngIf="!data.bouyLow"><b>Abajo</b></td>
+        </tr>
+        <tr>
+          <td>Estado boyas:</td>
+          <td style="padding-left: 5px;"><b>{{data.bouyState}}</b></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<hr>
+
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cerrar</button>
+  <button mat-raised-button (click)="openDialogInfo()">Modificar</button>
+</div>

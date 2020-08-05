@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { GLOBAL } from 'src/app/services/global';
 import { AuthService } from '../../../services/auth.service';
+import { DialogInfoComponent } from '../../shared/dialog-info/dialog-info.component';
+import { CONS_DIALOG_INFO } from '../../shared/dialog-info/dialog-info.constants';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +22,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private _authService: AuthService,
     private _router: Router,
+    private _dialog: MatDialog
   ) {
     this._authService.validate().subscribe(
       () => {
