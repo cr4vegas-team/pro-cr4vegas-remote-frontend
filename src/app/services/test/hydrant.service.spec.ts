@@ -1,13 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-
-import { HydrantService } from './hydrant.service';
+import { UnitHydrantService } from '../../services/unit-hydrant.service';
 
 describe('HydrantService', () => {
-  let service: HydrantService;
+  let service: UnitHydrantService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(HydrantService);
+    service = TestBed.inject(UnitHydrantService);
   });
 
   it('should be created', () => {

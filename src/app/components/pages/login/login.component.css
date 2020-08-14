@@ -1,15 +1,16 @@
 .login {
-    position: relative;
-    width: 100vw;
+    position: fixed;
+    width: 100%;
     height: 100vh;
     display: flex;
+    float: none;
     justify-content: center;
     align-items: center;
 }
 
 .login::before {
     content: "";
-    background-image: url('../../../../assets/img/water.jpg');
+    background-image: url('src/assets/img/water.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     position: absolute;

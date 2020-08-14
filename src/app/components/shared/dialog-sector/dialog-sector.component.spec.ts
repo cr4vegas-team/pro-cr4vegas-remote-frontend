@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DialogHydrantComponent } from './dialog-hydrant.component';
+import { DialogSectorComponent } from './dialog-sector.component';
 
-describe('DialogHydrantComponent', () => {
-  let component: DialogHydrantComponent;
-  let fixture: ComponentFixture<DialogHydrantComponent>;
+describe('DialogSectorComponent', () => {
+  let component: DialogSectorComponent;
+  let fixture: ComponentFixture<DialogSectorComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DialogHydrantComponent ]
+      declarations: [ DialogSectorComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DialogHydrantComponent);
+    fixture = TestBed.createComponent(DialogSectorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
