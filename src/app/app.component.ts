@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'pro-cr4vegas-remote-frontend';
+  title = 'C.R. 4 Vegas Remoto';
 }

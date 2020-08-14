@@ -1,0 +1,87 @@
+<h1 mat-dialog-title>{{unitHydrant.code}} - <span *ngIf="unitHydrant.unit.sector">{{unitHydrant.unit.sector.name}}</span></h1>
+<div mat-dialog-content>
+  <div class="row">
+    <div class="col-sm">
+      <img src="assets/img/default.jpg" alt="" width="100%">
+      <hr>
+      <table>
+        <tr>
+          <td>Altitud:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.unit.altitude}} m</b></td>
+        </tr>
+        <tr>
+          <td>Latitud:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.unit.latitude}}º</b></td>
+        </tr>
+        <tr>
+          <td>Longitud:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.unit.longitude}}º</b></td>
+        </tr>
+      </table>
+
+    </div>
+    <div class="col-sm">
+      <table>
+        <tr>
+          <td style="padding-left: 5px;">
+            <button mat-raised-button [disabled]="unitHydrant.valve" (click)="openValve()">Abrir</button>
+          </td>
+          <td style="padding-left: 5px;">
+            <button mat-raised-button [disabled]="!unitHydrant.valve" (click)="closeValve()">Cerrar</button>
+          </td>
+        </tr>
+        <br>
+        <tr>
+          <td>Electroválvula:</td>
+          <td style="padding-left: 5px; color: green" *ngIf="unitHydrant.valve"><b>Abierta</b></td>
+          <td style="padding-left: 5px; color: red" *ngIf="!unitHydrant.valve"><b>Cerrada</b></td>
+        </tr>
+        <tr>
+          <td>Caudal:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.flow}}</b></td>
+        </tr>
+        <hr>
+        <tr>
+          <td>Temperatura:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.temperature}}&deg;</b></td>
+        </tr>
+        <tr>
+          <td>Humedad:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.humidity}}%</b></td>
+        </tr>
+        <hr>
+        <tr>
+          <td>Boya alta:</td>
+          <td style="padding-left: 5px;" *ngIf="unitHydrant.bouyHight"><b>Arriba</b></td>
+          <td style="padding-left: 5px;" *ngIf="!unitHydrant.bouyHight"><b>Abajo</b></td>
+        </tr>
+        <tr>
+          <td>Boya media:</td>
+          <td style="padding-left: 5px;" *ngIf="unitHydrant.bouyMedium"><b>Arriba</b></td>
+          <td style="padding-left: 5px;" *ngIf="!unitHydrant.bouyMedium"><b>Abajo</b></td>
+        </tr>
+        <tr>
+          <td>Boya baja:</td>
+          <td style="padding-left: 5px;" *ngIf="unitHydrant.bouyLow"><b>Arriba</b></td>
+          <td style="padding-left: 5px;" *ngIf="!unitHydrant.bouyLow"><b>Abajo</b></td>
+        </tr>
+        <tr>
+          <td>Estado boyas:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.bouyState}}</b></td>
+        </tr>
+        <tr>
+          <td>Anomalías:</td>
+          <td style="padding-left: 5px;"><b>{{unitHydrant.bouyWarning}}</b></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<hr>
+
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cerrar</button>
+  <button mat-raised-button (click)="openDialogHydrantCreate()">Modificar</button>
+</div>

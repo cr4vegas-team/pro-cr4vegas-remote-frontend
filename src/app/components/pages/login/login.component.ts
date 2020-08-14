@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { GLOBAL } from 'src/app/services/global';
-import { AuthService } from '../../../services/auth.service';
-import { DialogInfoComponent } from '../../shared/dialog-info/dialog-info.component';
-import { CONS_DIALOG_INFO } from '../../shared/dialog-info/dialog-info.constants';
+import { AuthService } from '../../../services/api/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +18,6 @@ export class LoginComponent implements OnInit {
   constructor(
     private _authService: AuthService,
     private _router: Router,
-    private _dialog: MatDialog
   ) {
     this._authService.validate().subscribe(
       () => {
@@ -41,12 +36,14 @@ export class LoginComponent implements OnInit {
     await this._authService.login(user, password).subscribe(
       res => {
         this.message = this.MESSAGE_AUTH_OK;
+        this.auth = true;
         let access_token = res.access_token;
         localStorage.setItem('access_token', access_token);
         this._router.navigate(['map']);
       },
       err => {
         this.message = this.MESSAGE_AUTH_ERR;
+        this.auth = false;
       });
   }
 
