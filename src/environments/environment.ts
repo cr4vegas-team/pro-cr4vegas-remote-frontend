@@ -11,7 +11,6 @@ export const environment = {
 		protocol: "ws",
 		port: 8083,
 		path: '/mqtt',
-
 	}
 };
 

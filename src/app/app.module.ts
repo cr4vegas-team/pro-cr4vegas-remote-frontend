@@ -63,9 +63,10 @@ import { AdDirective } from './directives/ad.directive';
 
 const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
   hostname: env.mqtt.server,
-  port: env.mqtt.port,
+  // port: env.mqtt.port,
   protocol: (env.mqtt.protocol === "wss") ? "wss" : "ws",
   path: env.mqtt.path,
+  rejectUnauthorized: false,
 };
 
 @NgModule({

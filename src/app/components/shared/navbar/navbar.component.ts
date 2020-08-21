@@ -81,11 +81,11 @@ export class NavbarComponent implements OnInit {
   shouldRun = true;
 
   goHydrants() {
-    this._router.navigate(['hydrants']);
+    this._router.navigate(['/hydrants']);
   }
 
   goMap() {
-    this._router.navigate(['map'])
+    this._router.navigate(['/map'])
   }
 
   showHydrants() {

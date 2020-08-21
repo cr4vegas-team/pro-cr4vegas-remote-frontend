@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
         if (res) {
           this._router.navigate(['map']);
         } else {
-          this._router.navigate(['login']);
+          this._router.navigateByUrl('/');
         }
       },
     );

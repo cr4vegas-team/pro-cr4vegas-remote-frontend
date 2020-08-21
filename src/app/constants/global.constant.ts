@@ -1,3 +1,5 @@
+import { environment } from 'src/environments/environment';
+
 export const GLOBAL = {
-    API: 'http://localhost:8881/api/'
+    API: environment.api,
 }

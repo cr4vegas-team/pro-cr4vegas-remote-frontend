@@ -12,10 +12,10 @@ export class AuthGuard implements CanActivate {
     private _router: Router
   ) { }
 
-  canActivate(): boolean {
+  async canActivate(): Promise<boolean> {
     
-    this._authService.checkAuth();
-    let authenticated = this._authService.isAuthenticated().getValue();
+    await this._authService.checkAuth();
+    let authenticated = await this._authService.isAuthenticated().getValue();
     if (authenticated) {
       return true;
     } else {
