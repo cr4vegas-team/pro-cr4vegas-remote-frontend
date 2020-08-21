@@ -22,7 +22,7 @@
 }
 
 .login-box {
-    width: 60%;
+    width: fit-content;
     height: fit-content;
     position: relative;
     border-radius: 5px;
@@ -30,13 +30,12 @@
     text-align: center;
     background-color: white;
     z-index: 10;
-    background-color: rgba(0, 60, 100, 0.3);
+    background-color: rgba(0, 60, 100, 0.4);
 }
 
 .text-relief {
     font-family: Arial Black;
     font-weight: normal;
-    font-size: 40px;
     background: rgba(0, 60, 100, 1);
     -webkit-background-clip: text;
     -moz-background-clip: text;
@@ -47,12 +46,18 @@
 
 p {
     font-weight: normal;
-    font-size: 18px;
     color: rgba(0, 60, 100, 1);
 }
 
-td {
-    height: 40px;
+.mat-form-field {
+    background-color: white;
+    width: 100%;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.login-form {
+    width: fit-content;
 }
 
 .err {

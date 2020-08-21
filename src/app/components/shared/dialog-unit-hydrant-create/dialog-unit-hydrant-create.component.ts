@@ -1,30 +1,26 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
+import { Component, forwardRef, Inject, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UnitEntity } from 'src/app/models/unit.entity';
+import { UnitHydrantService } from 'src/app/services/api/unit-hydrant.service';
+import { UnitService } from 'src/app/services/api/unit.service';
 import { SectorEntity } from '../../../models/sector.entity';
 import { SetEntity } from '../../../models/set.entity';
 import { StationEntity } from '../../../models/station.entity';
 import { UnitHydrantEntity } from '../../../models/unit-hydrant.entity';
-import { StationService } from '../../../services/api/station.service';
 import { SectorService } from '../../../services/api/sector.service';
 import { SetService } from '../../../services/api/set.service';
+import { StationService } from '../../../services/api/station.service';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { CONS_DIALOG_INFO } from '../dialog-info/dialog-info.constants';
+import { DialogUnitHydrantComponent } from '../dialog-unit-hydrant/dialog-unit-hydrant.component';
 
 @Component({
   selector: 'app-dialog-unit-hydrant-create',
   templateUrl: './dialog-unit-hydrant-create.component.html',
-  styleUrls: ['./dialog-unit-hydrant-create.component.css']
+  styleUrls: ['./dialog-unit-hydrant-create.component.css'],
 })
-export class DialogUnitHydrantCreateComponent implements OnInit {
-
-  // ==================================================
-  // Table selection
-  // ==================================================
-  displayedColumns: string[] = ['select', 'name'];
-  dataSource = new MatTableDataSource<SetEntity>();
-  selection = new SelectionModel<SetEntity>(true, []);
+export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
 
   consDialogInfo = CONS_DIALOG_INFO;
   create: boolean = true;
@@ -33,30 +29,46 @@ export class DialogUnitHydrantCreateComponent implements OnInit {
   stations: StationEntity[];
   sets: SetEntity[];
 
-  sectorSelected: SectorEntity;
-  stationSelected: StationEntity;
+  // Froms control
+  unitHydrantForm: FormGroup;
 
   constructor(
     private readonly _matDialog: MatDialog,
     private readonly _sectorService: SectorService,
     private readonly _setService: SetService,
     private readonly _stationService: StationService,
+    private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _unitService: UnitService,
     @Inject(MAT_DIALOG_DATA)
     public unitHydrant: UnitHydrantEntity
   ) {
-    this.sectors = [];
-    this.stations = [];
-    this.sets = [];
-    this.sectorSelected = null;
-    this.stationSelected = null;
-  }
-
-  ngOnInit(): void {
     if (this.unitHydrant) {
       this.create = false;
     } else {
       this.create = true;
+      this.unitHydrant = this._unitService.unitFactory.createUnitHydrant();
+      this.unitHydrant.setUnit(this._unitService.unitFactory.createUnit());
     }
+    this.sectors = [];
+    this.stations = [];
+    this.sets = [];
+    this.unitHydrantForm = new FormGroup({
+      code: new FormControl(this.unitHydrant.getCode(), [Validators.required, Validators.pattern("HD[0-9]{5}")]),
+      filter: new FormControl(this.unitHydrant.getFilter()),
+      diameter: new FormControl(this.unitHydrant.getDiameter()),
+      unit: new FormGroup({
+        altitude: new FormControl(this.unitHydrant.getUnit().getAltitude(), [Validators.required]),
+        latitude: new FormControl(this.unitHydrant.getUnit().getLatitude(), [Validators.required]),
+        longitude: new FormControl(this.unitHydrant.getUnit().getLongitude(), [Validators.required]),
+        sector: new FormControl(this.unitHydrant.getUnit().getSector()),
+        station: new FormControl(this.unitHydrant.getUnit().getStation()),
+        sets: new FormControl(this.unitHydrant.getUnit().getSets()),
+        description: new FormControl(this.unitHydrant.getUnit().getDescription()),
+      })
+    });
+  }
+
+  ngOnInit(): void {
     this._sectorService.subscribeToSectors().subscribe(
       res => {
         this.sectors = res;
@@ -74,41 +86,20 @@ export class DialogUnitHydrantCreateComponent implements OnInit {
     ).unsubscribe();
   }
 
-  openDialogInfo(data: string) {
+  ngOnDestroy() {
+    this.unitHydrant = null;
+  }
+
+  bopenDialogInfo(data: string) {
     this._matDialog.open(DialogInfoComponent, { data });
   }
 
   accept() {
     if (this.create) {
-
+      this._unitHydrantService.addHydrant(this.unitHydrant);
     } else {
-
+      this._unitHydrantService.modifyHydrant(this.unitHydrant, this.unitHydrantForm.value);
     }
-  }
-
-  // ==================================================
-  // Table selection functions
-  // ==================================================
-  /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
-  }
-
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
-  masterToggle() {
-    this.isAllSelected() ?
-      this.selection.clear() :
-      this.dataSource.data.forEach(row => this.selection.select(row));
-  }
-
-  /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: SetEntity): string {
-    if (!row) {
-      return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
-    }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id + 1}`;
   }
 
 }

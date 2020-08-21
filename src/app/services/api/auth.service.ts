@@ -13,7 +13,6 @@ export class AuthService {
   private _accessToken: string;
   private _headers: HttpHeaders;
   private _isAuthenticated: BehaviorSubject<boolean>;
-  private _isAuthenticated$: Observable<boolean>;
 
   constructor(
     private _http: HttpClient
@@ -23,11 +22,10 @@ export class AuthService {
     this._headers = this._headers.append('Content-Type', 'application/json');
     this.loadAccessToken();
     this._isAuthenticated = new BehaviorSubject<boolean>(false);
-    this._isAuthenticated$ = this._isAuthenticated.asObservable();
   }
 
-  subscribeToAuthenticated(): Observable<boolean> {
-    return this._isAuthenticated$;
+  isAuthenticated(): BehaviorSubject<boolean> {
+    return this._isAuthenticated;
   }
 
   loadAccessToken(): HttpHeaders {
@@ -36,13 +34,16 @@ export class AuthService {
     return this._headers;
   }
 
-  validate(): Observable<any> {
+  async checkAuth() {
     this.loadAccessToken();
-    const result: Observable<any> = this._http.get(this._url + 'auth', { headers: this._headers });
-    result.toPromise()
-      .then(() => this._isAuthenticated.next(true))
-      .catch(() => this._isAuthenticated.next(false));
-    return result;
+    await this._http.get(this._url + 'auth', { headers: this._headers }).subscribe(
+      res => {
+        this._isAuthenticated.next(true);
+      },
+      error => {
+        this._isAuthenticated.next(false);
+      }
+    )
   }
 
   login(user: string, password: string): Observable<any> {
@@ -53,6 +54,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('access_token');
     this._accessToken = null;
+    this._isAuthenticated.next(false);
   }
 
   signin(user: UserEntity): Observable<any> {

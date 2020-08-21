@@ -14,18 +14,21 @@ export class LoginComponent implements OnInit {
 
   message: string = "---";
   auth: boolean = false;
+  hide: boolean = true;
+
 
   constructor(
     private _authService: AuthService,
     private _router: Router,
   ) {
-    this._authService.validate().subscribe(
-      () => {
-        this._router.navigate(['map']);
+    this._authService.isAuthenticated().asObservable().subscribe(
+      res => {
+        if (res) {
+          this._router.navigate(['map']);
+        } else {
+          this._router.navigate(['login']);
+        }
       },
-      () => {
-        this._router.navigate(['login']);
-      }
     );
   }
 

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as mapboxgl from 'mapbox-gl';
 import { Map } from 'mapbox-gl';
-import { UnitHydrantService } from '../../../services/api/unit-hydrant.service';
-import { MapService } from '../../../services/map.service';
+import { MapService } from 'src/app/services/map.service';
 
 @Component({
   selector: 'app-map',
@@ -14,13 +13,14 @@ export class MapComponent implements OnInit {
   private _map: Map;
 
   constructor(
-    private readonly _unitHydrantService: UnitHydrantService,
-    private readonly _mapService: MapService,
+    private readonly _mapService: MapService
+
   ) { }
 
   ngOnInit() {
     if (!this._map) {
       this.createMap();
+      this._mapService.setMap(this._map);
     }
   }
 
@@ -36,11 +36,10 @@ export class MapComponent implements OnInit {
           scrollZoom: true,
           attributionControl: false,
         });
-        this._mapService.setMap(this._map);
       } catch (error) {
         console.log(error);
       }
     }
   }
-  
+
 }

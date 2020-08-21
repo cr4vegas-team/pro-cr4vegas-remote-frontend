@@ -1,12 +1,20 @@
 import { Marker } from 'mapbox-gl';
-import { UnitMap } from '../interfaces/unit-map.interface';
+import { Subscription } from 'rxjs';
+import { UnitEntity } from '../models/unit.entity';
 
-export class UnitGenericEntity implements UnitMap {
+export interface Property {
+    name: string,
+    value: any,
+}
+export class UnitGenericEntity {
 
+    // API properties
     code: string;
-    name: string;
-    colour: string;
+    unit: UnitEntity;
+    properties: Property[];
+
+    // FrontEnd properties
     marker: Marker;
-    markerSecondary: Marker;
+    subscription: Subscription;
 
 }

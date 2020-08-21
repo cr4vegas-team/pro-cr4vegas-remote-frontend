@@ -10,7 +10,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { JwtModule } from '@auth0/angular-jwt';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Components
 import { AppComponent } from './app.component';
@@ -32,12 +32,12 @@ import { DialogUnitGenericCreateComponent } from './components/shared/dialog-uni
 
 // Services
 import { AuthService } from './services/api/auth.service';
-import { MapService } from './services/map.service';
 import { UnitHydrantService } from './services/api/unit-hydrant.service';
 import { SectorService } from './services/api/sector.service';
 import { SetService } from './services/api/set.service';
 import { StationService } from './services/api/station.service';
-
+import { MapService } from './services/map.service';
+import { UnitService } from './services/api/unit.service';
 
 // Angular Materials
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -58,6 +58,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { MatSortModule } from '@angular/material/sort';
+import { AdDirective } from './directives/ad.directive';
 
 
 const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
@@ -85,6 +86,7 @@ const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
     DialogSetCreateComponent,
     DialogUnitGenericComponent,
     DialogUnitGenericCreateComponent,
+    AdDirective,
   ],
   imports: [
     AppRoutingModule,
@@ -118,14 +120,16 @@ const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
     MatPaginatorModule,
     MatInputModule,
     MatSortModule,
+    ReactiveFormsModule,
   ],
   providers: [
     AuthService,
-    MapService,
     UnitHydrantService,
     SectorService,
     StationService,
     SetService,
+    MapService,
+    UnitService,
   ],
   bootstrap: [AppComponent]
 })

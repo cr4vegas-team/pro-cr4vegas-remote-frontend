@@ -11,8 +11,11 @@
       "prefix": "app",
       "architect": {
         "build": {
+          "showCircularDependencies": false,
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": ["lodash"],
+            "showCircularDependencies": false,
             "outputPath": "dist/pro-cr4vegas-remote-frontend",
             "index": "src/index.html",
             "main": "src/main.ts",

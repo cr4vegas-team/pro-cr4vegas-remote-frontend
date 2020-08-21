@@ -6,12 +6,12 @@ import { Router } from '@angular/router';
 import { MapboxStyleEnum } from '../../../constants/mapbox-style.enum';
 import { StationEntity } from '../../../models/station.entity';
 import { AuthService } from '../../../services/api/auth.service';
-import { MapService } from '../../../services/map.service';
 import { StationService } from '../../../services/api/station.service';
 import { UnitHydrantService } from '../../../services/api/unit-hydrant.service';
 import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { CONS_DIALOG_INFO } from '../dialog-info/dialog-info.constants';
+import { MapService } from 'src/app/services/map.service';
 
 @Component({
   selector: 'app-navbar',
@@ -30,11 +30,11 @@ export class NavbarComponent implements OnInit {
 
   constructor(
     private readonly _stationService: StationService,
-    private readonly _mapService: MapService,
     private readonly _authService: AuthService,
     private readonly _router: Router,
     private readonly _matDialog: MatDialog,
     private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _mapService: MapService,
   ) { }
 
   ngOnInit(): void {
@@ -46,12 +46,12 @@ export class NavbarComponent implements OnInit {
         console.log(err);
       }
     )
-    this._authService.subscribeToAuthenticated().subscribe(
+    this._authService.isAuthenticated().subscribe(
       res => {
         this.isAuthenticated = res;
       },
       err => {
-        console.log(err.message);
+        //console.log(err.message);
       }
     )
   }

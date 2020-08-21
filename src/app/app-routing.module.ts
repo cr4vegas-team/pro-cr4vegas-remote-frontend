@@ -7,8 +7,8 @@ import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
     { path: 'map', component: MapComponent, canActivate: [AuthGuard] },
-    { path: 'login', component: LoginComponent },
     { path: 'hydrants', component: HydrantComponent, canActivate: [AuthGuard] },
+    { path: 'login', component: LoginComponent },
     { path: '**', component: LoginComponent }
 ];
 

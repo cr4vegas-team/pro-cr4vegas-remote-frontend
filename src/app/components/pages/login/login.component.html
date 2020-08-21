@@ -1,37 +1,45 @@
 <div class="login">
 
-    <div class="login-box">
+    <div class="login-box container">
         <h1 class="text-relief">COMUNIDAD DE REGANTES<br>LAS CUATRO VEGAS DE ALMERÍA</h1>
-        <div class="row justify-content-md-center">
-            <table class="col">
-                <tr>
-                    <td>
-                        <p>Identifiquese</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input matInput placeholder="Usuario o email" (keyup.enter)="login(user.value, password.value)" #user>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input matInput [type]="'password'" placeholder="Contraseña" (keyup.enter)="login(user.value, password.value)" #password>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <button (click)="login(user.value, password.value)" type="button" class="btn btn-dark">Entrar</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p *ngIf="auth" class="ok">{{message}}</p>
-                        <p *ngIf="!auth" class="err">{{message}}</p>
-                    </td>
-                </tr>
-            </table>
+
+        <div class="d-flex justify-content-center">
+            <form class="login-form">
+
+                <p>Identifiquese</p>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Usuario o email</mat-label>
+                    <input matInput placeholder="Usuario o email" #user>
+                </mat-form-field>
+
+                <br>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Contraseña</mat-label>
+                    <input matInput [type]="hide ? 'password' : 'text'" #password autocomplete="on">
+                    <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                        [attr.aria-pressed]="hide">
+                        <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+
+                <br>
+            </form>
         </div>
+
+
+        <br>
+
+        <button (click)="login(user.value, password.value)" type="button" class="btn btn-dark">Entrar</button>
+
+        <br>
+        <br>
+
+        <p *ngIf="auth" class="ok">{{message}}</p>
+        <p *ngIf="!auth" class="err">{{message}}</p>
+
+
     </div>
 
 </div>

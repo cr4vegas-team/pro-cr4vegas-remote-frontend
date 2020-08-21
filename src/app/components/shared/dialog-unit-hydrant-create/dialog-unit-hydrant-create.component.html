@@ -3,7 +3,7 @@
 
 <!-- CONTENT -->
 
-<div mat-dialog-content>
+<div mat-dialog-content [formGroup]="unitHydrantForm">
 
     <div class="row">
 
@@ -13,24 +13,27 @@
             <div class="example-container">
                 <mat-form-field appearance="fill">
                     <mat-label>Código</mat-label>
-                    <input matInput>
+                    <input matInput formControlName="code" required>
                 </mat-form-field>
                 <br>
-                <mat-form-field appearance="fill">
-                    <mat-label>Altitud</mat-label>
-                    <input matInput>
-                </mat-form-field>
-                <br>
-                <mat-form-field appearance="fill">
-                    <mat-label>Latitud</mat-label>
-                    <input matInput>
-                </mat-form-field>
-                <br>
-                <mat-form-field appearance="fill">
-                    <mat-label>Longitud</mat-label>
-                    <input matInput>
-                </mat-form-field>
-                <br>
+                <div formGroupName="unit">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Altitud</mat-label>
+                        <input matInput type="number" formControlName="altitude">
+                    </mat-form-field>
+                    <br>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Latitud</mat-label>
+                        <input matInput type="number" formControlName="latitude">
+                    </mat-form-field>
+                    <br>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Longitud</mat-label>
+                        <input matInput type="number" formControlName="longitude">
+                    </mat-form-field>
+                    <br>
+                </div>
+
             </div>
         </div>
 
@@ -38,66 +41,48 @@
 
         <div class="col-sm mr-3">
             <div class="example-container">
-                <mat-form-field appearance="fill">
-                    <mat-label>Sector</mat-label>
-                    <mat-select [(ngModel)]="sectorSelected" name="sector">
-                        <mat-option *ngFor="let sector of sectors" [value]="sector">{{sector.name}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <br>
-                <mat-form-field appearance="fill">
-                    <mat-label>Estación</mat-label>
-                    <mat-select [(ngModel)]="stationSelected" name="station">
-                        <mat-option *ngFor="let station of stations" value="station">{{station.name}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <br>
-                <mat-checkbox class="example-margin">Filtro</mat-checkbox>
+                <div formGroupName="unit">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Sector</mat-label>
+                        <mat-select name="sector" formControlName="sector">
+                            <mat-option *ngFor="let sector of sectors" [value]="sector.id">{{sector.name}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <br>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Estación</mat-label>
+                        <mat-select name="station" formControlName="station">
+                            <mat-option *ngFor="let station of stations" value="station.id">{{station.name}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <br>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Conjuntos</mat-label>
+                        <mat-select multiple formControlName="sets">
+                            <mat-option *ngFor="let set of stations" [value]="set.id">{{set.name}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <br>
+                </div>
+                <mat-checkbox class="example-margin" formControlName="filter">Filtro</mat-checkbox>
                 <br>
                 <br>
                 <mat-form-field appearance="fill">
                     <mat-label>Diametro</mat-label>
-                    <input matInput type="number">
+                    <input matInput type="number" formControlName="diameter">
                 </mat-form-field>
             </div>
         </div>
 
-        <div class="col-sm mr-3">
-            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 table-container">
-
-                <!-- Checkbox Column -->
-                <ng-container matColumnDef="select">
-                    <th mat-header-cell *matHeaderCellDef>
-                        <mat-checkbox (change)="$event ? masterToggle() : null"
-                            [checked]="selection.hasValue() && isAllSelected()"
-                            [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
-                        </mat-checkbox>
-                    </th>
-                    <td mat-cell *matCellDef="let row">
-                        <mat-checkbox (click)="$event.stopPropagation()"
-                            (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
-                            [aria-label]="checkboxLabel(row)">
-                        </mat-checkbox>
-                    </td>
-                </ng-container>
-
-                <!-- Name Column -->
-                <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef> Conjuntos </th>
-                    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
-                </tr>
-            </table>
-        </div>
     </div>
     <!-- Text Area -->
-    <mat-form-field appearance="fill" style="width: 100%">
-        <mat-label>Descripción</mat-label>
-        <textarea matInput></textarea>
-    </mat-form-field>
+    <div formGroupName="unit">
+        <mat-form-field appearance="fill" style="width: 100%">
+            <mat-label>Descripción</mat-label>
+            <textarea matInput formControlName="description"></textarea>
+        </mat-form-field>
+    </div>
+    
 </div>
 
 <hr>
@@ -106,5 +91,5 @@
 
 <div mat-dialog-actions>
     <button mat-raised-button mat-dialog-close>Cerrar</button>
-    <button mat-raised-button (click)="openDialogInfo(consDialogInfo.NOT_AVAILABLE)">Aceptar</button>
+    <button mat-raised-button type="submit" (click)="accept()">Aceptar</button>
 </div>
