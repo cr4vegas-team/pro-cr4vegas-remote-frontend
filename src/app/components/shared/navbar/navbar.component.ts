@@ -3,15 +3,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
+import { UnitPondService } from '../../../../app/services/api/unit-pond.service';
+import { MapService } from '../../../../app/services/map.service';
 import { MapboxStyleEnum } from '../../../constants/mapbox-style.enum';
 import { StationEntity } from '../../../models/station.entity';
 import { AuthService } from '../../../services/api/auth.service';
 import { StationService } from '../../../services/api/station.service';
 import { UnitHydrantService } from '../../../services/api/unit-hydrant.service';
-import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { CONS_DIALOG_INFO } from '../dialog-info/dialog-info.constants';
-import { MapService } from 'src/app/services/map.service';
+import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
 
 @Component({
   selector: 'app-navbar',
@@ -34,8 +35,10 @@ export class NavbarComponent implements OnInit {
     private readonly _router: Router,
     private readonly _matDialog: MatDialog,
     private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _unitPondService: UnitPondService,
     private readonly _mapService: MapService,
-  ) { }
+  ) { 
+  }
 
   ngOnInit(): void {
     this._stationService.subscribeToStatiosn().subscribe(
@@ -45,15 +48,16 @@ export class NavbarComponent implements OnInit {
       err => {
         console.log(err);
       }
-    )
+    );
     this._authService.isAuthenticated().subscribe(
       res => {
         this.isAuthenticated = res;
       },
       err => {
-        //console.log(err.message);
+        console.log(err.message);
+        this.isAuthenticated = false;
       }
-    )
+    );
   }
 
   centerMapTo(station: StationEntity) {

@@ -12,14 +12,24 @@ import { UnitEntity } from './unit.entity';
 
 export class UnitHydrantEntity {
 
+    private _map: Map;
+
     constructor(
-        private _map: Map,
         private readonly _matDialog: MatDialog,
         private readonly _mqttEventService: MqttEventsService,
     ) { }
 
+    setMap(map: Map) {
+        if (map) {
+            this._map = map;
+            if (this.marker) {
+                this.marker.addTo(this._map);
+            }
+        }
+    }
+
     // API properties
-    private code: string;
+    private id: number;
     private unit: UnitEntity;
     private diameter: number;
     private filter: number;
@@ -39,12 +49,12 @@ export class UnitHydrantEntity {
     private subscription: Subscription;
     private marker: Marker;
 
-    public getCode(): string {
-        return this.code;
+    public getId(): number {
+        return this.id;
     }
 
-    public setCode(code: string): void {
-        this.code = code;
+    public setId(id: number): void {
+        this.id = id;
     }
 
     public getUnit(): UnitEntity {
@@ -161,7 +171,7 @@ export class UnitHydrantEntity {
     }
 
     private subscribe() {
-        this.subscription = this._mqttEventService.subscribe(TopicTypeEnum.UNIT_HYDRANT, this.code).subscribe(
+        this.subscription = this._mqttEventService.subscribe(TopicTypeEnum.UNIT_HYDRANT, this.unit.getCode()).subscribe(
             (data: IMqttMessage) => {
                 let dataSplit: string[] = data.payload.toString().split(',');
                 if (dataSplit[0]) {
@@ -241,8 +251,7 @@ export class UnitHydrantEntity {
         this.marker = new Marker({
             color: this.getMarkerColourAccordingBouyState(),
         })
-            .setLngLat([this.unit.getLongitude(), this.unit.getLatitude()])
-            .addTo(this._map);
+            .setLngLat([this.unit.getLongitude(), this.unit.getLatitude()]);
 
         this.marker.getElement().onclick = () => this._matDialog.open(DialogUnitHydrantComponent, { data: this, maxWidth: '70%', maxHeight: '80%' });
         this.setAnimationAccordingState();
@@ -258,8 +267,8 @@ export class UnitHydrantEntity {
             }
             this.marker.getElement().style.borderRadius = '50%';
         } else {
-            this.marker.getElement().style.animation = '';
-            this.marker.getElement().style.boxShadow = '';
+            this.marker.getElement().style.animation = MarkerAnimationEnum.NONE;
+            this.marker.getElement().style.boxShadow = MarkerAnimationEnum.NONE;
         }
     }
 

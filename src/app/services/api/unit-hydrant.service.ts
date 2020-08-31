@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { UnitFactory } from 'src/app/factories/unit.factory';
 import { UnitEntity } from 'src/app/models/unit.entity';
 import { GLOBAL } from '../../constants/global.constant';
 import { UnitHydrantEntity } from '../../models/unit-hydrant.entity';
+import { MapService } from '../map.service';
 import { AuthService } from './auth.service';
-import { UnitService } from './unit.service';
+import { Map } from 'mapbox-gl';
 
 @Injectable({
   providedIn: 'root',
@@ -16,24 +17,33 @@ export class UnitHydrantService {
   private _url: string = GLOBAL.API + 'unit-hydrant';
 
   private _unitsHydrants: BehaviorSubject<UnitHydrantEntity[]>;
+  private _map: Map;
 
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
-    private readonly _unitService: UnitService,
-
+    private readonly _unitFactory: UnitFactory,
+    private readonly _mapService: MapService,
   ) {
     this._unitsHydrants = new BehaviorSubject<UnitHydrantEntity[]>(Array<UnitHydrantEntity>());
-    this._unitService.ready().subscribe(
-      res => {
-        if (res) {
+    this._mapService.getMap().subscribe(
+      (map: Map) => {
+        if (map) {
+          this._map = map;
+          this.setMapToHydrants();
+        }
+      }
+    );
+    this._authService.isAuthenticated().subscribe(
+      isAuthenticated => {
+        if (isAuthenticated) {
           this.getHydrants();
         }
       }
-    )
+    );
   }
 
-  subscribeToHydrants(): Observable<UnitHydrantEntity[]> {
+  subscribeToHydrants(): BehaviorSubject<UnitHydrantEntity[]> {
     return this._unitsHydrants;
   }
 
@@ -41,7 +51,7 @@ export class UnitHydrantService {
   // API FUNCTIONS
   // ==================================================
 
-  getHydrants() {
+  private getHydrants() {
     this._httpClient.get(this._url, { headers: this._authService.loadAccessToken() }).subscribe(
       res => {
         this._unitsHydrants.value.forEach(unitHydrant => {
@@ -54,6 +64,7 @@ export class UnitHydrantService {
           this._unitsHydrants.value.push(newUnitHydrant);
         });
         this._unitsHydrants.next(this._unitsHydrants.value);
+        this.setMapToHydrants();
       },
       err => {
         this._unitsHydrants.error(err);
@@ -75,7 +86,7 @@ export class UnitHydrantService {
   }
 
   removeHydrant(unitHydrant: UnitHydrantEntity) {
-    this._httpClient.delete(this._url + `/${unitHydrant.getCode()}`, { headers: this._authService.loadAccessToken() }).subscribe(
+    this._httpClient.delete(this._url + `/${unitHydrant.getUnit().getCode()}`, { headers: this._authService.loadAccessToken() }).subscribe(
       res => {
         if (res) {
           unitHydrant.getMarker().remove();
@@ -91,7 +102,7 @@ export class UnitHydrantService {
   }
 
   activeHydrant(unitHydrant: UnitHydrantEntity) {
-    this._httpClient.patch(this._url + `/${unitHydrant.getCode()}`, { headers: this._authService.loadAccessToken() }).subscribe(
+    this._httpClient.patch(this._url + `/${unitHydrant.getId()}`, { headers: this._authService.loadAccessToken() }).subscribe(
       res => {
         if (res) {
           unitHydrant.setMarker();
@@ -107,8 +118,8 @@ export class UnitHydrantService {
   }
 
   modifyHydrant(unitHydrant: UnitHydrantEntity, updateHydrant: any) {
-    updateHydrant.getUnit().setCode(updateHydrant.getCode());
-    this._httpClient.put(this._url + `/${unitHydrant.getCode()}`, updateHydrant, { headers: this._authService.loadAccessToken() }).subscribe(
+    console.log(updateHydrant);
+    this._httpClient.put(this._url + `/${unitHydrant.getId()}`, updateHydrant, { headers: this._authService.loadAccessToken() }).subscribe(
       res => {
         if (res) {
           if (res as any) {
@@ -120,7 +131,7 @@ export class UnitHydrantService {
         }
       },
       err => {
-        console.log(err);
+        console.log('ERROR: ' + err.message);
         this._unitsHydrants.error(err);
       }
     )
@@ -146,13 +157,26 @@ export class UnitHydrantService {
     this._unitsHydrants.next(this._unitsHydrants.value);
   }
 
+  private setMapToHydrants() {
+    if (this._map) {
+      this._unitsHydrants.value.forEach(unitHydrant => {
+        unitHydrant.setMap(this._map);
+      });
+    }
+  }
+
   // ==================================================
   // UnitHydrant
   // ==================================================
 
+  setValve(unitHydrant: UnitHydrantEntity, valve: boolean) {
+    unitHydrant.setValve(valve);
+    this._unitsHydrants.next(this._unitsHydrants.value);
+  }
+
   private createUnitHydrantWithResponseValues(res: any): UnitHydrantEntity {
-    let newUnitHydrant: UnitHydrantEntity = this._unitService.unitFactory.createUnitHydrant();
-    let newUnit: UnitEntity = this._unitService.unitFactory.createUnit();
+    let newUnitHydrant: UnitHydrantEntity = this._unitFactory.createUnitHydrant();
+    let newUnit: UnitEntity = this._unitFactory.createUnit();
     newUnitHydrant.setUnit(newUnit);
     this.copyValuesUnitHydrant(newUnitHydrant, res);
     newUnitHydrant.setSubscription();
@@ -161,7 +185,7 @@ export class UnitHydrantService {
   }
 
   private copyValuesUnitHydrant(target: UnitHydrantEntity, source: any) {
-    target.setCode(source.code);
+    target.setId(source.id);
     target.setDiameter(source.diameter);
     target.setFilter(source.filter);
     target.getUnit().setId(source.unit.id);

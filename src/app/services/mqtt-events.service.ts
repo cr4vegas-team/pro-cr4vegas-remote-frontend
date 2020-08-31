@@ -22,9 +22,9 @@ export class MqttEventsService {
     }
   }
 
-  async publish(topicType: TopicTypeEnum, endPoint: string, message: string) {
+  async publish(topicType: TopicTypeEnum, endPoint: number, message: string) {
     let topic = `${this.SERVER_TOPIC}/${topicType}/${endPoint}`;
-    if (endPoint !== null && endPoint !== '' && message !== null && message !== '') {
+    if (endPoint !== null && !isNaN(endPoint) && message !== null && message !== '') {
       while (true) {
         try {
           await this._mqttService.unsafePublish(topic, message);

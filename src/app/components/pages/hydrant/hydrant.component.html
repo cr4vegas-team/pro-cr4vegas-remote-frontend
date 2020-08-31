@@ -17,7 +17,7 @@
             <!-- UnitHydrant code Column -->
             <ng-container matColumnDef="code">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Code </th>
-                <td mat-cell *matCellDef="let row" [style.color]="row.unit.active? 'green' : 'red'"> {{row.code}}</td>
+                <td mat-cell *matCellDef="let row" [style.color]="row.unit.active? 'green' : 'red'"> {{row.unit.code}}</td>
             </ng-container>
 
             <!-- Unit Id Column -->
@@ -37,21 +37,6 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Conjuntos </th>
                 <td mat-cell *matCellDef="let row"> {{row.unit.sets? row.unit.sets : []}} </td>
             </ng-container>
-
-            <!-- 
-                id: number;
-    unitType: UnitTypeEnum;
-    altitude: number;
-    latitude: number;
-    longitude: number;
-    station: StationEntity;
-    sector: SectorEntity;
-    sets: SetEntity[];
-    description: string;
-    active: number;
-    created: Date;
-    updated: Date;
-             -->
 
             <!-- Color Column -->
             <!-- <ng-container matColumnDef="color">

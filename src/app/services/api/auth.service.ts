@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { UserEntity } from '../../models/user.entity';
 import { GLOBAL } from '../../constants/global.constant';
+import { UserEntity } from '../../models/user.entity';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +24,8 @@ export class AuthService {
     this._isAuthenticated = new BehaviorSubject<boolean>(false);
   }
 
-  isAuthenticated(): BehaviorSubject<boolean> {
-    return this._isAuthenticated;
+  isAuthenticated(): Observable<boolean> {
+    return this._isAuthenticated.asObservable();
   }
 
   loadAccessToken(): HttpHeaders {
@@ -34,21 +34,20 @@ export class AuthService {
     return this._headers;
   }
 
-  async checkAuth() {
-    this.loadAccessToken();
-    await this._http.get(this._url + 'auth', { headers: this._headers }).subscribe(
+  login(user: string, password: string) {
+    let body = JSON.stringify({ username: user, password });
+    this._http.post(this._url + 'auth/login', body, { headers: this._headers }).subscribe(
       res => {
+        let access_token = (res as any).access_token;
+
+        localStorage.setItem('access_token', access_token);
+
         this._isAuthenticated.next(true);
       },
-      error => {
-        this._isAuthenticated.next(false);
+      () => {
+        this.logout();
       }
-    )
-  }
-
-  login(user: string, password: string): Observable<any> {
-    let body = JSON.stringify({ username: user, password });
-    return this._http.post(this._url + 'auth/login', body, { headers: this._headers });
+    );
   }
 
   logout() {

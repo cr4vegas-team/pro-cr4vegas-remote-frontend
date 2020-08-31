@@ -33,11 +33,12 @@ import { DialogUnitGenericCreateComponent } from './components/shared/dialog-uni
 // Services
 import { AuthService } from './services/api/auth.service';
 import { UnitHydrantService } from './services/api/unit-hydrant.service';
+import { UnitPondService } from './services/api/unit-pond.service';
 import { SectorService } from './services/api/sector.service';
 import { SetService } from './services/api/set.service';
 import { StationService } from './services/api/station.service';
 import { MapService } from './services/map.service';
-import { UnitService } from './services/api/unit.service';
+import { UnitFactory } from './factories/unit.factory';
 
 // Angular Materials
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -59,6 +60,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { MatSortModule } from '@angular/material/sort';
 import { AdDirective } from './directives/ad.directive';
+import { DialogUnitPondComponent } from './components/shared/dialog-unit-pond/dialog-unit-pond.component';
+import { DialogUnitPondCreateComponent } from './components/shared/dialog-unit-pond-create/dialog-unit-pond-create.component';
 
 
 const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
@@ -88,6 +91,8 @@ const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
     DialogUnitGenericComponent,
     DialogUnitGenericCreateComponent,
     AdDirective,
+    DialogUnitPondComponent,
+    DialogUnitPondCreateComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -126,11 +131,12 @@ const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
   providers: [
     AuthService,
     UnitHydrantService,
+    UnitPondService,
     SectorService,
     StationService,
     SetService,
     MapService,
-    UnitService,
+    UnitFactory,
   ],
   bootstrap: [AppComponent]
 })

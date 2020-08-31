@@ -7,9 +7,9 @@ export const environment = {
 	hmr: false,
 	api: 'http://localhost:8881/api/',
 	mqtt: {
-		server: '192.168.1.134',
-		protocol: "ws",
-		port: 8083,
+		server: 'cr4v-emqx-ws.rubenfgr.com',
+		protocol: "wss",
+		port: 8084,
 		path: '/mqtt',
 	}
 };

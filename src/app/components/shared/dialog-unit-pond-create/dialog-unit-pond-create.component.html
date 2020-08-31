@@ -1,0 +1,65 @@
+<h1 mat-dialog-title>{{unitPond.getId()}} - {{unitPond.getUnit().getCode()}}</h1>
+<div mat-dialog-content>
+    <div class="row">
+        <div class="col-sm">
+            <img src="assets/img/default.jpg" alt="" width="100%">
+            <hr>
+            <ng-template #empty>
+                <b>---</b>
+            </ng-template>
+            <table>
+                <tr>
+                    <td>Sector:</td>
+                    <td *ngIf="unitPond.getUnit().getSector(); else empty" style="padding-left: 5px;">
+                        <b>{{unitPond.getUnit().getSector().name}}</b></td>
+                </tr>
+                <tr>
+                    <td>Estación:</td>
+                    <td *ngIf="unitPond.getUnit().getStation(); else empty" style="padding-left: 5px;">
+                        <b>{{unitPond.getUnit().getStation().name}}</b></td>
+                </tr>
+                <tr>
+                    <td>Conjuntos:</td>
+                    <td *ngIf="unitPond.getUnit().getSets(); else empty" style="padding-left: 5px;"><b
+                            *ngFor="let set of unitPond.getUnit().getSets()">{{set.name}}, </b></td>
+                </tr>
+                <hr>
+                <tr>
+                    <td>Altitud:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.getUnit().getAltitude()}} m</b></td>
+                </tr>
+                <tr>
+                    <td>Latitud:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.getUnit().getLatitude()}}º</b></td>
+                </tr>
+                <tr>
+                    <td>Longitud:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.getUnit().getLongitude()}}º</b></td>
+                </tr>
+            </table>
+
+        </div>
+        <div class="col-sm">
+            <table>
+                <hr>
+                <tr>
+                    <td>Nivel:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.getLevel()}}</b></td>
+
+                </tr>
+                <tr>
+                    <td>Estado boyas:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.getLevelState()}}</b></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<hr>
+
+<div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button mat-raised-button (click)="openDialogUnitPondCreate()">Modificar</button>
+</div>

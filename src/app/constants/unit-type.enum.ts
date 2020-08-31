@@ -6,4 +6,5 @@ export enum UnitTypeEnum {
     SET,
     UNIT_GENERIC,
     UNIT_HYDRANT,
+    UNIT_POND,
 }

@@ -1,11 +1,24 @@
-<h1 mat-dialog-title>{{unitHydrant.getCode()}} - <span
-    *ngIf="unitHydrant.getUnit().getSector()">{{unitHydrant.getUnit().getSector()}}</span></h1>
+<h1 mat-dialog-title>{{unitHydrant.getId()}} - {{unitHydrant.getUnit().getCode()}}</h1>
 <div mat-dialog-content>
   <div class="row">
     <div class="col-sm">
       <img src="assets/img/default.jpg" alt="" width="100%">
       <hr>
+      <ng-template #empty>
+        <b>---</b>
+      </ng-template>
       <table>
+        <tr>
+          <td>Sector:</td>
+          <td *ngIf="unitHydrant.getUnit().getSector(); else empty" style="padding-left: 5px;"><b>{{unitHydrant.getUnit().getSector().name}}</b></td>
+        </tr><tr>
+          <td>Estación:</td>
+          <td *ngIf="unitHydrant.getUnit().getStation(); else empty" style="padding-left: 5px;"><b>{{unitHydrant.getUnit().getStation().name}}</b></td>
+        </tr><tr>
+          <td>Conjuntos:</td>
+          <td *ngIf="unitHydrant.getUnit().getSets(); else empty" style="padding-left: 5px;"><b *ngFor="let set of unitHydrant.getUnit().getSets()">{{set.name}}, </b></td>
+        </tr>
+        <hr>
         <tr>
           <td>Altitud:</td>
           <td style="padding-left: 5px;"><b>{{unitHydrant.getUnit().getAltitude()}} m</b></td>
@@ -41,7 +54,7 @@
           <td>Caudal:</td>
           <td style="padding-left: 5px;"><b>{{unitHydrant.getFlow()}}</b></td>
         </tr>
-        <hr>
+        <!-- <hr>
         <tr>
           <td>Temperatura:</td>
           <td style="padding-left: 5px;"><b>{{unitHydrant.getTemperature()}}&deg;</b></td>
@@ -50,7 +63,8 @@
           <td>Humedad:</td>
           <td style="padding-left: 5px;"><b>{{unitHydrant.getHumidity()}}%</b></td>
         </tr>
-        <hr>
+         -->
+         <hr>
         <tr>
           <td>Boya alta:</td>
           <td style="padding-left: 5px;" *ngIf="unitHydrant.isBouyHight()"><b>Arriba</b></td>

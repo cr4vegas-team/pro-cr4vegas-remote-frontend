@@ -1,14 +1,16 @@
-import { Map } from "mapbox-gl";
+import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MqttEventsService } from '../services/mqtt-events.service';
 import { UnitHydrantEntity } from '../models/unit-hydrant.entity';
+import { UnitPondEntity } from '../models/unit-pond.entity';
 import { UnitEntity } from '../models/unit.entity';
+import { MqttEventsService } from '../services/mqtt-events.service';
 
-
+@Injectable({
+    providedIn: 'root',
+})
 export class UnitFactory {
 
     constructor(
-        private _map: Map,
         private readonly _matDialog: MatDialog,
         private readonly _mqttEventService: MqttEventsService,
     ) { }
@@ -18,7 +20,12 @@ export class UnitFactory {
     }
 
     createUnitHydrant(): UnitHydrantEntity {
-        return new UnitHydrantEntity(this._map, this._matDialog, this._mqttEventService);
+        return new UnitHydrantEntity(this._matDialog, this._mqttEventService);
     }
+
+    createUnitPond(): UnitPondEntity {
+        return new UnitPondEntity(this._matDialog, this._mqttEventService);
+    }
+
 
 }

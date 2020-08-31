@@ -1,17 +1,21 @@
 import { UnitTypeEnum } from '../constants/unit-type.enum';
+import { SectorEntity } from './sector.entity';
+import { SetEntity } from './set.entity';
+import { StationEntity } from './station.entity';
 
 export class UnitEntity {
 
     // API properties
     private id: number;
     private code: string;
+    private table: string;
     private unitType: UnitTypeEnum;
     private altitude: number;
     private latitude: number;
     private longitude: number;
-    private station: number;
-    private sector: number;
-    private sets: number[];
+    private station: StationEntity;
+    private sector: SectorEntity;
+    private sets: SetEntity[];
     private description: string;
     private active: number;
     private created: Date;
@@ -31,6 +35,14 @@ export class UnitEntity {
 
     public setCode(code: string): void {
         this.code = code;
+    }
+
+    public getTable(): string {
+        return this.table;
+    }
+
+    public setTable(table: string): void {
+        this.code = table;
     }
 
     public getUnitType(): UnitTypeEnum {
@@ -65,27 +77,27 @@ export class UnitEntity {
         this.longitude = longitude;
     }
 
-    public getStation(): number {
+    public getStation(): StationEntity {
         return this.station;
     }
 
-    public setStation(station: number): void {
+    public setStation(station: StationEntity): void {
         this.station = station;
     }
 
-    public getSector(): number {
+    public getSector(): SectorEntity {
         return this.sector;
     }
 
-    public setSector(sector: number): void {
+    public setSector(sector: SectorEntity): void {
         this.sector = sector;
     }
 
-    public getSets(): number[] {
+    public getSets(): SetEntity[] {
         return this.sets;
     }
 
-    public setSets(sets: number[]): void {
+    public setSets(sets: SetEntity[]): void {
         this.sets = sets;
     }
 
