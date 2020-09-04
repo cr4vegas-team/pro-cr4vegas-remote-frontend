@@ -1,0 +1,40 @@
+<h1 mat-dialog-title>{{station.id}} - {{station.code}} - {{station.name}}</h1>
+<div mat-dialog-content>
+  <div class="row">
+    <div class="col-sm">
+      <img src="assets/img/default.jpg" alt="" width="100%">
+      <hr>
+      <ng-template #empty>
+        <b>---</b>
+      </ng-template>
+      <table>
+        <tr>
+          <td>Altitud:</td>
+          <td style="padding-left: 5px;"><b>{{station.altitude}} m</b></td>
+        </tr>
+        <tr>
+          <td>Latitud:</td>
+          <td style="padding-left: 5px;"><b>{{station.latitude}}º</b></td>
+        </tr>
+        <tr>
+          <td>Longitud:</td>
+          <td style="padding-left: 5px;"><b>{{station.longitude}}º</b></td>
+        </tr>
+      </table>
+
+    </div>
+    <div class="col-sm">
+      <table>
+
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<hr>
+
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cerrar</button>
+  <button mat-raised-button (click)="openDialogHydrantCreate()">Modificar</button>
+</div>

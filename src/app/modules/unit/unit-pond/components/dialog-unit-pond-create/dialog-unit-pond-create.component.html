@@ -1,0 +1,96 @@
+<h1 mat-dialog-title *ngIf="create">Crear balsa</h1>
+<h1 mat-dialog-title *ngIf="!create">Modificar balsa - <span>{{unitPond.unit.code}}</span></h1>
+
+<!-- CONTENT -->
+
+<div mat-dialog-content>
+
+    <form [formGroup]="unitPondForm">
+
+        <div class="row">
+
+            <!-- LEFT COL -->
+
+            <div class="col-sm mr-3" formGroupName="unit">
+                <div class="example-container">
+                    <div>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Código</mat-label>
+                            <input matInput formControlName="code" required>
+                        </mat-form-field>
+                        <br>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Altitud</mat-label>
+                            <input matInput type="number" formControlName="altitude">
+                        </mat-form-field>
+                        <br>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Latitud</mat-label>
+                            <input matInput type="number" formControlName="latitude">
+                        </mat-form-field>
+                        <br>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Longitud</mat-label>
+                            <input matInput type="number" formControlName="longitude">
+                        </mat-form-field>
+                        <br>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT COL -->
+
+            <div class="col-sm mr-3">
+                <div class="example-container">
+                    <div formGroupName="unit">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Sector</mat-label>
+                            <mat-select [compareWith]="compareUnitHydrant"  formControlName="sector">
+                                <mat-option *ngFor="let sector of sectors" [value]="sector">{{sector.name}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <br>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Estación</mat-label>
+                            <mat-select [compareWith]="compareUnitHydrant" name="station" formControlName="station">
+                                <mat-option *ngFor="let station of stations" [value]="station">{{station.name}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <br>
+                    </div>
+                    <br>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Metros cúbicos</mat-label>
+                        <input matInput type="number" formControlName="m3">
+                    </mat-form-field>
+                    <br>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Altura</mat-label>
+                        <input matInput type="number" formControlName="height">
+                    </mat-form-field>
+                </div>
+            </div>
+
+        </div>
+        <!-- Text Area -->
+        <div formGroupName="unit">
+            <mat-form-field appearance="fill" style="width: 100%">
+                <mat-label>Descripción</mat-label>
+                <textarea matInput formControlName="description"></textarea>
+            </mat-form-field>
+        </div>
+
+    </form>
+
+</div>
+
+<hr>
+
+<!-- ACTIONS -->
+
+<div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button mat-raised-button type="submit" (click)="accept()">Aceptar</button>
+</div>

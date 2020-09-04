@@ -1,0 +1,63 @@
+<h1 mat-dialog-title>{{unitPond.id}} - {{unitPond.unit.code}}</h1>
+<div mat-dialog-content>
+    <div class="row">
+        <div class="col-sm">
+            <img src="assets/img/default.jpg" alt="" style="width: 100%; max-width: 300px;">
+            <hr>
+            <ng-template #empty>
+                <b>---</b>
+            </ng-template>
+            <table>
+                <tr>
+                    <td>Sector:</td>
+                    <td *ngIf="unitPond.unit.sector; else empty" style="padding-left: 5px;">
+                        <b>{{unitPond.unit.sector.name}}</b></td>
+                </tr>
+                <tr>
+                    <td>Estación:</td>
+                    <td *ngIf="unitPond.unit.station; else empty" style="padding-left: 5px;">
+                        <b>{{unitPond.unit.station.name}}</b></td>
+                </tr>
+                <hr>
+                <tr>
+                    <td>Altitud:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.unit.altitude}} m</b></td>
+                </tr>
+                <tr>
+                    <td>Latitud:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.unit.latitude}}º</b></td>
+                </tr>
+                <tr>
+                    <td>Longitud:</td>
+                    <td style="padding-left: 5px;"><b>{{unitPond.unit.longitude}}º</b></td>
+                </tr>
+            </table>
+
+        </div>
+        <div class="col-sm">
+            <div class="text-center">
+                <b>{{unitPond.level / 100 | number: '1:2'}}m</b> - <small>{{unitPond.level}}cm</small>
+            </div>
+
+                <div style="display: block">
+                <canvas baseChart
+                    [datasets]="barChartData"
+                    [labels]="barChartLabels"
+                    [options]="barChartOptions"
+                    [legend]="barChartLegend"
+                    [chartType]="barChartType">
+                </canvas>
+            </div>
+            <hr>
+        </div>
+        
+    </div>
+
+</div>
+
+<hr>
+
+<div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button mat-raised-button (click)="openDialogUnitPondCreate()">Modificar</button>
+</div>
