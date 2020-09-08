@@ -7,7 +7,7 @@ export class SetEntity {
     // ==================================================
     // API PROPERTIES
     // ==================================================
-    
+
     private _id: number;
     private _setType: SetTypeEntity;
     private _units: UnitEntity[];
@@ -47,6 +47,13 @@ export class SetEntity {
     }
 
     public set code(code: string) {
+        if (!code.match(/(CJ)([0-9]{6})/)) {
+            throw new Error(`<p>El código es incorrecto. Ejemplo: CJ000111. Código + 6 dígitos. Código:</p>
+                            <ul>
+                                <li>CJ = Conjunto</li>
+                            </ul>
+                            `)
+        }
         this._code = code;
     }
 
@@ -55,6 +62,9 @@ export class SetEntity {
     }
 
     public set name(name: string) {
+        if (!name) {
+            throw new Error('El nombre del conjunto no puede quedar vacío')
+        }
         this._name = name;
     }
 
@@ -63,7 +73,23 @@ export class SetEntity {
     }
 
     public set description(description: string) {
-        this._description = description;
+        if (description) {
+            this._description = description;
+        } else {
+            this._description = '';
+        }
+    }
+
+    public get active(): number {
+        return this._active;
+    }
+
+    public set active(active: number) {
+        if (active) {
+            this._active = active;
+        } else {
+            this._active = 0;
+        }
     }
 
     public get updated(): Date {
@@ -80,14 +106,6 @@ export class SetEntity {
 
     public set created(created: Date) {
         this._created = created;
-    }
-
-    public get active(): number {
-        return this._active;
-    }
-
-    public set active(active: number) {
-        this._active = active;
     }
 
 }

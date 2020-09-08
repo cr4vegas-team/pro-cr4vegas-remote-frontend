@@ -4,7 +4,6 @@ import { DialogInfoComponent } from '../../../../../shared/components/dialog-inf
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { TopicTypeEnum } from '../../../../../shared/constants/topic-type.enum';
 import { MqttEventsService } from '../../../../../shared/services/mqtt-events.service';
-import { DialogUnitGenericCreateComponent } from '../../../unit-generic/components/dialog-unit-generic-create/dialog-unit-generic-create.component';
 import { UnitHydrantEntity } from '../../unit-hydrant.entity';
 import { UnitHydrantService } from '../../unit-hydrant.service';
 import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
@@ -14,7 +13,6 @@ import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/
 @Component({
   selector: 'app-dialog-unit-hydrant',
   templateUrl: './dialog-unit-hydrant.component.html',
-  styleUrls: ['./dialog-unit-hydrant.component.css'],
 })
 export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
 

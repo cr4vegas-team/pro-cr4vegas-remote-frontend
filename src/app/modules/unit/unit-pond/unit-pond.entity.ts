@@ -41,7 +41,11 @@ export class UnitPondEntity {
     }
 
     public set m3(m3: number) {
-        this._m3 = m3;
+        if(m3) {
+            this._m3 = m3;
+        } else {
+            this._m3 = 0;
+        }
     }
 
     public get height(): number {
@@ -49,7 +53,11 @@ export class UnitPondEntity {
     }
 
     public set height(height: number) {
-        this._height = height;
+        if(height) {
+            this._height = height;
+        } else {
+            this._height = 0;
+        }
     }
 
     // ==================================================

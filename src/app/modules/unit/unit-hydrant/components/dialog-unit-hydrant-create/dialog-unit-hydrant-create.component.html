@@ -53,7 +53,7 @@
                         <br>
                         <mat-form-field appearance="fill">
                             <mat-label>Estación</mat-label>
-                            <mat-select [compareWith]="compareUnitHydrant" name="station" formControlName="station" #valor (selectionChange)="mostrar(valor.value)">
+                            <mat-select [compareWith]="compareUnitHydrant" name="station" formControlName="station">
                                 <mat-option *ngFor="let station of stations" [value]="station">{{station.name}}
                                 </mat-option>
                             </mat-select>
@@ -67,7 +67,7 @@
                         </mat-form-field>
                         <br>
                     </div>
-                    <mat-checkbox class="example-margin" formControlName="filter">Filtro</mat-checkbox>
+                    <mat-checkbox class="example-margin" formControlName="filter" >Filtro</mat-checkbox>
                     <br>
                     <br>
                     <mat-form-field appearance="fill">

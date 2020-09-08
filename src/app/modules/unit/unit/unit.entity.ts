@@ -1,14 +1,16 @@
 import { UnitTypeEnum } from '../../../shared/constants/unit-type.enum';
+import { UnitTypeTableEnum } from '../../../shared/constants/unit-type-table.enum';
 import { SetEntity } from '../../wrap/set/set.entity';
 import { StationEntity } from '../../wrap/station/station.entity';
 import { SectorEntity } from '../../wrap/sector/sector.entity';
+import { error } from 'console';
 
 export class UnitEntity {
 
     // API properties
     private _id: number;
     private _code: string;
-    private _table: string;
+    private _table: UnitTypeTableEnum;
     private _unitType: UnitTypeEnum;
     private _altitude: number;
     private _latitude: number;
@@ -34,14 +36,27 @@ export class UnitEntity {
     }
 
     public set code(code: string) {
+        if (!code || !code.match(/(HD||VT|VV|BS|HB|CM|MC)([0-9]{6})/)) {
+            throw new Error(`<p>El código es incorrecto. Ejemplo: HD000150. Código + 6 dígitos. Códigos:</p>
+                            <ul>
+                                <li>GN = Genérico</li>
+                                <li>HD = Hidrante</li>
+                                <li>VT = Ventosa</li>
+                                <li>VV = Válvula</li>
+                                <li>BS = Balsa</li>
+                                <li>HB = Habitáculo</li>
+                                <li>CM = Cámara</li>
+                            </ul>
+                            `)
+        }
         this._code = code;
     }
 
-    public get table(): string {
+    public get table(): UnitTypeTableEnum {
         return this._table;
     }
 
-    public set table(table: string) {
+    public set table(table: UnitTypeTableEnum) {
         this._table = table;
     }
 
@@ -50,7 +65,9 @@ export class UnitEntity {
     }
 
     public set unitType(unitType: UnitTypeEnum) {
-        this._unitType = unitType;
+        if(unitType) {
+            this._unitType = unitType;
+        }
     }
 
     public get altitude(): number {
@@ -58,6 +75,9 @@ export class UnitEntity {
     }
 
     public set altitude(altitude: number) {
+        if(!altitude || altitude < 0 || altitude > 1000) {
+            throw new Error('La altitud debe estar entre 0 y 1000');
+        }
         this._altitude = altitude;
     }
 
@@ -66,6 +86,9 @@ export class UnitEntity {
     }
 
     public set latitude(latitude: number) {
+        if (!latitude || latitude > 90 || latitude < -90) {
+            throw new Error('La altitud debe estar entre -90 y 90')
+        }
         this._latitude = latitude;
     }
 
@@ -74,6 +97,9 @@ export class UnitEntity {
     }
 
     public set longitude(longitude: number) {
+        if (!longitude || longitude > 90 || longitude < -90) {
+            throw new Error('La longitud debe estar entre -90 y 90')
+        }
         this._longitude = longitude;
     }
 
@@ -82,7 +108,11 @@ export class UnitEntity {
     }
 
     public set station(station: StationEntity) {
-        this._station = station;
+        if(station) {
+            this._station = station;
+        } else {
+            this._station = null;
+        }
     }
 
     public get sector(): SectorEntity {
@@ -90,7 +120,11 @@ export class UnitEntity {
     }
 
     public set sector(sector: SectorEntity) {
-        this._sector = sector;
+        if(sector) {
+            this._sector = sector;
+        } else {
+            this._sector = null;
+        }
     }
 
     public get sets(): SetEntity[] {
@@ -98,7 +132,11 @@ export class UnitEntity {
     }
 
     public set sets(sets: SetEntity[]) {
-        this._sets = sets;
+        if(sets) {
+            this._sets = sets;
+        } else {
+            this._sets = [];
+        }
     }
 
     public get description(): string {
@@ -106,7 +144,11 @@ export class UnitEntity {
     }
 
     public set description(description: string) {
-        this._description = description;
+        if(description) {
+            this._description = description;
+        } else {
+            this._description = '';
+        }
     }
 
     public get active(): number {
@@ -114,7 +156,9 @@ export class UnitEntity {
     }
 
     public set active(active: number) {
-        this._active = active;
+        if(active) {
+            this._active = active;
+        }
     }
 
     public get created(): Date {
@@ -122,7 +166,9 @@ export class UnitEntity {
     }
 
     public set created(created: Date) {
-        this._created = created;
+        if(created) {
+            this._created = created;
+        }
     }
 
     public get updated(): Date {
@@ -130,7 +176,9 @@ export class UnitEntity {
     }
 
     public set updated(updated: Date) {
-        this._updated = updated;
+        if(updated) {
+            this._updated = updated;
+        }
     }
 
 

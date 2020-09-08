@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Map } from 'mapbox-gl';
 import { BehaviorSubject } from 'rxjs';
-import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
+import { DialogService } from 'src/app/shared/services/dialog.service';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { TopicTypeEnum } from '../../../shared/constants/topic-type.enum';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -18,7 +18,7 @@ import { UnitPondFactory } from './unit-pond.factory';
 import { UnitPondRO, UnitsPondsRO } from './unit-pond.interfaces';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnitPondService {
 
@@ -36,6 +36,7 @@ export class UnitPondService {
     private readonly _unitService: UnitService,
     private readonly _mqttEventService: MqttEventsService,
     private readonly _matDialog: MatDialog,
+    private readonly _dialogService: DialogService,
   ) {
     this._unitsPonds = new BehaviorSubject<UnitPondEntity[]>(Array<UnitPondEntity>());
     this._mapService.getMap().subscribe(
@@ -67,9 +68,8 @@ export class UnitPondService {
   // API FUNCTIONS
   // ==================================================
 
-  private async findAll(active?: number) {
-    const httpOptions = this._authService.getHttpOptions(active ? true : false);
-    active ? httpOptions.params.set('active', active.toString()) : '';
+   async findAll() {
+    const httpOptions = this._authService.getHttpOptions(false);
     await this._httpClient.get<UnitsPondsRO>(this._url, httpOptions).subscribe(
       unitsPondsRO => {
         this._unitsPonds.value.forEach(unitPond => {
@@ -84,15 +84,12 @@ export class UnitPondService {
         this.updateUnitsPonds();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
 
-  async create(unitPond: UnitPondEntity) {
-
-    const unitPondCreateDto: UnitPondCreateDto = this._unitPondFactory.getUnitPondCreateDto(unitPond);
-
+  async create(unitPondCreateDto: UnitPondCreateDto) {
     const httpOptions = this._authService.getHttpOptions(false);
     this._httpClient.post<UnitPondRO>(this._url, unitPondCreateDto, httpOptions).subscribe(
       unitPondRO => {
@@ -102,23 +99,23 @@ export class UnitPondService {
         this.updateUnitsPonds();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
 
-  async update(unitPond: UnitPondEntity, updatePond: UnitPondEntity) {
-
-    const unitPondUpdateDto: UnitPondUpdateDto = this._unitPondFactory.getUnitPondUpdateDto(updatePond);
-
+  async update(unitPond: UnitPondEntity, unitPondUpdateDto: UnitPondUpdateDto) {
+    console.log(unitPondUpdateDto);
     const httpOptions = this._authService.getHttpOptions(false);
     this._httpClient.put<UnitPondRO>(this._url, unitPondUpdateDto, httpOptions).subscribe(
       unitHydrantRO => {
         this._unitPondFactory.copyUnitPond(unitPond, unitHydrantRO.unitPond);
-        this.addMarkerAndSubscribeMqtt(updatePond);
+        this.addMarkerAndSubscribeMqtt(unitPond);
         this.updateUnitsPonds();
       },
-      error => this._matDialog.open(DialogInfoComponent, { data: error.error.message })
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
+      }
     )
   }
 
@@ -130,6 +127,9 @@ export class UnitPondService {
           unitPond.unit.active = 0;
           this.updateUnitsPonds();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -142,6 +142,9 @@ export class UnitPondService {
           unitPond.unit.active = 1;
           this.updateUnitsPonds();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }

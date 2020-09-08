@@ -11,7 +11,8 @@ import { StationCreateDto } from './dto/station-create.dto';
 import { StationUpdateDto } from './dto/station-update.dto';
 import { StationEntity } from './station.entity';
 import { StationRO, StationsRO } from './station.interfaces';
-import { PopupStationComponent } from './components/shared/popup-station/popup-station.component';
+import { PopupStationComponent } from './components/popup-station/popup-station.component';
+import { DialogService } from 'src/app/shared/services/dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,7 @@ export class StationService {
     private readonly _mapService: MapService,
     private readonly _stationFactory: StationFactory,
     private readonly _matDialog: MatDialog,
+    private readonly _dialogService: DialogService,
   ) {
     this._stations = new BehaviorSubject<StationEntity[]>(Array<StationEntity>());
     this._mapService.getMap().subscribe(
@@ -60,7 +62,7 @@ export class StationService {
   // API FUNCTIONS
   // ==================================================
 
-  private async findAll(active?: number) {
+  async findAll(active?: number) {
     const httpOptions = this._authService.getHttpOptions(active ? true : false);
     active ? httpOptions.params.set('active', active.toString()) : '';
     await this._httpClient.get<StationsRO>(this._url, httpOptions).subscribe(
@@ -77,8 +79,8 @@ export class StationService {
         this.updateStations();
         this.setMapToStations();
       },
-      err => {
-        this._stations.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -100,8 +102,8 @@ export class StationService {
         this._stations.value.push(newStation);
         this.updateStations();
       },
-      err => {
-        this._stations.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -123,8 +125,8 @@ export class StationService {
         this.addMarker(station);
         this.updateStations();
       },
-      err => {
-        this._stations.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -139,8 +141,8 @@ export class StationService {
           this.updateStations();
         }
       },
-      err => {
-        this._stations.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -155,8 +157,8 @@ export class StationService {
           this.updateStations();
         }
       },
-      err => {
-        this._stations.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }

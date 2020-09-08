@@ -10,8 +10,7 @@ export class MapService {
   private _mapSource: Map;
   private _map: BehaviorSubject<Map>;
 
-  constructor(
-  ) {
+  constructor() {
     this._map = new BehaviorSubject<Map>(null);
   }
 

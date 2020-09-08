@@ -11,7 +11,6 @@ import { DialogUnitPondComponent } from '../dialog-unit-pond/dialog-unit-pond.co
 @Component({
   selector: 'app-unit-pond',
   templateUrl: './page-unit-pond.component.html',
-  styleUrls: ['./page-unit-pond.component.css']
 })
 export class PageUnitPondComponent implements OnInit {
 
@@ -44,6 +43,15 @@ export class PageUnitPondComponent implements OnInit {
         console.log('ERROR - UnitPondComponent: ' + err.message);
       }
     ).unsubscribe();
+
+    this.dataSource.filterPredicate = (unitPond, filterValue) => {
+      let setsString: string = '';
+      unitPond.unit.sets.forEach(set => setsString += set.name);
+      return unitPond.unit.code.toLowerCase().includes(filterValue) ||
+        (unitPond.unit.sector && unitPond.unit.sector.name.toLowerCase().includes(filterValue)) ||
+        (unitPond.unit.station && unitPond.unit.station.name.toLowerCase().includes(filterValue)) ||
+        (setsString.toLowerCase().includes(filterValue));
+    };
   }
 
   applyFilter(event: Event) {
@@ -55,7 +63,7 @@ export class PageUnitPondComponent implements OnInit {
     }
   }
 
-  openDialogUnitPondCreate(unitPond: UnitPondEntity) {
+  openDialogUnitPond(unitPond: UnitPondEntity) {
     this._matDialog.open(DialogUnitPondComponent, { data: unitPond });
   }
 

@@ -64,11 +64,11 @@ import { UnitService } from './unit/unit.service';
   // ==================================================
 
   providers: [
+    UnitService,
+    UnitFactory,
     UnitHydrantService,
     UnitPondService,
     UnitGenericService,
-    UnitService,
-    UnitFactory,
   ],
 })
 export class UnitModule { }

@@ -22,7 +22,7 @@ export class UnitGenericFactory {
             newUnitGeneric.data3 = unitGeneric.data3;
             newUnitGeneric.data4 = unitGeneric.data4;
             newUnitGeneric.data5 = unitGeneric.data5;
-            newUnitGeneric.unit = unitGeneric.unit;
+            newUnitGeneric.unit = this._unitFactory.createUnit(unitGeneric.unit);
         }
         return newUnitGeneric;
     }
@@ -33,7 +33,8 @@ export class UnitGenericFactory {
         target.data3 = source.data3;
         target.data4 = source.data4;
         target.data5 = source.data5;
-        target.unit = source.unit;
+        target.unit = this._unitFactory.createUnit(source.unit);
+
     }
 
     getUnitGenericCreateDto(unitGeneric: UnitGenericEntity): UnitGenericCreateDto {

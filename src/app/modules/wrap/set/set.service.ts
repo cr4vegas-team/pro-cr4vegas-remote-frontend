@@ -9,6 +9,7 @@ import { SetCreateDto } from './dto/set-create.dto';
 import { SetUpdateDto } from './dto/set-update.dto';
 import { SetTypeEntity } from './set-type.entity';
 import { SetRO, SetsRO } from './set.interfaces';
+import { DialogService } from 'src/app/shared/services/dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,7 @@ export class SetService {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _setFactory: SetFactory,
+    private readonly _dialogService: DialogService,
   ) {
     this._sets = new BehaviorSubject<SetEntity[]>(Array<SetEntity>());
     this._authService.observeAuthenticated().subscribe(
@@ -46,7 +48,7 @@ export class SetService {
   // API FUNCTIONS - SET
   // ==================================================
 
-  private async findAll(active?: number) {
+  async findAll(active?: number) {
     const httpOptions = this._authService.getHttpOptions(active ? true : false);
     active ? httpOptions.params.set('active', active.toString()) : '';
     await this._httpClient.get<SetsRO>(this._url, httpOptions).subscribe(
@@ -58,8 +60,8 @@ export class SetService {
         });
         this.updateSets();
       },
-      err => {
-        this._sets.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -79,8 +81,8 @@ export class SetService {
         this._sets.value.push(newSet);
         this.updateSets();
       },
-      err => {
-        this._sets.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -101,8 +103,8 @@ export class SetService {
         this._sets.value.push(setRO.set);
         this.updateSets();
       },
-      err => {
-        this._sets.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -115,6 +117,9 @@ export class SetService {
           set.active = 0;
           this.updateSets();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -127,6 +132,9 @@ export class SetService {
           set.active = 1;
           this.updateSets();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }

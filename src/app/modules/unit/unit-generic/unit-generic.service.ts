@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Map } from 'mapbox-gl';
 import { BehaviorSubject } from 'rxjs';
-import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
+import { DialogService } from 'src/app/shared/services/dialog.service';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { TopicTypeEnum } from '../../../shared/constants/topic-type.enum';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -19,7 +19,8 @@ import { UnitGenericRo, UnitsGenericsRO } from './unit-generic.interfaces';
 
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
+  deps: [AuthService]
 })
 export class UnitGenericService {
 
@@ -36,6 +37,7 @@ export class UnitGenericService {
     private readonly _unitService: UnitService,
     private readonly _mqttEventService: MqttEventsService,
     private readonly _matDialog: MatDialog,
+    private readonly _dialogService: DialogService, 
   ) {
     this._unitsGenerics = new BehaviorSubject<UnitGenericEntity[]>(Array<UnitGenericEntity>());
     this._mapService.getMap().subscribe(
@@ -67,10 +69,9 @@ export class UnitGenericService {
   // API FUNCTIONS
   // ==================================================
 
-  private findAll(active?: number) {
-    const httpOptions = this._authService.getHttpOptions(active ? true : false);
-    active ? httpOptions.params.set('active', active.toString()) : '';
-    this._httpClient.get<UnitsGenericsRO>(this._url, httpOptions).subscribe(
+  async findAll() {
+    const httpOptions = this._authService.getHttpOptions(false);
+    await this._httpClient.get<UnitsGenericsRO>(this._url, httpOptions).subscribe(
       unitsGenericsRO => {
         this._unitsGenerics.value.forEach(unitGeneric => {
           this.removeMarkersAndUnsubscribeMqtt(unitGeneric);
@@ -84,15 +85,12 @@ export class UnitGenericService {
         this.updateUnitsGenerics();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
 
-  async create(unitGeneric: UnitGenericEntity) {
-
-    const unitGenericCreateDto: UnitGenericCreateDto = this._unitGenericFactory.getUnitGenericCreateDto(unitGeneric);
-
+  async create(unitGenericCreateDto: UnitGenericCreateDto) {
     const httpOptions = this._authService.getHttpOptions(false);
     this._httpClient.post<UnitGenericRo>(this._url, unitGenericCreateDto, httpOptions).subscribe(
       unitGenericRO => {
@@ -102,24 +100,21 @@ export class UnitGenericService {
         this.updateUnitsGenerics();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
 
-  async update(unitGeneric: UnitGenericEntity, updateGeneric: UnitGenericEntity) {
-
-    const unitGenericUpdateDto: UnitGenericUpdateDto = this._unitGenericFactory.getUnitGenericUpdateDto(updateGeneric);
-    
+  async update(unitGeneric: UnitGenericEntity, unitGenericUpdateDto: UnitGenericUpdateDto) {
     const httpOptions = this._authService.getHttpOptions(false);
     this._httpClient.put<UnitGenericRo>(this._url, unitGenericUpdateDto, httpOptions).subscribe(
       unitGenericRO => {
         this._unitGenericFactory.copyUnitGeneric(unitGeneric, unitGenericRO.unitGeneric);
-        this.addMarkerAndSubscribeMqtt(updateGeneric)
+        this.addMarkerAndSubscribeMqtt(unitGeneric);
         this.updateUnitsGenerics();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -132,6 +127,9 @@ export class UnitGenericService {
           unitGeneric.unit.active = 0;
           this.updateUnitsGenerics();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -144,6 +142,9 @@ export class UnitGenericService {
           unitGeneric.unit.active = 1;
           this.updateUnitsGenerics();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }

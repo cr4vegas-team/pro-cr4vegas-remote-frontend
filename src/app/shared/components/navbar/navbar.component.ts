@@ -13,9 +13,9 @@ import { UnitHydrantService } from '../../../modules/unit/unit-hydrant/unit-hydr
 import { GLOBAL } from '../../constants/global.constant';
 import { DialogUnitGenericCreateComponent } from '../../../modules/unit/unit-generic/components/dialog-unit-generic-create/dialog-unit-generic-create.component';
 import { DialogUnitPondCreateComponent } from '../../../modules/unit/unit-pond/components/dialog-unit-pond-create/dialog-unit-pond-create.component';
-import { DialogSectorCreateComponent } from '../../../modules/wrap/sector/components/shared/dialog-sector-create/dialog-sector-create.component';
-import { DialogSetCreateComponent } from '../../../modules/wrap/set/components/shared/dialog-set-create/dialog-set-create.component';
-import { DialogStationCreateComponent } from '../../../modules/wrap/station/components/shared/dialog-station-create/dialog-station-create.component';
+import { DialogSectorCreateComponent } from '../../../modules/wrap/sector/components/dialog-sector-create/dialog-sector-create.component';
+import { DialogSetCreateComponent } from '../../../modules/wrap/set/components/dialog-set-create/dialog-set-create.component';
+import { DialogStationCreateComponent } from '../../../modules/wrap/station/components/dialog-station-create/dialog-station-create.component';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { DialogUnitHydrantCreateComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
 

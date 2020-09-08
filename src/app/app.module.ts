@@ -22,12 +22,6 @@ import { MaterialModule } from './shared/material.module';
 import { UnitModule } from './modules/unit/unit.module';
 import { WrapModule } from './modules/wrap/wrap.module';
 import { GLOBAL } from './shared/constants/global.constant';
-// ==================================================
-// SERVICES
-// ==================================================
-import { AuthService } from './shared/services/auth.service';
-import { MapService } from './shared/services/map.service';
-import { MqttEventsService } from './shared/services/mqtt-events.service';
 import { SharedModule } from './shared/shared.module';
 
 
@@ -63,11 +57,7 @@ import { SharedModule } from './shared/shared.module';
     WrapModule,
     SharedModule,
   ],
-  providers: [
-    MqttEventsService,
-    MapService,
-    AuthService,
-  ],
+
   bootstrap: [AppComponent]
 })
 export class AppModule { }

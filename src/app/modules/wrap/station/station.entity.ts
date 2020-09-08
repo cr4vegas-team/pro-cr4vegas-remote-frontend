@@ -1,4 +1,4 @@
-import { Map, Marker } from 'mapbox-gl';
+import { Marker } from 'mapbox-gl';
 import { MarkerColourEnum } from '../../../shared/constants/marker-colour.enum';
 import { UnitEntity } from '../../unit/unit/unit.entity';
 
@@ -8,7 +8,7 @@ export class StationEntity {
     // ==================================================
     // API PROPERTIES
     // ==================================================
-    
+
     private _id: number;
     private _units: UnitEntity[];
     private _code: string;
@@ -34,7 +34,11 @@ export class StationEntity {
     }
 
     public set units(units: UnitEntity[]) {
-        this._units = units;
+        if (units) {
+            this._units = units;
+        } else {
+            units = [];
+        }
     }
 
     public get code(): string {
@@ -42,6 +46,13 @@ export class StationEntity {
     }
 
     public set code(code: string) {
+        if (!code.match(/(ET)([0-9]{6})/)) {
+            throw new Error(`<p>El código es incorrecto. Ejemplo: ET000111. Código + 6 dígitos. Código:</p>
+                            <ul>
+                                <li>ET = Estación</li>
+                            </ul>
+                            `)
+        }
         this._code = code;
     }
 
@@ -50,6 +61,9 @@ export class StationEntity {
     }
 
     public set name(name: string) {
+        if (!name) {
+            throw new Error('El nombre de la estación no puede quedar vacío')
+        }
         this._name = name;
     }
 
@@ -58,6 +72,9 @@ export class StationEntity {
     }
 
     public set altitude(altitude: number) {
+        if (altitude < 0 || altitude > 1000) {
+            throw new Error('La altitud debe estar entre 0 y 1000');
+        }
         this._altitude = altitude;
     }
 
@@ -66,6 +83,9 @@ export class StationEntity {
     }
 
     public set latitude(latitude: number) {
+        if (latitude > 90 || latitude < -90) {
+            throw new Error('La altitud debe estar entre -90 y 90')
+        }
         this._latitude = latitude;
     }
 
@@ -74,6 +94,9 @@ export class StationEntity {
     }
 
     public set longitude(longitude: number) {
+        if (longitude > 90 || longitude < -90) {
+            throw new Error('La longitud debe estar entre -90 y 90')
+        }
         this._longitude = longitude;
     }
 
@@ -82,7 +105,23 @@ export class StationEntity {
     }
 
     public set description(description: string) {
-        this._description = description;
+        if (description) {
+            this._description = description;
+        } else {
+            this._description = '';
+        }
+    }
+
+    public get active(): number {
+        return this._active;
+    }
+
+    public set active(active: number) {
+        if(active) {
+            this._active = active;
+        } else {
+            this._active = 0;
+        }
     }
 
     public get updated(): Date {
@@ -101,18 +140,10 @@ export class StationEntity {
         this._created = created;
     }
 
-    public get active(): number {
-        return this._active;
-    }
-
-    public set active(active: number) {
-        this._active = active;
-    }
-
     // ==================================================
     // FRONTEND PROPERTIES
     // ==================================================
-    
+
     private _marker: Marker;
 
     public get marker(): Marker {

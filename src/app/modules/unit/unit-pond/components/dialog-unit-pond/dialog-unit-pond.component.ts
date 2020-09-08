@@ -12,7 +12,6 @@ import { DialogUnitPondCreateComponent } from '../dialog-unit-pond-create/dialog
 @Component({
   selector: 'app-dialog-unit-pond',
   templateUrl: './dialog-unit-pond.component.html',
-  styleUrls: ['./dialog-unit-pond.component.css']
 })
 export class DialogUnitPondComponent implements OnInit, OnDestroy {
 
@@ -27,7 +26,7 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
       }
     },
   };
-  public barChartLabels: Label[] = ['Gador'];
+  public barChartLabels: Label[] = [];
   public barChartType: ChartType = 'bar';
   public barChartLegend = true;
   private _level: Subscription;

@@ -17,17 +17,17 @@ export class UnitPondFactory {
         const newUnitPond: UnitPondEntity = new UnitPondEntity();
         if (unitPond) {
             newUnitPond.id = unitPond.id;
-            newUnitPond.unit = unitPond.unit;
             newUnitPond.m3 = unitPond.m3;
             newUnitPond.height = unitPond.height;
+            newUnitPond.unit = this._unitFactory.createUnit(unitPond.unit);
         }
         return newUnitPond;
     }
 
     copyUnitPond(target: UnitPondEntity, source: UnitPondEntity) {
-        target.unit = source.unit;
         target.m3 = source.m3;
         target.height = source.height;
+        target.unit = this._unitFactory.createUnit(source.unit)
     }
 
     getUnitPondCreateDto(unitPond: UnitPondEntity): UnitPondCreateDto {

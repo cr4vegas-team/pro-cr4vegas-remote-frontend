@@ -1,5 +1,5 @@
 <div class="container mt-4">
-    <h1>Unidades de control. Genéricos</h1>
+    <h1>Estaciones</h1>
     <mat-form-field>
         <mat-label>Filtrar</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Introduzca datos a filtrar..." #input>
@@ -10,8 +10,14 @@
 
             <!-- Unit Id Column -->
             <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Unidad de control </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
                 <td mat-cell *matCellDef="let row"> {{row.id}} </td>
+            </ng-container>
+
+            <!-- Unit active Column -->
+            <ng-container matColumnDef="active">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> activa </th>
+                <td mat-cell *matCellDef="let row"> {{row.active === 0? 'No' : 'Si'}} </td>
             </ng-container>
 
             <!-- UnitHydrant code Column -->

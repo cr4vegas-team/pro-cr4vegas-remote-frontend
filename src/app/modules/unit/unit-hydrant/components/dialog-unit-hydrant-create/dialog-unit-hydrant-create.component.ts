@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitHydrantEntity } from '../../../../../modules/unit/unit-hydrant/unit-hydrant.entity';
@@ -13,12 +13,14 @@ import { SetEntity } from '../../../../../modules/wrap/set/set.entity';
 import { SetService } from '../../../../../modules/wrap/set/set.service';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { StationService } from '../../../../../modules/wrap/station/station.service';
+import { UnitHydrantCreateDto } from '../../dto/unit-hydrant-create.dto';
+import { DialogService } from 'src/app/shared/services/dialog.service';
+import { UnitHydrantUpdateDto } from '../../dto/unit-hydrant-update.dto';
 
 
 @Component({
   selector: 'app-dialog-unit-hydrant-create',
   templateUrl: './dialog-unit-hydrant-create.component.html',
-  styleUrls: ['./dialog-unit-hydrant-create.component.css'],
 })
 export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
 
@@ -40,6 +42,8 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _formBuilder: FormBuilder,
+    private readonly _dialogRef: MatDialogRef<DialogUnitHydrantCreateComponent>,
+    private readonly _dialogService: DialogService,
     @Inject(MAT_DIALOG_DATA)
     public unitHydrant: UnitHydrantEntity
   ) {
@@ -53,6 +57,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     this.sectors = [];
     this.stations = [];
     this.sets = [];
+
     this.unitHydrantForm = this._formBuilder.group({
       id: [this.unitHydrant.id],
       filter: [this.unitHydrant.filter],
@@ -99,10 +104,18 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   }
 
   accept() {
-    if (this.create) {
-      this._unitHydrantService.create(this._unitHydrantFactory.createUnitHydrant(this.unitHydrantForm.value));
-    } else {
-      this._unitHydrantService.update(this.unitHydrant, this._unitHydrantFactory.createUnitHydrant(this.unitHydrantForm.value));
+    try {
+      const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(this.unitHydrantForm.value);
+      if (this.create) {
+        const unitHydrantCreateDto: UnitHydrantCreateDto = this._unitHydrantFactory.getUnitHydrantCreateDto(newUnitHydrant);
+        this._unitHydrantService.create(unitHydrantCreateDto);
+      } else {
+        const unitHydrantUpdateDto: UnitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(newUnitHydrant);
+        this._unitHydrantService.update(this.unitHydrant, unitHydrantUpdateDto);
+      }
+      this.close();
+    } catch (error) {
+      this._dialogService.openDialogInfo('Datos incorrectos', error);
     }
   }
 
@@ -110,7 +123,8 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     return d1 && d2 && d1.id === d2.id;
   }
 
-  mostrar(value: string) {
-    console.log(value);
+  close() {
+    this._dialogRef.close();
   }
+
 }

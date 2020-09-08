@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Map } from 'mapbox-gl';
 import { BehaviorSubject } from 'rxjs';
-import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
+import { DialogService } from 'src/app/shared/services/dialog.service';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { TopicTypeEnum } from '../../../shared/constants/topic-type.enum';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -37,6 +37,7 @@ export class UnitHydrantService {
     private readonly _unitService: UnitService,
     private readonly _mqttEventService: MqttEventsService,
     private readonly _matDialog: MatDialog,
+    private readonly _dialogService: DialogService,
   ) {
     this._unitsHydrants = new BehaviorSubject<UnitHydrantEntity[]>(Array<UnitHydrantEntity>());
     this._mapService.getMap().subscribe(
@@ -68,9 +69,8 @@ export class UnitHydrantService {
   // API FUNCTIONS
   // ==================================================
 
-  private async findAll(active?: number) {
-    const httpOptions = this._authService.getHttpOptions(active ? true : false);
-    active ? httpOptions.params.set('active', active.toString()) : '';
+   async findAll() {
+    const httpOptions = this._authService.getHttpOptions(false);
     await this._httpClient.get<UnitsHydrantsRO>(this._url, httpOptions).subscribe(
       unitsHydrantsRO => {
         this._unitsHydrants.value.forEach(unitHydrant => {
@@ -85,15 +85,12 @@ export class UnitHydrantService {
         this.updateUnitsHydrants();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
 
-  async create(unitHydrant: UnitHydrantEntity) {
-
-    const unitHydrantCreateDto: UnitHydrantCreateDto = this._unitHydrantFactory.getUnitHydrantCreateDto(unitHydrant);
-
+  async create(unitHydrantCreateDto: UnitHydrantCreateDto) {
     const httpOptions = this._authService.getHttpOptions(false);
     this._httpClient.post<UnitHydrantRO>(this._url, unitHydrantCreateDto, httpOptions).subscribe(
       unitHydrantRO => {
@@ -103,15 +100,12 @@ export class UnitHydrantService {
         this.updateUnitsHydrants();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
 
-  async update(unitHydrant: UnitHydrantEntity, updateHydrant: UnitHydrantEntity) {
-
-    const unitHydrantUpdateDto: UnitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(updateHydrant);
-    
+  async update(unitHydrant: UnitHydrantEntity, unitHydrantUpdateDto: UnitHydrantUpdateDto) {
     const httpOptions = this._authService.getHttpOptions(false);
     this._httpClient.put<UnitHydrantRO>(this._url, unitHydrantUpdateDto, httpOptions).subscribe(
       unitHydrantRO => {
@@ -120,7 +114,7 @@ export class UnitHydrantService {
         this.updateUnitsHydrants();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: error.message });
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -133,6 +127,9 @@ export class UnitHydrantService {
           unitHydrant.unit.active = 0;
           this.updateUnitsHydrants();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -145,6 +142,9 @@ export class UnitHydrantService {
           unitHydrant.unit.active = 1;
           this.updateUnitsHydrants();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }

@@ -18,7 +18,7 @@ export class UnitHydrantFactory {
             newUnitHydrant.id = unitHydrant.id;
             newUnitHydrant.filter = unitHydrant.filter;
             newUnitHydrant.diameter = unitHydrant.diameter;
-            newUnitHydrant.unit = unitHydrant.unit;
+            newUnitHydrant.unit = this._unitFactory.createUnit(unitHydrant.unit);
         }
         return newUnitHydrant;
     }
@@ -26,7 +26,7 @@ export class UnitHydrantFactory {
     copyUnitHydrant(target: UnitHydrantEntity, source: UnitHydrantEntity) {
         target.filter = source.filter;
         target.diameter = source.diameter;
-        target.unit = source.unit;
+        target.unit = this._unitFactory.createUnit(source.unit);
     }
 
     getUnitHydrantCreateDto(unitHydrant: UnitHydrantEntity): UnitHydrantCreateDto {

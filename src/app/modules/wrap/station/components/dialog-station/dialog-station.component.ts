@@ -3,16 +3,15 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { UnitEntity } from '../../../../../../modules/unit/unit/unit.entity';
-import { StationEntity } from '../../../../../../modules/wrap/station/station.entity';
-import { DialogInfoComponent } from '../../../../../../shared/components/dialog-info/dialog-info.component';
-import { GLOBAL } from '../../../../../../shared/constants/global.constant';
+import { UnitEntity } from '../../../../../modules/unit/unit/unit.entity';
+import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
+import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
+import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { DialogStationCreateComponent } from '../dialog-station-create/dialog-station-create.component';
 
 @Component({
   selector: 'app-dialog-station',
   templateUrl: './dialog-station.component.html',
-  styleUrls: ['./dialog-station.component.css']
 })
 export class DialogStationComponent implements OnInit {
 

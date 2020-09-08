@@ -14,7 +14,9 @@
           "showCircularDependencies": true,
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "allowedCommonJsDependencies": ["chart.js"],
+            "allowedCommonJsDependencies": [
+              "chart.js"
+            ],
             "showCircularDependencies": true,
             "outputPath": "dist/pro-cr4vegas-remote-frontend",
             "index": "src/index.html",
@@ -133,5 +135,8 @@
       }
     }
   },
-  "defaultProject": "pro-cr4vegas-remote-frontend"
+  "defaultProject": "pro-cr4vegas-remote-frontend",
+  "cli": {
+    "analytics": "6a1cbdc4-67b1-48c0-83cc-940cc38f3b41"
+  }
 }

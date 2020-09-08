@@ -11,7 +11,6 @@ import { DialogUnitHydrantComponent } from '../dialog-unit-hydrant/dialog-unit-h
 @Component({
   selector: 'app-hydrant',
   templateUrl: './page-unit-hydrant.component.html',
-  styleUrls: ['./page-unit-hydrant.component.css']
 })
 export class PageUnitHydrantComponent implements OnInit {
 
@@ -44,6 +43,15 @@ export class PageUnitHydrantComponent implements OnInit {
         console.log('ERROR - HydrantComponent: ' + err.message);
       }
     ).unsubscribe();
+
+    this.dataSource.filterPredicate = (unitHydrant, filterValue) => {
+      let setsString: string = '';
+      unitHydrant.unit.sets.forEach(set => setsString += set.name);
+      return unitHydrant.unit.code.toLowerCase().includes(filterValue) ||
+             (unitHydrant.unit.sector && unitHydrant.unit.sector.name.toLowerCase().includes(filterValue)) ||
+             (unitHydrant.unit.station && unitHydrant.unit.station.name.toLowerCase().includes(filterValue)) ||
+             (setsString.toLowerCase().includes(filterValue));
+    };
   }
 
   applyFilter(event: Event) {

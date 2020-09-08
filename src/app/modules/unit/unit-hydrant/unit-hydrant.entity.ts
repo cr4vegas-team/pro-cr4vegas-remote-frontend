@@ -30,6 +30,9 @@ export class UnitHydrantEntity {
     }
 
     public set unit(unit: UnitEntity) {
+        if(!unit) {
+            throw new Error('Unidad de control incorrecta');
+        }
         this._unit = unit;
     }
 
@@ -38,7 +41,11 @@ export class UnitHydrantEntity {
     }
 
     public set diameter(diameter: number) {
-        this._diameter = diameter;
+        if(diameter) {
+            this._diameter = diameter;
+        } else {
+            this._diameter = 0;
+        }
     }
 
     public get filter(): number {
@@ -46,7 +53,12 @@ export class UnitHydrantEntity {
     }
 
     public set filter(filter: number) {
-        this._filter = filter;
+        if(filter) {
+            this._filter = filter;
+        } else {
+            this._filter = 0;
+        }
+        
     }
 
     // ==================================================

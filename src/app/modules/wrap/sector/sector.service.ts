@@ -8,6 +8,7 @@ import { SectorEntity } from '../sector/sector.entity';
 import { SectorCreateDto } from './dto/sector-create.dto';
 import { SectorUpdateDto } from './dto/sector-update.dto';
 import { SectorRO, SectorsRO } from './sector.interfaces';
+import { DialogService } from 'src/app/shared/services/dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class SectorService {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _sectorFactory: SectorFactory,
+    private readonly _dialogService: DialogService,
   ) {
     this._sectors = new BehaviorSubject<SectorEntity[]>(Array<SectorEntity>());
 
@@ -46,7 +48,7 @@ export class SectorService {
   // API FUNCTIONS
   // ==================================================
 
-  private async findAll(active?: number) {
+  async findAll(active?: number) {
     const httpOptions = this._authService.getHttpOptions(active ? true : false);
     active ? httpOptions.params.set('active', active.toString()) : '';
     await this._httpClient.get<SectorsRO>(this._url, httpOptions).subscribe(
@@ -58,8 +60,8 @@ export class SectorService {
         });
         this.updateSectors();
       },
-      err => {
-        this._sectors.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -78,8 +80,8 @@ export class SectorService {
         this._sectors.value.push(newSector);
         this.updateSectors();
       },
-      err => {
-        this._sectors.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -99,8 +101,8 @@ export class SectorService {
         this._sectors.value.push(sectorRO.sector);
         this.updateSectors();
       },
-      err => {
-        this._sectors.error(err);
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     )
   }
@@ -113,6 +115,9 @@ export class SectorService {
           sector.active = 0;
           this.updateSectors();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }
@@ -125,6 +130,9 @@ export class SectorService {
           sector.active = 1;
           this.updateSectors();
         }
+      },
+      error => {
+        this._dialogService.openDialogInfoWithAPIException(error);
       }
     );
   }

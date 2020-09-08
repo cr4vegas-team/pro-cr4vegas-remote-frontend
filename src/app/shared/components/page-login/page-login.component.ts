@@ -35,6 +35,7 @@ export class LoginComponent implements OnInit {
         this.message = this.MESSAGE_AUTH_ERR;
       }
     );
+    this.login('test', 'test');
   }
 
   async login(user: string, password: string) {

@@ -1,1 +1,76 @@
-<p>dialog-unit-generic works!</p>
+
+  <h1 mat-dialog-title>{{unitGeneric.id}} - {{unitGeneric.unit.code}}</h1>
+  <div mat-dialog-content>
+    <div class="row">
+      <div class="col-sm">
+        <img src="assets/img/default.jpg" alt="" width="100%">
+        <hr>
+        <ng-template #empty>
+          <b>---</b>
+        </ng-template>
+        <table>
+          <tr>
+            <td>Sector:</td>
+            <td *ngIf="unitGeneric.unit.sector; else empty" style="padding-left: 5px;">
+              <b>{{unitGeneric.unit.sector.name}}</b></td>
+          </tr>
+          <tr>
+            <td>Estación:</td>
+            <td *ngIf="unitGeneric.unit.station; else empty" style="padding-left: 5px;">
+              <b>{{unitGeneric.unit.station.name}}</b></td>
+          </tr>
+          <tr>
+            <td>Conjuntos:</td>
+            <td *ngIf="unitGeneric.unit.sets; else empty" style="padding-left: 5px;"><b
+                *ngFor="let set of unitGeneric.unit.sets">{{set.name}}, </b></td>
+          </tr>
+          <hr>
+          <tr>
+            <td>Altitud:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.unit.altitude}} m</b></td>
+          </tr>
+          <tr>
+            <td>Latitud:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.unit.latitude}}º</b></td>
+          </tr>
+          <tr>
+            <td>Longitud:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.unit.longitude}}º</b></td>
+          </tr>
+        </table>
+  
+      </div>
+      <div class="col-sm">
+        <table>
+          <tr>
+            <td>Dato 1:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.data1? unitGeneric.data1 : '---'}}</b></td>
+          </tr>
+          <tr>
+            <td>Dato 2:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.data2? unitGeneric.data2 : '---'}}</b></td>
+          </tr>
+          <tr>
+            <td>Dato 3:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.data3? unitGeneric.data3 : '---'}}</b></td>
+          </tr>
+          <tr>
+            <td>Dato 4:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.data4? unitGeneric.data4 : '---'}}</b></td>
+          </tr>
+          <tr>
+            <td>Dato 5:</td>
+            <td style="padding-left: 5px;"><b>{{unitGeneric.data5? unitGeneric.data5 : '---'}}</b></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  
+  </div>
+  
+  <hr>
+  
+  <div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button mat-raised-button (click)="openDialogGenericCreate()">Modificar</button>
+  </div>

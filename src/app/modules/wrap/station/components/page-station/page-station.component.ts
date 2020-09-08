@@ -6,20 +6,18 @@ import { MatTableDataSource } from '@angular/material/table';
 import { TableEmptyMSGEnum } from '../../../../../shared/constants/table-empty-msg.enum';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { StationService } from '../../../../../modules/wrap/station/station.service';
-import { DialogStationComponent } from '../shared/dialog-station/dialog-station.component';
+import { DialogStationComponent } from '../dialog-station/dialog-station.component';
 
 @Component({
   selector: 'app-station',
   templateUrl: './page-station.component.html',
-  styleUrls: ['./page-station.component.css']
 })
 export class PageStationComponent implements OnInit {
-
 
   tableEmptyMSG = TableEmptyMSGEnum;
 
   stations: StationEntity[];
-  displayedColumns: string[] = ['id', 'code', 'name', 'altitude', 'latitude', 'longitude'];
+  displayedColumns: string[] = ['id', 'active', 'code', 'name', 'altitude', 'latitude', 'longitude'];
   dataSource: MatTableDataSource<StationEntity>;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;

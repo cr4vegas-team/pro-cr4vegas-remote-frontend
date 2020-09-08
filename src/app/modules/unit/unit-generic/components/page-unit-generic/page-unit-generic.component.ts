@@ -6,11 +6,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { TableEmptyMSGEnum } from '../../../../../shared/constants/table-empty-msg.enum';
 import { UnitGenericEntity } from '../../unit-generic.entity';
 import { UnitGenericService } from '../../unit-generic.service';
+import { DialogUnitGenericComponent } from '../dialog-unit-generic/dialog-unit-generic.component';
 
 @Component({
   selector: 'app-page-unit-generic',
   templateUrl: './page-unit-generic.component.html',
-  styleUrls: ['./page-unit-generic.component.css']
 })
 export class PageUnitGenericComponent implements OnInit {
 
@@ -31,6 +31,7 @@ export class PageUnitGenericComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this._unitGenericService.subscribeToUnitsGenerics().subscribe(
       res => {
         this.unitsGenerics = res;
@@ -42,6 +43,15 @@ export class PageUnitGenericComponent implements OnInit {
         console.log('ERROR - UnitGenericComponent: ' + err.message);
       }
     ).unsubscribe();
+
+    this.dataSource.filterPredicate = (unitGeneric, filterValue) => {
+      let setsString: string = '';
+      unitGeneric.unit.sets.forEach(set => setsString += set.name);
+      return unitGeneric.unit.code.toLowerCase().includes(filterValue) ||
+             (unitGeneric.unit.sector && unitGeneric.unit.sector.name.toLowerCase().includes(filterValue)) ||
+             (unitGeneric.unit.station && unitGeneric.unit.station.name.toLowerCase().includes(filterValue)) ||
+             (setsString.toLowerCase().includes(filterValue));
+    };
   }
 
   applyFilter(event: Event) {
@@ -54,7 +64,7 @@ export class PageUnitGenericComponent implements OnInit {
   }
 
   openDialogUnitGeneric(unitGeneric: UnitGenericEntity) {
-    this._matDialog.open(PageUnitGenericComponent, { data: unitGeneric });
+    this._matDialog.open(DialogUnitGenericComponent, { data: unitGeneric });
   }
 
 }

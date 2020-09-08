@@ -40,7 +40,11 @@ export class UnitGenericEntity {
     }
 
     public set data1(data1: string) {
-        this._data1 = data1;
+        if(data1) {
+            this._data1 = data1;
+        } else {
+            this._data1 = '';
+        }
     }
 
     public get data2(): string {
@@ -48,7 +52,11 @@ export class UnitGenericEntity {
     }
 
     public set data2(data2: string) {
-        this._data2 = data2;
+        if(data2) {
+            this._data2 = data2;
+        } else {
+            this._data2 = '';
+        }
     }
 
     public get data3(): string {
@@ -56,7 +64,11 @@ export class UnitGenericEntity {
     }
 
     public set data3(data3: string) {
-        this._data3 = data3;
+        if(data3) {
+            this._data3 = data3;
+        } else {
+            this._data3 = '';
+        }
     }
 
     public get data4(): string {
@@ -64,7 +76,11 @@ export class UnitGenericEntity {
     }
 
     public set data4(data4: string) {
-        this._data4 = data4;
+        if(data4) {
+            this._data4 = data4;
+        } else {
+            this._data4 = '';
+        }
     }
 
     public get data5(): string {
@@ -72,7 +88,11 @@ export class UnitGenericEntity {
     }
 
     public set data5(data5: string) {
-        this._data5 = data5;
+        if(data5) {
+            this._data5 = data5;
+        } else {
+            this._data5 = '';
+        }
     }
 
     // ==================================================
