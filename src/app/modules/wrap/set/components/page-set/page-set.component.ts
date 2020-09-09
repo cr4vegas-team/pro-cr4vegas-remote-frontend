@@ -3,8 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
 import { TableEmptyMSGEnum } from 'src/app/shared/constants/table-empty-msg.enum';
-import { DialogService } from 'src/app/shared/services/dialog.service';
 import { SetEntity } from '../../set.entity';
 import { SetService } from '../../set.service';
 import { DialogSetComponent } from '../dialog-set/dialog-set.component';
@@ -27,22 +27,21 @@ export class PageSetComponent implements OnInit {
   constructor(
     private readonly _setService: SetService,
     private readonly _matDialog: MatDialog,
-    private readonly _dialogService: DialogService,
   ) {
     this.sets = [];
     this.dataSource = new MatTableDataSource(this.sets);
   }
 
   ngOnInit(): void {
-    this._setService.subscribeToSets().subscribe(
+    this._setService.sets.subscribe(
       res => {
         this.sets = res;
         this.dataSource.data = this.sets;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       },
-      err => {
-        this._dialogService.openDialogInfo('Error', err.message)
+      error => {
+        this._matDialog.open(DialogInfoComponent, {data: {title: 'Error', html: error}});
       }
     ).unsubscribe();
   }

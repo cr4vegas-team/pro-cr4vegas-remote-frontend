@@ -1,1 +1,49 @@
-<p>dialog-set-create works!</p>
+<h1 mat-dialog-title *ngIf="create">Crear Conjunto</h1>
+<h1 mat-dialog-title *ngIf="!create">Modificar Conjunto - <span>{{set.code}}</span></h1>
+
+<!-- CONTENT -->
+
+<div mat-dialog-content>
+
+    <form [formGroup]="setForm">
+
+        <div class="col-sm mr-3">
+            <div>
+                <mat-form-field appearance="fill">
+                    <mat-label>Código</mat-label>
+                    <input matInput formControlName="code" required>
+                </mat-form-field>
+                <br>
+                <mat-form-field appearance="fill">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput formControlName="name">
+                </mat-form-field>
+                <br>
+                <mat-form-field appearance="fill">
+                    <mat-label>Tipo</mat-label>
+                    <mat-select [compareWith]="compareSet" name="setType">
+                        <mat-option *ngFor="let setType of setsTypes" [value]="setType">{{setType.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-raised-button (click)="openDialogSetTypeCreate()">+</button>
+                <br>
+                <mat-form-field appearance="fill" style="width: 100%">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput formControlName="description"></textarea>
+                </mat-form-field>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+<hr>
+
+<!-- ACTIONS -->
+
+<div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button mat-raised-button type="submit" (click)="accept()">Aceptar</button>
+</div>

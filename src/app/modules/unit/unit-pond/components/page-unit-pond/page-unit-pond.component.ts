@@ -32,7 +32,7 @@ export class PageUnitPondComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._unitPondService.subscribeToHydrants().subscribe(
+    this._unitPondService.unitsPonds.subscribe(
       res => {
         this.unitsPonds = res;
         this.dataSource.data = this.unitsPonds;

@@ -1,7 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { DialogService } from 'src/app/shared/services/dialog.service';
 import { UnitPondEntity } from '../../../../../modules/unit/unit-pond/unit-pond.entity';
 import { UnitPondFactory } from '../../../../../modules/unit/unit-pond/unit-pond.factory';
 import { UnitPondService } from '../../../../../modules/unit/unit-pond/unit-pond.service';
@@ -42,7 +41,6 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     private readonly _unitPondFactory: UnitPondFactory,
     private readonly _formBuilder: FormBuilder,
     private readonly _dialogRef: MatDialogRef<DialogUnitPondCreateComponent>,
-    private readonly _dialogService: DialogService,
     @Inject(MAT_DIALOG_DATA)
     public unitPond: UnitPondEntity
   ) {
@@ -76,17 +74,17 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this._sectorService.subscribeToSectors().subscribe(
+    this._sectorService.sectors.subscribe(
       res => {
         this.sectors = res;
       }
     ).unsubscribe();
-    this._stationService.subscribeToStations().subscribe(
+    this._stationService.stations.subscribe(
       res => {
         this.stations = res;
       }
     ).unsubscribe();
-    this._setService.subscribeToSets().subscribe(
+    this._setService.sets.subscribe(
       res => {
         this.sets = res;
       }
@@ -102,28 +100,54 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
   }
 
   accept() {
-    if(this.unitPondForm.valid) {
-      try {
-        const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(this.unitPondForm.value);
-        if (this.create) {
-          const unitPondCreateDto: UnitPondCreateDto = this._unitPondFactory.getUnitPondCreateDto(newUnitPond);
-          this._unitPondService.create(unitPondCreateDto);
-        } else {
-          const unitPondUpdateDto: UnitPondUpdateDto = this._unitPondFactory.getUnitPondUpdateDto(newUnitPond);
-          this._unitPondService.update(this.unitPond, unitPondUpdateDto);
-        }
-        this.close();
-      } catch (error) {
-        this._dialogService.openDialogInfo('Datos incorrectos', error);
+    try {
+      if(!this.unitPondForm.valid) {
+        throw new Error(`
+          <p>El código es incorrecto. Ejemplo: BS000150. Código + 6 dígitos. Código:</p>
+          <ul>
+              <li>BS = Balsa</li>
+          </ul>
+        `);
       }
-    } else {
-      this._dialogService.openDialogInfo('Error', `
-                            <p>El código es incorrecto. Ejemplo: BS000150. Código + 6 dígitos. Código:</p>
-                            <ul>
-                                <li>BS = Balsa</li>
-                            </ul>
-      `)
+      const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(this.unitPondForm.value);
+      if (this.create) {
+        this.createUnitPond(newUnitPond);
+      } else {
+        this.updateUnitPond(newUnitPond);
+      }
+    } catch (error) {
+      this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error } });
     }
+  }
+
+  createUnitPond(newUnitPond: UnitPondEntity) {
+    const unitPondCreateDto: UnitPondCreateDto = this._unitPondFactory.getUnitPondCreateDto(newUnitPond);
+    this._unitPondService.create(unitPondCreateDto).subscribe(
+      unitPondRO => {
+        const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(unitPondRO.unitPond);
+        this._unitPondService.addMarkerAndSubscribeMqtt(newUnitPond);
+        this._unitPondService.unitsPonds.value.push(newUnitPond);
+        this._unitPondService.updateUnitsPonds();
+        this.close();
+      },
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      }
+    );
+  }
+
+  updateUnitPond(newUnitPond: UnitPondEntity) {
+    const unitPondUpdateDto: UnitPondUpdateDto = this._unitPondFactory.getUnitPondUpdateDto(newUnitPond);
+    this._unitPondService.update(unitPondUpdateDto).subscribe(
+      unitGenericRO => {
+        this._unitPondFactory.copyUnitPond(this.unitPond, unitGenericRO.unitPond);
+        this._unitPondService.addMarkerAndSubscribeMqtt(this.unitPond);
+        this._unitPondService.updateUnitsPonds();
+      },
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      }
+    )
   }
 
   compareUnitHydrant(d1: any, d2: any) {

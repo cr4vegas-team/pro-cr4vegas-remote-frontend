@@ -11,65 +11,50 @@ export class AuthService {
 
   private _url: string;
 
-  private _isAuthenticated: BehaviorSubject<boolean>;
-  private _httpOptions: { headers: HttpHeaders, params?: HttpParams };
+  private authenticated: BehaviorSubject<Boolean>;
 
   constructor(
     private _http: HttpClient
   ) {
     this._url = GLOBAL.API;
-    this._isAuthenticated = new BehaviorSubject<boolean>(false);
-    this._httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      })
-    };
+    this.authenticated = new BehaviorSubject(false);
   }
 
-  observeAuthenticated(): Observable<boolean> {
-    return this._isAuthenticated.asObservable();
+  isAuthenticated(): BehaviorSubject<Boolean> {
+    return this.authenticated;
   }
 
-  getHttpOptions(params: boolean): { headers: HttpHeaders, params?: HttpParams } {
-    if (params) {
-      return { headers: this._httpOptions.headers, params: new HttpParams() };
-    }
-    return { headers: this._httpOptions.headers };
+  getHttpOptions(params: {}): { headers: HttpHeaders, params?: HttpParams } {
+      return { 
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+        }), 
+        params: new HttpParams(params) };
   }
 
   login(user: string, password: string) {
     let body = JSON.stringify({ username: user, password });
-    this._http.post(this._url + 'auth/login', body, this._httpOptions).subscribe(
+    this._http.post(this._url + 'auth/login', body, this.getHttpOptions({})).subscribe(
       res => {
         let access_token = (res as any).access_token;
 
         localStorage.setItem('access_token', access_token);
-        this._httpOptions = {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${access_token}`,
-          })
-        };
-        this._isAuthenticated.next(true);
+        this.authenticated.next(true);
       },
-      err => {
-        this.logout();
+      error => {
+        throw new Error(error);
       }
     );
   }
 
   logout() {
     localStorage.removeItem('access_token');
-    this._httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      })
-    };
-    this._isAuthenticated.next(false);
+    this.authenticated.next(false);
   }
 
   signin(user: UserEntity): Observable<any> {
-    return this._http.post(this._url + 'auth/signin', user, this._httpOptions);
+    return this._http.post(this._url + 'auth/signin', user, this.getHttpOptions({}));
   }
 
 }

@@ -32,7 +32,7 @@ export class PageUnitGenericComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this._unitGenericService.subscribeToUnitsGenerics().subscribe(
+    this._unitGenericService.unitsGenerics.subscribe(
       res => {
         this.unitsGenerics = res;
         this.dataSource.data = this.unitsGenerics;

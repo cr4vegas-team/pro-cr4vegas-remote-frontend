@@ -9,9 +9,6 @@ import { StationEntity } from 'src/app/modules/wrap/station/station.entity';
 import { StationService } from 'src/app/modules/wrap/station/station.service';
 import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
-import { DialogService } from 'src/app/shared/services/dialog.service';
-import { DialogUnitHydrantCreateComponent } from '../../../unit-hydrant/components/dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
-import { UnitHydrantService } from '../../../unit-hydrant/unit-hydrant.service';
 import { UnitEntity } from '../../../unit/unit.entity';
 import { UnitGenericCreateDto } from '../../dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from '../../dto/unit-generic-update.dto';
@@ -43,8 +40,7 @@ export class DialogUnitGenericCreateComponent implements OnInit {
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitGenericFactory: UnitGenericFactory,
     private readonly _formBuilder: FormBuilder,
-    private readonly _dialogRef: MatDialogRef<DialogUnitHydrantCreateComponent>,
-    private readonly _dialogService: DialogService,
+    private readonly _dialogRef: MatDialogRef<DialogUnitGenericCreateComponent>,
     @Inject(MAT_DIALOG_DATA)
     public unitGeneric: UnitGenericEntity
   ) {
@@ -81,17 +77,17 @@ export class DialogUnitGenericCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._sectorService.subscribeToSectors().subscribe(
+    this._sectorService.sectors.subscribe(
       res => {
         this.sectors = res;
       }
     ).unsubscribe();
-    this._stationService.subscribeToStations().subscribe(
+    this._stationService.stations.subscribe(
       res => {
         this.stations = res;
       }
     ).unsubscribe();
-    this._setService.subscribeToSets().subscribe(
+    this._setService.sets.subscribe(
       res => {
         this.sets = res;
       }
@@ -107,31 +103,57 @@ export class DialogUnitGenericCreateComponent implements OnInit {
   }
 
   accept() {
-    if(this.unitGenericForm.valid) {
-      try {
-        const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(this.unitGenericForm.value);
-        if (this.create) {
-          const unitGenericCreateDto: UnitGenericCreateDto = this._unitGenericFactory.getUnitGenericCreateDto(newUnitGeneric);
-          this._unitGenericService.create(unitGenericCreateDto);
-        } else {
-          const unitGenericUpdateDto: UnitGenericUpdateDto = this._unitGenericFactory.getUnitGenericUpdateDto(newUnitGeneric);
-          this._unitGenericService.update(this.unitGeneric, unitGenericUpdateDto);
-        }
-        this.close();
-      } catch (error) {
-        this._dialogService.openDialogInfo('Datos incorrectos', error);
+    try {
+      if (!this.unitGenericForm.valid) {
+        throw new Error(`
+          <p>El código es incorrecto. Ejemplo: GN000150. Código + 6 dígitos. Código:</p>
+          <ul>
+              <li>GN = Genérico</li>
+          </ul>
+        `);
       }
-    } else {
-      this._dialogService.openDialogInfo('Error', `
-                            <p>El código es incorrecto. Ejemplo: GN000150. Código + 6 dígitos. Código:</p>
-                            <ul>
-                                <li>GN = Genérico</li>
-                            </ul>
-      `)
+      const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(this.unitGenericForm.value);
+      if (this.create) {
+        this.createUnitGeneric(newUnitGeneric);
+      } else {
+        this.updateUnitGeneric(newUnitGeneric);
+      }
+    } catch (error) {
+      this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error } });
     }
   }
 
-  compareUnitHydrant(d1: any, d2: any) {
+  createUnitGeneric(newUnitGeneric: UnitGenericEntity) {
+    const unitGenericCreateDto: UnitGenericCreateDto = this._unitGenericFactory.getUnitGenericCreateDto(newUnitGeneric);
+    this._unitGenericService.create(unitGenericCreateDto).subscribe(
+      unitGenericRO => {
+        const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(unitGenericRO.unitGeneric);
+        this._unitGenericService.addMarkerAndSubscribeMqtt(newUnitGeneric);
+        this._unitGenericService.unitsGenerics.value.push(newUnitGeneric);
+        this._unitGenericService.updateUnitsGenerics();
+        this.close();
+      },
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      }
+    );
+  }
+
+  updateUnitGeneric(newUnitGeneric: UnitGenericEntity) {
+    const unitGenericUpdateDto: UnitGenericUpdateDto = this._unitGenericFactory.getUnitGenericUpdateDto(newUnitGeneric);
+    this._unitGenericService.update(unitGenericUpdateDto).subscribe(
+      unitGenericRO => {
+        this._unitGenericFactory.copyUnitGeneric(this.unitGeneric, unitGenericRO.unitGeneric);
+        this._unitGenericService.addMarkerAndSubscribeMqtt(this.unitGeneric);
+        this._unitGenericService.updateUnitsGenerics();
+      },
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      }
+    )
+  }
+
+  compareUnitGeneric(d1: any, d2: any) {
     return d1 && d2 && d1.id === d2.id;
   }
 

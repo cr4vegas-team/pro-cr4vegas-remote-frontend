@@ -27,7 +27,7 @@ import { DialogUnitHydrantCreateComponent } from 'src/app/modules/unit/unit-hydr
 export class NavbarComponent implements OnInit {
 
   stations: Array<StationEntity>;
-  isAuthenticated: boolean = false;
+  isAuthenticated: Boolean = false;
   mapboxStyleEnum = MapboxStyleEnum;
   mapboxStyleSelected: MapboxStyleEnum;
   consDialogInfo = GLOBAL;
@@ -43,11 +43,10 @@ export class NavbarComponent implements OnInit {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
     private readonly _mapService: MapService,
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
-    this._stationService.subscribeToStations().subscribe(
+    this._stationService.stations.subscribe(
       res => {
         this.stations = res;
       },
@@ -55,13 +54,9 @@ export class NavbarComponent implements OnInit {
         console.log(err);
       }
     );
-    this._authService.observeAuthenticated().subscribe(
+    this._authService.isAuthenticated().subscribe(
       res => {
         this.isAuthenticated = res;
-      },
-      err => {
-        console.log(err.message);
-        this.isAuthenticated = false;
       }
     );
   }

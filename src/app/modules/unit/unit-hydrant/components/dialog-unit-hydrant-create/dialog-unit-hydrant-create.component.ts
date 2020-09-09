@@ -14,7 +14,6 @@ import { SetService } from '../../../../../modules/wrap/set/set.service';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { StationService } from '../../../../../modules/wrap/station/station.service';
 import { UnitHydrantCreateDto } from '../../dto/unit-hydrant-create.dto';
-import { DialogService } from 'src/app/shared/services/dialog.service';
 import { UnitHydrantUpdateDto } from '../../dto/unit-hydrant-update.dto';
 
 
@@ -43,7 +42,6 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _formBuilder: FormBuilder,
     private readonly _dialogRef: MatDialogRef<DialogUnitHydrantCreateComponent>,
-    private readonly _dialogService: DialogService,
     @Inject(MAT_DIALOG_DATA)
     public unitHydrant: UnitHydrantEntity
   ) {
@@ -78,17 +76,17 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this._sectorService.subscribeToSectors().subscribe(
+    this._sectorService.sectors.subscribe(
       res => {
         this.sectors = res;
       }
     ).unsubscribe();
-    this._stationService.subscribeToStations().subscribe(
+    this._stationService.stations.subscribe(
       res => {
         this.stations = res;
       }
     ).unsubscribe();
-    this._setService.subscribeToSets().subscribe(
+    this._setService.sets.subscribe(
       res => {
         this.sets = res;
       }
@@ -105,18 +103,53 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
 
   accept() {
     try {
+      if(!this.unitHydrantForm.valid) {
+        throw new Error(`
+          <p>El código es incorrecto. Ejemplo: HD000150. Código + 6 dígitos. Código:</p>
+          <ul>
+              <li>HD = Hidrante</li>
+          </ul>
+        `);
+      }
       const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(this.unitHydrantForm.value);
       if (this.create) {
-        const unitHydrantCreateDto: UnitHydrantCreateDto = this._unitHydrantFactory.getUnitHydrantCreateDto(newUnitHydrant);
-        this._unitHydrantService.create(unitHydrantCreateDto);
+        this.createUnitHydrant(newUnitHydrant);
       } else {
-        const unitHydrantUpdateDto: UnitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(newUnitHydrant);
-        this._unitHydrantService.update(this.unitHydrant, unitHydrantUpdateDto);
+        this.updateUnitHydrant(newUnitHydrant);
       }
-      this.close();
     } catch (error) {
-      this._dialogService.openDialogInfo('Datos incorrectos', error);
+      this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error } });
     }
+  }
+
+  createUnitHydrant(newUnitHydrant: UnitHydrantEntity) {
+    const unitHydrantCreateDto: UnitHydrantCreateDto = this._unitHydrantFactory.getUnitHydrantCreateDto(newUnitHydrant);
+    this._unitHydrantService.create(unitHydrantCreateDto).subscribe(
+      unitGenericRO => {
+        const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(unitGenericRO.unitHydrant);
+        this._unitHydrantService.addMarkerAndSubscribeMqtt(newUnitHydrant);
+        this._unitHydrantService.unitsHydrants.value.push(newUnitHydrant);
+        this._unitHydrantService.updateUnitsHydrants();
+        this.close();
+      },
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      }
+    );
+  }
+
+  updateUnitHydrant(newUnitHydrant: UnitHydrantEntity) {
+    const unitHydrantUpdateDto: UnitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(newUnitHydrant);
+    this._unitHydrantService.update(unitHydrantUpdateDto).subscribe(
+      unitHydrantRO => {
+        this._unitHydrantFactory.copyUnitHydrant(this.unitHydrant, unitHydrantRO.unitHydrant);
+        this._unitHydrantService.addMarkerAndSubscribeMqtt(this.unitHydrant);
+        this._unitHydrantService.updateUnitsHydrants();
+      },
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      }
+    )
   }
 
   compareUnitHydrant(d1: any, d2: any) {

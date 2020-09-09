@@ -1,21 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Map } from 'mapbox-gl';
-import { BehaviorSubject } from 'rxjs';
-import { DialogService } from 'src/app/shared/services/dialog.service';
+import { Map, Marker } from 'mapbox-gl';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { TopicTypeEnum } from '../../../shared/constants/topic-type.enum';
 import { AuthService } from '../../../shared/services/auth.service';
-import { MapService } from '../../../shared/services/map.service';
 import { MqttEventsService } from '../../../shared/services/mqtt-events.service';
 import { UnitGenericFactory } from '../unit-generic/unit-generic.factory';
 import { UnitService } from '../unit/unit.service';
-import { PopupUnitGenericComponent } from './components/popup-unit-generic/popup-unit-generic.component';
 import { UnitGenericCreateDto } from './dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from './dto/unit-generic-update.dto';
 import { UnitGenericEntity } from './unit-generic.entity';
-import { UnitGenericRo, UnitsGenericsRO } from './unit-generic.interfaces';
+import { UnitGenericRO, UnitsGenericsRO } from './unit-generic.interfaces';
 
 
 @Injectable({
@@ -33,31 +29,27 @@ export class UnitGenericService {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitGenericFactory: UnitGenericFactory,
-    private readonly _mapService: MapService,
     private readonly _unitService: UnitService,
     private readonly _mqttEventService: MqttEventsService,
-    private readonly _matDialog: MatDialog,
-    private readonly _dialogService: DialogService, 
   ) {
     this._unitsGenerics = new BehaviorSubject<UnitGenericEntity[]>(Array<UnitGenericEntity>());
-    this._mapService.getMap().subscribe(
-      (map: Map) => {
-        if (map) {
-          this._map = map;
-          this.setMapToUnitsGenerics();
-        }
-      }
-    );
-    this._authService.observeAuthenticated().subscribe(
-      isAuthenticated => {
-        if (isAuthenticated) {
+    this._authService.isAuthenticated().subscribe(
+      authenticated => {
+        if(authenticated) {
           this.findAll();
         }
       }
     );
   }
 
-  subscribeToUnitsGenerics(): BehaviorSubject<UnitGenericEntity[]> {
+  public set map(map: Map) {
+    if(map) {
+      this._map = map;
+      this.addAllMarkersToMap();
+    }
+  }
+
+  public get unitsGenerics(): BehaviorSubject<UnitGenericEntity[]> {
     return this._unitsGenerics;
   }
 
@@ -70,7 +62,7 @@ export class UnitGenericService {
   // ==================================================
 
   async findAll() {
-    const httpOptions = this._authService.getHttpOptions(false);
+    const httpOptions = this._authService.getHttpOptions({});
     await this._httpClient.get<UnitsGenericsRO>(this._url, httpOptions).subscribe(
       unitsGenericsRO => {
         this._unitsGenerics.value.forEach(unitGeneric => {
@@ -85,68 +77,19 @@ export class UnitGenericService {
         this.updateUnitsGenerics();
       },
       error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
+        throw new Error(error);
       }
     );
   }
 
-  async create(unitGenericCreateDto: UnitGenericCreateDto) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.post<UnitGenericRo>(this._url, unitGenericCreateDto, httpOptions).subscribe(
-      unitGenericRO => {
-        const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(unitGenericRO.unitGeneric);
-        this.addMarkerAndSubscribeMqtt(newUnitGeneric);
-        this._unitsGenerics.value.push(newUnitGeneric);
-        this.updateUnitsGenerics();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  create(unitGenericCreateDto: UnitGenericCreateDto): Observable<UnitGenericRO> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.post<UnitGenericRO>(this._url, unitGenericCreateDto, httpOptions);
   }
 
-  async update(unitGeneric: UnitGenericEntity, unitGenericUpdateDto: UnitGenericUpdateDto) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.put<UnitGenericRo>(this._url, unitGenericUpdateDto, httpOptions).subscribe(
-      unitGenericRO => {
-        this._unitGenericFactory.copyUnitGeneric(unitGeneric, unitGenericRO.unitGeneric);
-        this.addMarkerAndSubscribeMqtt(unitGeneric);
-        this.updateUnitsGenerics();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
-  }
-
-  remove(unitGeneric: UnitGenericEntity) {
-    this._unitService.remove(unitGeneric.unit.id).subscribe(
-      res => {
-        if (res) {
-          this.removeMarkersAndUnsubscribeMqtt(unitGeneric);
-          unitGeneric.unit.active = 0;
-          this.updateUnitsGenerics();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    );
-  }
-
-  active(unitGeneric: UnitGenericEntity) {
-    this._unitService.remove(unitGeneric.unit.id).subscribe(
-      res => {
-        if (res) {
-          this.addMarkerAndSubscribeMqtt(unitGeneric);
-          unitGeneric.unit.active = 1;
-          this.updateUnitsGenerics();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    );
+  update(unitGenericUpdateDto: UnitGenericUpdateDto): Observable<UnitGenericRO> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.put<UnitGenericRO>(this._url, unitGenericUpdateDto, httpOptions);
   }
 
   // ==================================================
@@ -168,9 +111,9 @@ export class UnitGenericService {
     this._unitsGenerics.next(this._unitsGenerics.value);
   }
 
-  private addMarkerAndSubscribeMqtt(unitGeneric: UnitGenericEntity) {
-    unitGeneric.addMarker().getElement().onclick = () => this._matDialog.open(PopupUnitGenericComponent, { data: unitGeneric });
-    unitGeneric.marker.addTo(this._map);
+  addMarkerAndSubscribeMqtt(unitGeneric: UnitGenericEntity) {
+    unitGeneric.addMarker();
+    this.addMarkerToMap(unitGeneric.marker);
     unitGeneric.addSubscription(this._mqttEventService.subscribe(TopicTypeEnum.UNIT_GENERIC, unitGeneric.unit.code));
   }
 
@@ -181,21 +124,24 @@ export class UnitGenericService {
     this._unitsGenerics.next(this._unitsGenerics.value);
   }
 
-  private removeMarkersAndUnsubscribeMqtt(unitGeneric: UnitGenericEntity) {
+  removeMarkersAndUnsubscribeMqtt(unitGeneric: UnitGenericEntity) {
     unitGeneric.marker.remove();
     unitGeneric.subscription.unsubscribe();
   }
 
-  // ==================================================
+  //===========================================================
   // MAP
-  // ==================================================
-
-  private setMapToUnitsGenerics() {
-    if (this._map && this._unitsGenerics.value) {
-      this._unitsGenerics.value.forEach(unitGeneric => {
-        this.addMarkerAndSubscribeMqtt(unitGeneric);
-      });
+  //===========================================================
+  
+  private addAllMarkersToMap() {
+    this._unitsGenerics.value.forEach(unitGeneric => {
+      this.addMarkerToMap(unitGeneric.marker);
+    })
+  }
+  
+  private addMarkerToMap(marker: Marker) {
+    if(this._map && marker) {
+      marker.addTo(this._map);
     }
   }
-
 }

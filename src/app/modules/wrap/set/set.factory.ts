@@ -1,6 +1,8 @@
 
 
 import { Injectable } from '@angular/core';
+import { SetCreateDto } from './dto/set-create.dto';
+import { SetUpdateDto } from './dto/set-update.dto';
 import { SetEntity } from './set.entity';
 
 @Injectable({
@@ -36,6 +38,27 @@ export class SetFactory {
         target.units = source.units;
         target.created = source.created;
         target.updated = source.updated;
+    }
+
+    getSetCreateDto(set: SetEntity): SetCreateDto {
+        const setCreateDto: SetCreateDto = new SetCreateDto();
+        setCreateDto.code = set.code;
+        setCreateDto.name = set.name;
+        setCreateDto.description = set.description;
+        setCreateDto.setType = set.setType;
+        setCreateDto.units = set.units;
+        return setCreateDto;
+    }
+
+    getSetUpdateDto(set: SetEntity): SetUpdateDto {
+        const setUpdateDto: SetUpdateDto = new SetUpdateDto();
+        setUpdateDto.id = set.id;
+        setUpdateDto.code = set.code;
+        setUpdateDto.name = set.name;
+        setUpdateDto.description = set.description;
+        setUpdateDto.setType = set.setType;
+        setUpdateDto.units = set.units;
+        return setUpdateDto;
     }
 
 }

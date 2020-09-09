@@ -19,29 +19,39 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import { MatRippleModule } from '@angular/material/core';
 
-
+const modules = [
+  MatButtonModule,
+  MatCardModule,
+  MatCheckboxModule,
+  MatDialogModule,
+  MatFormFieldModule,
+  MatGridListModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatMenuModule,
+  MatPaginatorModule,
+  MatRadioModule,
+  MatSelectModule,
+  MatSidenavModule,
+  MatSortModule,
+  MatTableModule,
+  MatToolbarModule,
+  MatProgressSpinnerModule,
+  MatRippleModule,
+];
 
 @NgModule({
 
+  imports: [
+    ...modules
+  ],
+
   exports: [
-    MatButtonModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatGridListModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatMenuModule,
-    MatPaginatorModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatSortModule,
-    MatTableModule,
-    MatToolbarModule,
+    ...modules
   ]
 
 })

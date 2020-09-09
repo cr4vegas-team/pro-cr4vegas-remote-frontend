@@ -2,6 +2,8 @@
 
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { StationCreateDto } from './dto/station-create.dto';
+import { StationUpdateDto } from './dto/station-update.dto';
 import { StationEntity } from './station.entity';
 
 @Injectable({
@@ -31,7 +33,7 @@ export class StationFactory {
         return null;
     }
 
-    copyWithNewMarker(target: StationEntity, source: any) {
+    copy(target: StationEntity, source: any) {
         target.id = source.id;
         target.code = source.code;
         target.altitude = source.altitude;
@@ -42,6 +44,29 @@ export class StationFactory {
         target.created = source.created;
         target.description = source.description;
         target.name = source.name;
+    }
+
+    getStationCreateDto(station: StationEntity): StationCreateDto {
+        const stationCreateDto: StationCreateDto = new StationCreateDto();
+        stationCreateDto.code = station.code;
+        stationCreateDto.name = station.name;
+        stationCreateDto.description = station.description;
+        stationCreateDto.altitude = station.altitude;
+        stationCreateDto.longitude = station.longitude;
+        stationCreateDto.latitude = station.latitude;
+        return stationCreateDto;
+    }
+
+    getStationUpdateDto(station: StationEntity): StationUpdateDto {
+        const stationUpdateDto: StationUpdateDto = new StationUpdateDto();
+        stationUpdateDto.id = station.id;
+        stationUpdateDto.code = station.code;
+        stationUpdateDto.name = station.name;
+        stationUpdateDto.description = station.description;
+        stationUpdateDto.altitude = station.altitude;
+        stationUpdateDto.longitude = station.longitude;
+        stationUpdateDto.latitude = station.latitude;
+        return stationUpdateDto;
     }
 
 }

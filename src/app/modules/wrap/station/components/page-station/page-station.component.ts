@@ -32,7 +32,7 @@ export class PageStationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._stationService.subscribeToStations().subscribe(
+    this._stationService.stations.subscribe(
       res => {
         this.stations = res;
         this.dataSource.data = this.stations;

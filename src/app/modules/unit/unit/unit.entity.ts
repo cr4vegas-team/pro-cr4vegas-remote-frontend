@@ -1,9 +1,8 @@
-import { UnitTypeEnum } from '../../../shared/constants/unit-type.enum';
 import { UnitTypeTableEnum } from '../../../shared/constants/unit-type-table.enum';
+import { UnitTypeEnum } from '../../../shared/constants/unit-type.enum';
+import { SectorEntity } from '../../wrap/sector/sector.entity';
 import { SetEntity } from '../../wrap/set/set.entity';
 import { StationEntity } from '../../wrap/station/station.entity';
-import { SectorEntity } from '../../wrap/sector/sector.entity';
-import { error } from 'console';
 
 export class UnitEntity {
 
@@ -65,7 +64,7 @@ export class UnitEntity {
     }
 
     public set unitType(unitType: UnitTypeEnum) {
-        if(unitType) {
+        if (unitType) {
             this._unitType = unitType;
         }
     }
@@ -75,7 +74,7 @@ export class UnitEntity {
     }
 
     public set altitude(altitude: number) {
-        if(!altitude || altitude < 0 || altitude > 1000) {
+        if (!altitude || altitude < 0 || altitude > 1000) {
             throw new Error('La altitud debe estar entre 0 y 1000');
         }
         this._altitude = altitude;
@@ -108,7 +107,7 @@ export class UnitEntity {
     }
 
     public set station(station: StationEntity) {
-        if(station) {
+        if (station) {
             this._station = station;
         } else {
             this._station = null;
@@ -120,7 +119,7 @@ export class UnitEntity {
     }
 
     public set sector(sector: SectorEntity) {
-        if(sector) {
+        if (sector) {
             this._sector = sector;
         } else {
             this._sector = null;
@@ -132,7 +131,7 @@ export class UnitEntity {
     }
 
     public set sets(sets: SetEntity[]) {
-        if(sets) {
+        if (sets) {
             this._sets = sets;
         } else {
             this._sets = [];
@@ -144,7 +143,7 @@ export class UnitEntity {
     }
 
     public set description(description: string) {
-        if(description) {
+        if (description) {
             this._description = description;
         } else {
             this._description = '';
@@ -156,7 +155,7 @@ export class UnitEntity {
     }
 
     public set active(active: number) {
-        if(active) {
+        if (active) {
             this._active = active;
         }
     }
@@ -166,7 +165,7 @@ export class UnitEntity {
     }
 
     public set created(created: Date) {
-        if(created) {
+        if (created) {
             this._created = created;
         }
     }
@@ -176,7 +175,7 @@ export class UnitEntity {
     }
 
     public set updated(updated: Date) {
-        if(updated) {
+        if (updated) {
             this._updated = updated;
         }
     }

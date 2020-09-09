@@ -1,15 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { GLOBAL } from '../../../shared/constants/global.constant';
 import { SetEntity } from '../../../modules/wrap/set/set.entity';
 import { SetFactory } from '../../../modules/wrap/set/set.factory';
+import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
 import { SetCreateDto } from './dto/set-create.dto';
-import { SetUpdateDto } from './dto/set-update.dto';
+import { SetTypeUpdateDto, SetUpdateDto } from './dto/set-update.dto';
 import { SetTypeEntity } from './set-type.entity';
 import { SetRO, SetsRO } from './set.interfaces';
-import { DialogService } from 'src/app/shared/services/dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,19 +23,18 @@ export class SetService {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _setFactory: SetFactory,
-    private readonly _dialogService: DialogService,
   ) {
     this._sets = new BehaviorSubject<SetEntity[]>(Array<SetEntity>());
-    this._authService.observeAuthenticated().subscribe(
-      isAuthenticated => {
-        if (isAuthenticated) {
+    this._authService.isAuthenticated().subscribe(
+      authenticated => {
+        if(authenticated) {
           this.findAll();
         }
       }
     );
   }
 
-  subscribeToSets(): BehaviorSubject<SetEntity[]> {
+  public get sets(): BehaviorSubject<SetEntity[]> {
     return this._sets;
   }
 
@@ -48,9 +46,8 @@ export class SetService {
   // API FUNCTIONS - SET
   // ==================================================
 
-  async findAll(active?: number) {
-    const httpOptions = this._authService.getHttpOptions(active ? true : false);
-    active ? httpOptions.params.set('active', active.toString()) : '';
+  async findAll() {
+    const httpOptions = this._authService.getHttpOptions({});
     await this._httpClient.get<SetsRO>(this._url, httpOptions).subscribe(
       setsRO => {
         this._sets.value.splice(0);
@@ -61,82 +58,49 @@ export class SetService {
         this.updateSets();
       },
       error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
+        throw new Error(error);
       }
     );
   }
 
-  async create(set: SetEntity) {
-
-    const setCreateDto: SetCreateDto = new SetCreateDto();
-    setCreateDto.code = set.code;
-    setCreateDto.name = set.name;
-    setCreateDto.setTypeName = set.setType.name;
-    setCreateDto.description = set.description;
-
-    const httpOptions = this._authService.getHttpOptions(false);
-    await this._httpClient.post<SetRO>(this._url, setCreateDto, httpOptions).subscribe(
-      setRO => {
-        const newSet: SetEntity = this._setFactory.createSet(setRO.set);
-        this._sets.value.push(newSet);
-        this.updateSets();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  create(setCreateDto: SetCreateDto): Observable<SetRO> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.post<SetRO>(this._url, setCreateDto, httpOptions);
   }
 
-  async update(set: SetEntity) {
-
-    const setUpdateDto: SetUpdateDto = new SetUpdateDto();
-    setUpdateDto.id = set.id;
-    setUpdateDto.code = set.code;
-    setUpdateDto.name = set.name;
-    setUpdateDto.setTypeName = set.setType.name;
-    setUpdateDto.description = set.description;
-
-    const httpOptions = this._authService.getHttpOptions(false);
-    await this._httpClient.put<SetRO>(this._url, setUpdateDto, httpOptions).subscribe(
-      setRO => {
-        this._setFactory.copy(set, setRO.set);
-        this._sets.value.push(setRO.set);
-        this.updateSets();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  update(setUpdateDto: SetUpdateDto): Observable<SetRO> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.put<SetRO>(this._url, setUpdateDto, httpOptions);
   }
 
-  remove(set: SetEntity) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.delete<boolean>(this._url + `/${set.id}`, httpOptions).subscribe(
-      res => {
-        if (res) {
-          set.active = 0;
-          this.updateSets();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    );
+  remove(set: SetEntity): Observable<boolean> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.delete<boolean>(this._url + `/${set.id}`, httpOptions);
   }
 
-  active(set: SetEntity) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.patch<boolean>(this._url + `/${set.id}`, httpOptions).subscribe(
-      res => {
-        if (res) {
-          set.active = 1;
-          this.updateSets();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    );
+  active(set: SetEntity): Observable<boolean> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.patch<boolean>(this._url + `/${set.id}`, httpOptions);
+  }
+
+  findAllSetTypes(): Observable<SetTypeEntity[]> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.get<SetTypeEntity[]>(this._url + `set-type`, httpOptions);
+  }
+
+  createSetType(setType: SetTypeEntity): Observable<SetTypeEntity> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.post<SetTypeEntity>(this._url + `/set-type`, setType, httpOptions);
+  }
+
+  updateSetType(setTypeUpdateDto: SetTypeUpdateDto): Observable<SetTypeEntity> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.put<SetTypeEntity>(this._url + `/set-type`, setTypeUpdateDto, httpOptions);
+  }
+
+  removeSetType(setType: SetTypeEntity): Observable<boolean> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.delete<boolean>(this._url + `/set-type/${setType.name}`, httpOptions);
   }
 
   // ==================================================

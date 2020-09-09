@@ -1,14 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { GLOBAL } from '../../../shared/constants/global.constant';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { AuthService } from 'src/app/shared/services/auth.service';
 import { SectorFactory } from '../../../modules/wrap/sector/sector.factory';
-import { AuthService } from '../../../shared/services/auth.service';
+import { GLOBAL } from '../../../shared/constants/global.constant';
 import { SectorEntity } from '../sector/sector.entity';
 import { SectorCreateDto } from './dto/sector-create.dto';
 import { SectorUpdateDto } from './dto/sector-update.dto';
 import { SectorRO, SectorsRO } from './sector.interfaces';
-import { DialogService } from 'src/app/shared/services/dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,22 +20,20 @@ export class SectorService {
 
   constructor(
     private readonly _httpClient: HttpClient,
-    private readonly _authService: AuthService,
     private readonly _sectorFactory: SectorFactory,
-    private readonly _dialogService: DialogService,
+    private readonly _authService: AuthService,
   ) {
     this._sectors = new BehaviorSubject<SectorEntity[]>(Array<SectorEntity>());
-
-    this._authService.observeAuthenticated().subscribe(
-      isAuthenticated => {
-        if (isAuthenticated) {
+    this._authService.isAuthenticated().subscribe(
+      authenticated => {
+        if(authenticated) {
           this.findAll();
         }
       }
     );
   }
 
-  subscribeToSectors(): BehaviorSubject<SectorEntity[]> {
+  public get sectors(): BehaviorSubject<SectorEntity[]> {
     return this._sectors;
   }
 
@@ -48,93 +45,46 @@ export class SectorService {
   // API FUNCTIONS
   // ==================================================
 
-  async findAll(active?: number) {
-    const httpOptions = this._authService.getHttpOptions(active ? true : false);
-    active ? httpOptions.params.set('active', active.toString()) : '';
+  async findAll() {
+    const httpOptions = this._authService.getHttpOptions({});
     await this._httpClient.get<SectorsRO>(this._url, httpOptions).subscribe(
       sectorsRO => {
         this._sectors.value.splice(0);
         sectorsRO.sectors.forEach((sector: SectorEntity) => {
-          const newSector: SectorEntity = this._sectorFactory.createSector(sector);
-          this._sectors.value.push(newSector);
+          try {
+            const newSector: SectorEntity = this._sectorFactory.createSector(sector);
+            this._sectors.value.push(newSector);
+          } catch(error) {
+            //
+          }
+          
         });
         this.updateSectors();
       },
       error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
+        throw new Error(error);
       }
     );
   }
 
-  async create(sector: SectorEntity) {
-
-    const sectorCreateDto: SectorCreateDto = new SectorCreateDto();
-    sectorCreateDto.code = sector.code;
-    sectorCreateDto.name = sector.name;
-    sectorCreateDto.description = sector.description;
-
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.post<SectorRO>(this._url, sectorCreateDto, httpOptions).subscribe(
-      sectorRO => {
-        const newSector: SectorEntity = this._sectorFactory.createSector(sectorRO.sector);
-        this._sectors.value.push(newSector);
-        this.updateSectors();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  create(sectorCreateDto: SectorCreateDto): Observable<SectorRO> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.post<SectorRO>(this._url, sectorCreateDto, httpOptions);
   }
 
-  async update(sector: SectorEntity) {
-
-    const sectorUpdateDto: SectorUpdateDto = new SectorUpdateDto();
-    sectorUpdateDto.id = sector.id;
-    sectorUpdateDto.code = sector.code;
-    sectorUpdateDto.name = sector.name;
-    sectorUpdateDto.description = sector.description;
-
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.put<SectorRO>(this._url, sectorUpdateDto, httpOptions).subscribe(
-      sectorRO => {
-        this._sectorFactory.copy(sector, sectorRO.sector);
-        this._sectors.value.push(sectorRO.sector);
-        this.updateSectors();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  update(sectorUpdateDto: SectorUpdateDto): Observable<SectorRO> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.put<SectorRO>(this._url, sectorUpdateDto, httpOptions);
   }
 
-  remove(sector: SectorEntity) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.delete<boolean>(this._url + `/${sector.id}`, httpOptions).subscribe(
-      res => {
-        if (res) {
-          sector.active = 0;
-          this.updateSectors();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    );
+  remove(sector: SectorEntity): Observable<boolean> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.delete<boolean>(this._url + `/${sector.id}`, httpOptions);
   }
 
-  active(sector: SectorEntity) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.patch<boolean>(this._url + `/${sector.id}`, httpOptions).subscribe(
-      res => {
-        if (res) {
-          sector.active = 1;
-          this.updateSectors();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    );
+  active(sector: SectorEntity): Observable<boolean> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.patch<boolean>(this._url + `/${sector.id}`, httpOptions);
   }
 
   // ==================================================

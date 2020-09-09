@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 
 @Component({
   selector: 'app-login',
@@ -17,29 +19,31 @@ export class LoginComponent implements OnInit {
   hide: boolean = true;
 
   constructor(
-    private _authService: AuthService,
-    private _router: Router,
+    private readonly _authService: AuthService,
+    private readonly _router: Router,
+    private readonly _matDialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
-    this._authService.observeAuthenticated().subscribe(
-      async res => {
+    this._authService.isAuthenticated().subscribe(
+      res => {
         if (res) {
           this._router.navigate(['map']);
           this.message = this.MESSAGE_AUTH_OK;
+
         } else {
           this.message = this.MESSAGE_AUTH_ERR;
         }
       },
-      err => {
-        this.message = this.MESSAGE_AUTH_ERR;
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error } });
       }
     );
     this.login('test', 'test');
   }
 
-  async login(user: string, password: string) {
-    await this._authService.login(user, password)
+  login(user: string, password: string) {
+    this._authService.login(user, password)
   }
 
 }

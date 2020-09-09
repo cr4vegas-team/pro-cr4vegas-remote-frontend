@@ -1,6 +1,6 @@
 import { UnitGenericEntity } from './unit-generic.entity';
 
-export interface UnitGenericRo {
+export interface UnitGenericRO {
     unitGeneric: UnitGenericEntity;
 }
 

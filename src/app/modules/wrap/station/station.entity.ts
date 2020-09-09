@@ -72,7 +72,7 @@ export class StationEntity {
     }
 
     public set altitude(altitude: number) {
-        if (altitude < 0 || altitude > 1000) {
+        if (!altitude || altitude < 0 || altitude > 1000) {
             throw new Error('La altitud debe estar entre 0 y 1000');
         }
         this._altitude = altitude;
@@ -83,7 +83,7 @@ export class StationEntity {
     }
 
     public set latitude(latitude: number) {
-        if (latitude > 90 || latitude < -90) {
+        if (!latitude || latitude > 90 || latitude < -90) {
             throw new Error('La altitud debe estar entre -90 y 90')
         }
         this._latitude = latitude;
@@ -94,7 +94,7 @@ export class StationEntity {
     }
 
     public set longitude(longitude: number) {
-        if (longitude > 90 || longitude < -90) {
+        if (!longitude || longitude > 90 || longitude < -90) {
             throw new Error('La longitud debe estar entre -90 y 90')
         }
         this._longitude = longitude;

@@ -42,14 +42,14 @@
                 <div formGroupName="unit">
                     <mat-form-field appearance="fill">
                         <mat-label>Sector</mat-label>
-                        <mat-select [compareWith]="compareUnitHydrant"  formControlName="sector">
+                        <mat-select [compareWith]="compareUnitGeneric"  formControlName="sector">
                             <mat-option *ngFor="let sector of sectors" [value]="sector">{{sector.name}}</mat-option>
                         </mat-select>
                     </mat-form-field>
                     <br>
                     <mat-form-field appearance="fill">
                         <mat-label>Estación</mat-label>
-                        <mat-select [compareWith]="compareUnitHydrant" name="station" formControlName="station">
+                        <mat-select [compareWith]="compareUnitGeneric" name="station" formControlName="station">
                             <mat-option *ngFor="let station of stations" [value]="station">{{station.name}}
                             </mat-option>
                         </mat-select>
@@ -57,7 +57,7 @@
                     <br>
                     <mat-form-field appearance="fill">
                         <mat-label>Conjuntos</mat-label>
-                        <mat-select [compareWith]="compareUnitHydrant" multiple formControlName="sets">
+                        <mat-select [compareWith]="compareUnitGeneric" multiple formControlName="sets">
                             <mat-option *ngFor="let set of sets" [value]="set">{{set.name}}</mat-option>
                         </mat-select>
                     </mat-form-field>

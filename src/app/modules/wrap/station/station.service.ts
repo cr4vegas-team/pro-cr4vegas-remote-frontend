@@ -1,18 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Map } from 'mapbox-gl';
-import { BehaviorSubject } from 'rxjs';
+import { Map, Marker } from 'mapbox-gl';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { StationFactory } from '../../../modules/wrap/station/station.factory';
-import { MapService } from '../../../shared/services/map.service';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
 import { StationCreateDto } from './dto/station-create.dto';
 import { StationUpdateDto } from './dto/station-update.dto';
 import { StationEntity } from './station.entity';
 import { StationRO, StationsRO } from './station.interfaces';
-import { PopupStationComponent } from './components/popup-station/popup-station.component';
-import { DialogService } from 'src/app/shared/services/dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,34 +24,30 @@ export class StationService {
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
-    private readonly _mapService: MapService,
     private readonly _stationFactory: StationFactory,
-    private readonly _matDialog: MatDialog,
-    private readonly _dialogService: DialogService,
   ) {
     this._stations = new BehaviorSubject<StationEntity[]>(Array<StationEntity>());
-    this._mapService.getMap().subscribe(
-      (map: Map) => {
-        if (map) {
-          this._map = map;
-          this.setMapToStations();
-        }
-      }
-    );
-    this._authService.observeAuthenticated().subscribe(
-      isAuthenticated => {
-        if (isAuthenticated) {
+    this._authService.isAuthenticated().subscribe(
+      authenticated => {
+        if(authenticated) {
           this.findAll();
         }
       }
     );
   }
 
-  subscribeToStations(): BehaviorSubject<StationEntity[]> {
+  public set map(map: Map) {
+    if(map) {
+      this._map = map;
+      this.addAllMarkersToMap();
+    }
+  }
+
+  public get stations(): BehaviorSubject<StationEntity[]> {
     return this._stations;
   }
 
-  updateStations() {
+  next() {
     this._stations.next(this._stations.value);
   }
 
@@ -62,9 +55,8 @@ export class StationService {
   // API FUNCTIONS
   // ==================================================
 
-  async findAll(active?: number) {
-    const httpOptions = this._authService.getHttpOptions(active ? true : false);
-    active ? httpOptions.params.set('active', active.toString()) : '';
+  async findAll() {
+    const httpOptions = this._authService.getHttpOptions({});
     await this._httpClient.get<StationsRO>(this._url, httpOptions).subscribe(
       stationsRO => {
         this._stations.value.forEach(station => {
@@ -76,91 +68,32 @@ export class StationService {
           this.addMarker(newStation);
           this._stations.value.push(newStation);
         });
-        this.updateStations();
-        this.setMapToStations();
+        this.next();
       },
       error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
+        throw new Error(error);
       }
     );
   }
 
-  async create(station: StationEntity) {
-
-    const stationCreateDto: StationCreateDto = new StationCreateDto();
-    stationCreateDto.code = station.code;
-    stationCreateDto.name = station.name;
-    stationCreateDto.altitude = station.altitude;
-    stationCreateDto.latitude = station.latitude;
-    stationCreateDto.longitude = station.longitude;
-
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.post<StationRO>(this._url, stationCreateDto, httpOptions).subscribe(
-      stationRO => {
-        const newStation: StationEntity = this._stationFactory.createStation(stationRO.station);
-        this.addMarker(newStation);
-        this._stations.value.push(newStation);
-        this.updateStations();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  create(stationCreateDto: StationCreateDto): Observable<StationRO> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.post<StationRO>(this._url, stationCreateDto, httpOptions);
   }
 
-  async update(station: StationEntity) {
-
-    const stationUpdateDto: StationUpdateDto = new StationUpdateDto();
-    stationUpdateDto.id = station.id;
-    stationUpdateDto.code = station.code;
-    stationUpdateDto.name = station.name;
-    stationUpdateDto.altitude = station.altitude;
-    stationUpdateDto.latitude = station.latitude;
-    stationUpdateDto.longitude = station.longitude;
-
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.put<StationRO>(this._url, stationUpdateDto, httpOptions).subscribe(
-      stationRO => {
-        this._stationFactory.copyWithNewMarker(station, stationRO.station);
-        this.addMarker(station);
-        this.updateStations();
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  update(stationUpdateDto: StationUpdateDto) {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.put<StationRO>(this._url, stationUpdateDto, httpOptions);
   }
 
-  remove(station: StationEntity) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.delete(this._url + `/${station.id}`, httpOptions).subscribe(
-      res => {
-        if (res) {
-          this.removeMarker(station);
-          station.active = 0;
-          this.updateStations();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  remove(station: StationEntity): Observable<boolean> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.delete<boolean>(this._url + `/${station.id}`, httpOptions);
   }
 
-  active(station: StationEntity) {
-    const httpOptions = this._authService.getHttpOptions(false);
-    this._httpClient.patch(this._url + `/${station.id}`, httpOptions).subscribe(
-      res => {
-        if (res) {
-          this.addMarker(station);
-          station.active = 1;
-          this.updateStations();
-        }
-      },
-      error => {
-        this._dialogService.openDialogInfoWithAPIException(error);
-      }
-    )
+  active(station: StationEntity): Observable<boolean> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.patch<boolean>(this._url + `/${station.id}`, httpOptions);
   }
 
   // ==================================================
@@ -181,9 +114,9 @@ export class StationService {
     this._stations.next(this._stations.value);
   }
 
-  private addMarker(station: StationEntity) {
-    station.addMarker().getElement().onclick = () => this._matDialog.open(PopupStationComponent, { data: station });
-    station.marker.addTo(this._map);
+  addMarker(station: StationEntity) {
+    station.addMarker();
+    this.addMarkerToMap(station.marker);
   }
 
   removeMarkersAll() {
@@ -193,19 +126,23 @@ export class StationService {
     this._stations.next(this._stations.value);
   }
 
-  private removeMarker(station: StationEntity) {
+  removeMarker(station: StationEntity) {
     station.marker.remove();
   }
 
-  // ==================================================
+  //===========================================================
   // MAP
-  // ==================================================
-
-  private setMapToStations() {
-    if (this._map && this._stations.value) {
-      this._stations.value.forEach(station => {
-        this.addMarker(station);
-      });
+  //===========================================================
+  
+  private addAllMarkersToMap() {
+    this._stations.value.forEach(station => {
+      this.addMarkerToMap(station.marker);
+    })
+  }
+  
+  private addMarkerToMap(marker: Marker) {
+    if(this._map && marker) {
+      marker.addTo(this._map);
     }
   }
 
