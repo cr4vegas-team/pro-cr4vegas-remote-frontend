@@ -1,4 +1,11 @@
+//===========================================================
+// MODULES
+//===========================================================
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 // ==================================================
 // ANGULAR MATERIAL
 // ==================================================
@@ -21,8 +28,14 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatRippleModule } from '@angular/material/core';
+import { MatChipsModule } from '@angular/material/chips';
 
 const modules = [
+  CommonModule,
+  BrowserAnimationsModule,
+  BrowserModule,
+  FormsModule,
+  ReactiveFormsModule,
   MatButtonModule,
   MatCardModule,
   MatCheckboxModule,
@@ -42,14 +55,19 @@ const modules = [
   MatToolbarModule,
   MatProgressSpinnerModule,
   MatRippleModule,
+  MatChipsModule,
 ];
 
 @NgModule({
-
+  //===========================================================
+  // IMPORTS
+  //===========================================================
   imports: [
     ...modules
   ],
-
+  //===========================================================
+  // EXPORTS
+  //===========================================================
   exports: [
     ...modules
   ]

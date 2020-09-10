@@ -133,7 +133,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
         this.close();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.exception.description } });
       }
     );
   }

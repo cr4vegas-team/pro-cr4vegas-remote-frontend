@@ -3,8 +3,6 @@ import { HttpClientModule } from '@angular/common/http';
 // MODULES
 // ==================================================
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { JwtModule } from '@auth0/angular-jwt';
 import { MqttModule } from 'ngx-mqtt';
 import { environment as env } from '../environments/environment';
@@ -12,15 +10,13 @@ import { environment as env } from '../environments/environment';
 // COMPONENTS
 // ==================================================
 import { AppComponent } from './app.component';
-import { GLOBAL } from './shared/constants/global.constant';
-// ==================================================
-// SERVICES
-// ==================================================
-import { AuthService } from './shared/services/auth.service';
-import { MapService } from './shared/services/map.service';
-import { MqttEventsService } from './shared/services/mqtt-events.service';
+import { UnitModule } from './modules/unit/unit.module';
+import { WrapModule } from './modules/wrap/wrap.module';
 import { SharedModule } from './shared/shared.module';
 
+export function tokenGetter() {
+  return localStorage.getItem("access_token");
+}
 
 @NgModule({
 
@@ -41,19 +37,19 @@ import { SharedModule } from './shared/shared.module';
       path: env.mqtt.path,
       rejectUnauthorized: false,
     }),
+    
+    HttpClientModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: () => { return localStorage.getItem('access_token') },
-        allowedDomains: [GLOBAL.API + 'login'],
-        disallowedRoutes: [GLOBAL.API + 'map']
+        tokenGetter: tokenGetter,
+        allowedDomains: ['http://localhost:8881'],
       }
     }),
 
-    BrowserAnimationsModule,
-    BrowserModule,
-    HttpClientModule,
 
     SharedModule,
+    UnitModule,
+    WrapModule,
   ],
 
   bootstrap: [AppComponent]

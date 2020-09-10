@@ -20,12 +20,16 @@
                     Estaciones
                 </mat-checkbox>
                 <br>
-                <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitHydrantChecked" (ngModelChange)="showHydrants()" (click)="$event.stopPropagation()">
+                <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitHydrantChecked" (ngModelChange)="showUnitsHydrants()" (click)="$event.stopPropagation()">
                     Hidrantes
                 </mat-checkbox>
                 <br>
                 <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitPondChecked" (ngModelChange)="showUnitsPonds()" (click)="$event.stopPropagation()">
                     Balsas
+                </mat-checkbox>
+                <br>
+                <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitGenericChecked" (ngModelChange)="showUnitsGenerics()" (click)="$event.stopPropagation()">
+                    Genéricos
                 </mat-checkbox>
             </div>
             <button mat-button (click)="$event.stopPropagation(); setCbxToTrue()">Mostrartodo</button>

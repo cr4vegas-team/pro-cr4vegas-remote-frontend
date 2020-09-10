@@ -25,13 +25,6 @@ export class SetService {
     private readonly _setFactory: SetFactory,
   ) {
     this._sets = new BehaviorSubject<SetEntity[]>(Array<SetEntity>());
-    this._authService.isAuthenticated().subscribe(
-      authenticated => {
-        if(authenticated) {
-          this.findAll();
-        }
-      }
-    );
   }
 
   public get sets(): BehaviorSubject<SetEntity[]> {
@@ -48,7 +41,7 @@ export class SetService {
 
   async findAll() {
     const httpOptions = this._authService.getHttpOptions({});
-    await this._httpClient.get<SetsRO>(this._url, httpOptions).subscribe(
+    await this._httpClient.get<SetsRO>(this._url + '/all', httpOptions).subscribe(
       setsRO => {
         this._sets.value.splice(0);
         setsRO.sets.forEach((set: SetEntity) => {
@@ -83,9 +76,13 @@ export class SetService {
     return this._httpClient.patch<boolean>(this._url + `/${set.id}`, httpOptions);
   }
 
+  //===========================================================
+  // API FUNCTIONS - SETS-TYPES
+  //===========================================================
+
   findAllSetTypes(): Observable<SetTypeEntity[]> {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<SetTypeEntity[]>(this._url + `set-type`, httpOptions);
+    return this._httpClient.get<SetTypeEntity[]>(this._url + `/set-type`, httpOptions);
   }
 
   createSetType(setType: SetTypeEntity): Observable<SetTypeEntity> {
@@ -101,14 +98,6 @@ export class SetService {
   removeSetType(setType: SetTypeEntity): Observable<boolean> {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.delete<boolean>(this._url + `/set-type/${setType.name}`, httpOptions);
-  }
-
-  // ==================================================
-  // API FUNCTIONS - SET-TYPE
-  // ==================================================
-  findAllTypes(): Observable<SetTypeEntity[]> {
-    const httpOptions = this._authService.getHttpOptions(false);
-    return this._httpClient.get<SetTypeEntity[]>(this._url, httpOptions);
   }
 
 

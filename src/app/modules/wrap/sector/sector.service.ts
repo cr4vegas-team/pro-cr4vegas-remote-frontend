@@ -24,13 +24,6 @@ export class SectorService {
     private readonly _authService: AuthService,
   ) {
     this._sectors = new BehaviorSubject<SectorEntity[]>(Array<SectorEntity>());
-    this._authService.isAuthenticated().subscribe(
-      authenticated => {
-        if(authenticated) {
-          this.findAll();
-        }
-      }
-    );
   }
 
   public get sectors(): BehaviorSubject<SectorEntity[]> {
@@ -51,13 +44,8 @@ export class SectorService {
       sectorsRO => {
         this._sectors.value.splice(0);
         sectorsRO.sectors.forEach((sector: SectorEntity) => {
-          try {
-            const newSector: SectorEntity = this._sectorFactory.createSector(sector);
-            this._sectors.value.push(newSector);
-          } catch(error) {
-            //
-          }
-          
+          const newSector: SectorEntity = this._sectorFactory.createSector(sector);
+          this._sectors.value.push(newSector);
         });
         this.updateSectors();
       },

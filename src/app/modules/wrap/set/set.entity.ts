@@ -10,13 +10,13 @@ export class SetEntity {
 
     private _id: number;
     private _setType: SetTypeEntity;
-    private _units: UnitEntity[];
     private _code: string;
     private _name: string;
     private _description: string;
     private _updated: Date;
     private _created: Date;
     private _active: number;
+    private _units: UnitEntity[];
 
     public get id(): number {
         return this._id;
@@ -87,8 +87,6 @@ export class SetEntity {
     public set active(active: number) {
         if (active) {
             this._active = active;
-        } else {
-            this._active = 0;
         }
     }
 

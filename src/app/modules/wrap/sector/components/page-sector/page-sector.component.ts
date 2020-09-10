@@ -35,7 +35,7 @@ export class PageSectorComponent implements OnInit {
   ngOnInit(): void {
     this._sectorService.sectors.subscribe(
       res => {
-        this.sectors = this.sectors;
+        this.sectors = res;
         this.dataSource.data = this.sectors;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;

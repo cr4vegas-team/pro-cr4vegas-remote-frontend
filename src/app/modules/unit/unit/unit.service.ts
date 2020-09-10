@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
 import { UnitFactory } from './unit.factory';
+import { UnitsRO } from './unit.interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,11 @@ export class UnitService {
   // ==================================================
   // API FUNCTIONS
   // ==================================================
+
+  public findAll(): Observable<UnitsRO> {
+    const httpOptions = this._authService.getHttpOptions(false);
+    return this._httpClient.get<UnitsRO>(this._url, httpOptions);
+  }
 
   public remove(id: number): Observable<boolean> {
     const httpOptions = this._authService.getHttpOptions(false);

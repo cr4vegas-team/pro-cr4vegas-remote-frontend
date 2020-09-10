@@ -21,9 +21,9 @@ export class SetFactory {
             set.setType = source.setType;
             set.description = source.description;
             set.active = source.active;
-            set.units = source.units;
             set.created = source.created;
             set.updated = source.updated;
+            set.units = source.units;
         }
         return set;
     }
@@ -35,9 +35,9 @@ export class SetFactory {
         target.setType = source.setType;
         target.description = source.description;
         target.active = source.active;
-        target.units = source.units;
         target.created = source.created;
         target.updated = source.updated;
+        target.units = source.units;
     }
 
     getSetCreateDto(set: SetEntity): SetCreateDto {
@@ -45,7 +45,7 @@ export class SetFactory {
         setCreateDto.code = set.code;
         setCreateDto.name = set.name;
         setCreateDto.description = set.description;
-        setCreateDto.setType = set.setType;
+        setCreateDto.setType = set.setType.name;
         setCreateDto.units = set.units;
         return setCreateDto;
     }
@@ -56,7 +56,7 @@ export class SetFactory {
         setUpdateDto.code = set.code;
         setUpdateDto.name = set.name;
         setUpdateDto.description = set.description;
-        setUpdateDto.setType = set.setType;
+        setUpdateDto.setType = set.setType.name;
         setUpdateDto.units = set.units;
         return setUpdateDto;
     }

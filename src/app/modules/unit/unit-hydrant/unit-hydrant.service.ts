@@ -31,13 +31,6 @@ export class UnitHydrantService {
     private readonly _mqttEventService: MqttEventsService,
   ) {
     this._unitsHydrants = new BehaviorSubject<UnitHydrantEntity[]>(Array<UnitHydrantEntity>());
-    this._authService.isAuthenticated().subscribe(
-      authenticated => {
-        if (authenticated) {
-          this.findAll();
-        }
-      }
-    );
   }
 
   public set map(map: Map) {

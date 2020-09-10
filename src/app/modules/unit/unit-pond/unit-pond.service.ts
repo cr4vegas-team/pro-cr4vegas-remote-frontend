@@ -1,13 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Map, Marker } from 'mapbox-gl';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { TopicTypeEnum } from '../../../shared/constants/topic-type.enum';
 import { AuthService } from '../../../shared/services/auth.service';
 import { MqttEventsService } from '../../../shared/services/mqtt-events.service';
-import { UnitService } from '../unit/unit.service';
 import { UnitPondCreateDto } from './dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
 import { UnitPondEntity } from './unit-pond.entity';
@@ -29,18 +27,9 @@ export class UnitPondService {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitPondFactory: UnitPondFactory,
-    private readonly _unitService: UnitService,
     private readonly _mqttEventService: MqttEventsService,
-    private readonly _matDialog: MatDialog,
   ) {
     this._unitsPonds = new BehaviorSubject<UnitPondEntity[]>(Array<UnitPondEntity>());
-    this._authService.isAuthenticated().subscribe(
-      authenticated => {
-        if(authenticated) {
-          this.findAll();
-        }
-      }
-    );
   }
 
   public set map(map: Map) {

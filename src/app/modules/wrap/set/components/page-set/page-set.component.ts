@@ -7,6 +7,7 @@ import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialo
 import { TableEmptyMSGEnum } from 'src/app/shared/constants/table-empty-msg.enum';
 import { SetEntity } from '../../set.entity';
 import { SetService } from '../../set.service';
+import { DialogSetCreateComponent } from '../dialog-set-create/dialog-set-create.component';
 import { DialogSetComponent } from '../dialog-set/dialog-set.component';
 
 @Component({
@@ -56,7 +57,7 @@ export class PageSetComponent implements OnInit {
   }
 
   openDialogSet(set: SetEntity) {
-    this._matDialog.open(DialogSetComponent, { data: set });
+    this._matDialog.open(DialogSetCreateComponent, { data: set });
   }
 
 }

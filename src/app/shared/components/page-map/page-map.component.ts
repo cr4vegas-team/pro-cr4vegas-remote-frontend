@@ -8,6 +8,8 @@ import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/co
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { SectorService } from 'src/app/modules/wrap/sector/sector.service';
+import { SetService } from 'src/app/modules/wrap/set/set.service';
 import { DialogStationComponent } from 'src/app/modules/wrap/station/components/dialog-station/dialog-station.component';
 import { StationService } from 'src/app/modules/wrap/station/station.service';
 import { MapService } from '../../services/map.service';
@@ -29,6 +31,8 @@ export class MapComponent implements OnInit {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
     private readonly _stationService: StationService,
+    private readonly _sectorService: SectorService,
+    private readonly _setService: SetService,
   ) {
     this._unitGenericService.unitsGenerics.subscribe(
       unitsGenerics => {
@@ -36,28 +40,28 @@ export class MapComponent implements OnInit {
           unitGeneric.marker.getElement().onclick = () => this._matDialog.open(DialogUnitGenericComponent, { data: unitGeneric });
         });
       }
-    )
+    );
     this._unitHydrantService.unitsHydrants.subscribe(
       unitsHydrants => {
         unitsHydrants.forEach(unitHydrant => {
           unitHydrant.marker.getElement().onclick = () => this._matDialog.open(DialogUnitHydrantComponent, { data: unitHydrant });
         });
       }
-    )
+    );
     this._unitPondService.unitsPonds.subscribe(
       unitsPonds => {
         unitsPonds.forEach(unitPond => {
           unitPond.marker.getElement().onclick = () => this._matDialog.open(DialogUnitPondComponent, { data: unitPond });
         });
       }
-    )
+    );
     this._stationService.stations.subscribe(
       stations => {
         stations.forEach(station => {
           station.marker.getElement().onclick = () => this._matDialog.open(DialogStationComponent, { data: station });
         });
       }
-    )
+    );
   }
 
   async ngOnInit() {
@@ -74,7 +78,8 @@ export class MapComponent implements OnInit {
       });
 
       this.loading = true;
-      this.shareMapToServices();
+      await this.loadDataOnServices();
+      await this.shareMapToServices();
       this.loading = false;
 
     } catch (error) {
@@ -88,6 +93,15 @@ export class MapComponent implements OnInit {
     this._unitHydrantService.map = this._map;
     this._unitPondService.map = this._map;
     this._stationService.map = this._map;
+  }
+
+  loadDataOnServices() {
+    this._unitGenericService.findAll();
+    this._unitHydrantService.findAll();
+    this._unitPondService.findAll();
+    this._stationService.findAll();
+    this._sectorService.findAll();
+    this._setService.findAll();
   }
 
 }

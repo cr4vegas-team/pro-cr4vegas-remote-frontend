@@ -39,9 +39,9 @@ export class UnitFactory {
         unitCreateDto.longitude = source.longitude;
         unitCreateDto.latitude = source.latitude;
         unitCreateDto.description = source.description;
-        unitCreateDto.sector = source.sector;
-        unitCreateDto.station = source.station;
-        unitCreateDto.sets = source.sets;
+        unitCreateDto.sector = source.sector? source.sector.id : null;
+        unitCreateDto.station = source.station? source.station.id : null;
+        unitCreateDto.sets = source.sets.map(set => set.id);
         return unitCreateDto;
     }
 
@@ -53,9 +53,9 @@ export class UnitFactory {
         unitUpdateDto.longitude = source.longitude;
         unitUpdateDto.latitude = source.latitude;
         unitUpdateDto.description = source.description;
-        unitUpdateDto.sector = source.sector;
-        unitUpdateDto.station = source.station;
-        unitUpdateDto.sets = source.sets;
+        unitUpdateDto.sector = source.sector? source.sector.id : NaN;
+        unitUpdateDto.station = source.station? source.station.id : NaN;
+        unitUpdateDto.sets = source.sets.map(set => set.id);
         return unitUpdateDto;
     }
 

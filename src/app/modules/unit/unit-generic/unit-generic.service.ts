@@ -7,7 +7,6 @@ import { TopicTypeEnum } from '../../../shared/constants/topic-type.enum';
 import { AuthService } from '../../../shared/services/auth.service';
 import { MqttEventsService } from '../../../shared/services/mqtt-events.service';
 import { UnitGenericFactory } from '../unit-generic/unit-generic.factory';
-import { UnitService } from '../unit/unit.service';
 import { UnitGenericCreateDto } from './dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from './dto/unit-generic-update.dto';
 import { UnitGenericEntity } from './unit-generic.entity';
@@ -29,21 +28,13 @@ export class UnitGenericService {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitGenericFactory: UnitGenericFactory,
-    private readonly _unitService: UnitService,
     private readonly _mqttEventService: MqttEventsService,
   ) {
     this._unitsGenerics = new BehaviorSubject<UnitGenericEntity[]>(Array<UnitGenericEntity>());
-    this._authService.isAuthenticated().subscribe(
-      authenticated => {
-        if(authenticated) {
-          this.findAll();
-        }
-      }
-    );
   }
 
   public set map(map: Map) {
-    if(map) {
+    if (map) {
       this._map = map;
       this.addAllMarkersToMap();
     }
@@ -132,15 +123,15 @@ export class UnitGenericService {
   //===========================================================
   // MAP
   //===========================================================
-  
+
   private addAllMarkersToMap() {
     this._unitsGenerics.value.forEach(unitGeneric => {
       this.addMarkerToMap(unitGeneric.marker);
     })
   }
-  
+
   private addMarkerToMap(marker: Marker) {
-    if(this._map && marker) {
+    if (this._map && marker) {
       marker.addTo(this._map);
     }
   }

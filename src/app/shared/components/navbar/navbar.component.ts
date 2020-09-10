@@ -18,6 +18,7 @@ import { DialogSetCreateComponent } from '../../../modules/wrap/set/components/d
 import { DialogStationCreateComponent } from '../../../modules/wrap/station/components/dialog-station-create/dialog-station-create.component';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { DialogUnitHydrantCreateComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
+import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 
 @Component({
   selector: 'app-navbar',
@@ -31,9 +32,11 @@ export class NavbarComponent implements OnInit {
   mapboxStyleEnum = MapboxStyleEnum;
   mapboxStyleSelected: MapboxStyleEnum;
   consDialogInfo = GLOBAL;
+
   cbxStationChecked: boolean = true;
   cbxUnitHydrantChecked: boolean = true;
   cbxUnitPondChecked: boolean = true;
+  cbxUnitGenericChecked: boolean = true;
 
   constructor(
     private readonly _stationService: StationService,
@@ -42,6 +45,7 @@ export class NavbarComponent implements OnInit {
     private readonly _matDialog: MatDialog,
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
+    private readonly _unitGenericService: UnitGenericService,
     private readonly _mapService: MapService,
   ) { }
 
@@ -111,7 +115,7 @@ export class NavbarComponent implements OnInit {
     this._router.navigate(['/units-ponds']);
   }
 
-  showHydrants() {
+  showUnitsHydrants() {
     if (this.cbxUnitHydrantChecked) {
       this._unitHydrantService.addMarkersAndSubscribeMQTTAll();
     } else {
@@ -127,6 +131,14 @@ export class NavbarComponent implements OnInit {
     }
   }
 
+  showUnitsGenerics() {
+    if (this.cbxUnitGenericChecked) {
+      this._unitGenericService.addMarkersAndSubscribeMQTTAll();
+    } else {
+      this._unitGenericService.removeMarkersAndUnsubscribeMQTTAll();
+    }
+  }
+
   showStations() {
     if (this.cbxStationChecked) {
       this._stationService.addMarkersAll();
@@ -136,15 +148,17 @@ export class NavbarComponent implements OnInit {
   }
 
   showAll() {
-    this.showHydrants();
+    this.showUnitsHydrants();
     this.showStations();
     this.showUnitsPonds();
+    this.showUnitsGenerics();
   }
 
   setCbxToTrue() {
     this.cbxUnitHydrantChecked = true;
     this.cbxStationChecked = true;
     this.cbxUnitPondChecked = true;
+    this.cbxUnitGenericChecked = true;
     this.showAll();
   }
 
@@ -152,6 +166,7 @@ export class NavbarComponent implements OnInit {
     this.cbxUnitHydrantChecked = false;
     this.cbxStationChecked = false;
     this.cbxUnitPondChecked = false;
+    this.cbxUnitGenericChecked = false;
     this.showAll();
   }
 

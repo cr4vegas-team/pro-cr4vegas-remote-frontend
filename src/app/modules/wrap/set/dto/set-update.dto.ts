@@ -6,7 +6,7 @@ export class SetUpdateDto {
 
     id: number;
     code: string;
-    setType: SetTypeEntity;
+    setType: string;
     name: string;
     description: string;
     units: UnitEntity[];

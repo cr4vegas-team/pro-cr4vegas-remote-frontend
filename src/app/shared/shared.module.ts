@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ChartsModule } from 'ng2-charts';
 import { AppRoutingModule } from './app-routing.module';
 import { DialogInfoComponent } from './components/dialog-info/dialog-info.component';
@@ -11,6 +10,12 @@ import { MaterialModule } from './material.module';
 import { AuthService } from './services/auth.service';
 import { MapService } from './services/map.service';
 import { MqttEventsService } from './services/mqtt-events.service';
+
+const modules = [
+  MaterialModule,
+  ChartsModule,
+  AppRoutingModule
+];
 
 @NgModule({
 
@@ -25,21 +30,13 @@ import { MqttEventsService } from './services/mqtt-events.service';
   // IMPORTS
   //===========================================================
   imports: [
-    MaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ChartsModule,
-    AppRoutingModule
+    ...modules
   ],
   //===========================================================
   // EXPORTS
   //===========================================================
   exports: [
-    FormsModule,
-    ReactiveFormsModule,
-    ChartsModule,
-    MaterialModule,
-    AppRoutingModule,
+    ...modules,
 
     MapComponent,
     LoginComponent,

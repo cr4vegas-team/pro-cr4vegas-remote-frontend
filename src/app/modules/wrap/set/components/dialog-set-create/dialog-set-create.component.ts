@@ -1,6 +1,9 @@
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
+import { UnitService } from 'src/app/modules/unit/unit/unit.service';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { DialogResultData } from '../../../../../shared/components/dialog-result/dialog-result-data.class';
 import { DialogResultComponent } from '../../../../../shared/components/dialog-result/dialog-result.component';
@@ -12,6 +15,7 @@ import { SetTypeEntity } from '../../set-type.entity';
 import { SetEntity } from '../../set.entity';
 import { SetFactory } from '../../set.factory';
 import { SetService } from '../../set.service';
+import { DIALOG_INFO_DATA } from '../../../../../shared/constants/dialog-info-data.enum';
 
 @Component({
   selector: 'app-dialog-set-create',
@@ -22,18 +26,26 @@ export class DialogSetCreateComponent implements OnInit {
 
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
   create: boolean = true;
+
   setsTypes: SetTypeEntity[];
+  units: UnitEntity[];
+
+  visible = true;
+  selectable = false;
+  removable = true;
+  addOnBlur = false;
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   // Froms control
   setForm: FormGroup;
 
   constructor(
     private readonly _matDialog: MatDialog,
-    private readonly _dialogResultData: DialogResultData,
     private readonly _setService: SetService,
     private readonly _setFactory: SetFactory,
     private readonly _formBuilder: FormBuilder,
     private readonly _dialogRef: MatDialogRef<DialogSectorCreateComponent>,
+    private readonly _unitService: UnitService,
     @Inject(MAT_DIALOG_DATA)
     public set: SetEntity
   ) {
@@ -43,25 +55,38 @@ export class DialogSetCreateComponent implements OnInit {
       this.create = true;
       this.set = new SetEntity();
     }
+    this.setsTypes = [];
     this.setForm = this._formBuilder.group({
       id: [this.set.id],
       code: [this.set.code],
       name: [this.set.name],
       description: [this.set.description],
       setType: [this.set.setType],
+      units: [this.set.units],
     });
-    this._setService.findAllTypes().subscribe(
+    this.units = [];
+    this._setService.findAllSetTypes().subscribe(
       setsTypes => {
-        if (setsTypes) {
+        if (setsTypes && setsTypes.length > 0) {
           this.setsTypes = setsTypes;
-        } else {
-          this.setsTypes = [];
+        }
+      },
+      error => {
+        this._matDialog.open(DialogInfoComponent, { data: { title: "Error", html: error.error } });
+      }
+    );
+    this._unitService.findAll().subscribe(
+      unitsRO => {
+        if (unitsRO) {
+          this.units = unitsRO.units;
         }
       }
     )
   }
 
-  ngOnInit(): void { }
+  ngOnInit() {
+    console.log(this.setForm.value);
+  }
 
   ngOnDestroy() {
     this.set = null;
@@ -79,7 +104,7 @@ export class DialogSetCreateComponent implements OnInit {
       name: '',
     }
     const dialogRef = this._matDialog.open(DialogResultComponent, { data });
-    
+
     dialogRef.afterClosed().subscribe(result => {
       const setType: SetTypeEntity = new SetTypeEntity();
       setType.name = result;
@@ -90,7 +115,7 @@ export class DialogSetCreateComponent implements OnInit {
           }
         },
         error => {
-          this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.message } });
+          this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: `${DIALOG_INFO_DATA.HTML_API_ERROR}` } });
         }
       )
     });
@@ -127,7 +152,7 @@ export class DialogSetCreateComponent implements OnInit {
         this.close();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.message } });
       }
     );
   }
@@ -137,15 +162,20 @@ export class DialogSetCreateComponent implements OnInit {
     this._setService.update(setUpdateDto).subscribe(
       setRO => {
         this._setFactory.copy(this.set, setRO.set);
+        console.log(setRO);
         this._setService.updateSets();
       },
       error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.message } });
       }
     )
   }
 
-  compareSet(d1: any, d2: any) {
+  compareSetType(d1: any, d2: any) {
+    return d1 && d2 && d1.name === d2.name;
+  }
+
+  compareSetUnit(d1: any, d2: any) {
     return d1 && d2 && d1.id === d2.id;
   }
 
@@ -153,5 +183,12 @@ export class DialogSetCreateComponent implements OnInit {
     this._dialogRef.close();
   }
 
+  remove(unit: UnitEntity): void {
+    const index = this.setForm.value.units.indexOf(unit);
+    if (index >= 0) {
+      this.setForm.value.units.splice(index, 1);
+    }
+    console.log(this.setForm.value.units);
+  }
 
 }

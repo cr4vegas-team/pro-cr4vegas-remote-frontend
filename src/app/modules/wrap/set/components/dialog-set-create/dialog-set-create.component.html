@@ -5,37 +5,84 @@
 
 <div mat-dialog-content>
 
-    <form [formGroup]="setForm">
+  <form [formGroup]="setForm">
 
-        <div class="col-sm mr-3">
-            <div>
-                <mat-form-field appearance="fill">
-                    <mat-label>Código</mat-label>
-                    <input matInput formControlName="code" required>
-                </mat-form-field>
-                <br>
-                <mat-form-field appearance="fill">
-                    <mat-label>Nombre</mat-label>
-                    <input matInput formControlName="name">
-                </mat-form-field>
-                <br>
-                <mat-form-field appearance="fill">
-                    <mat-label>Tipo</mat-label>
-                    <mat-select [compareWith]="compareSet" name="setType">
-                        <mat-option *ngFor="let setType of setsTypes" [value]="setType">{{setType.name}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <button mat-raised-button (click)="openDialogSetTypeCreate()">+</button>
-                <br>
-                <mat-form-field appearance="fill" style="width: 100%">
-                    <mat-label>Descripción</mat-label>
-                    <textarea matInput formControlName="description"></textarea>
-                </mat-form-field>
+    <div class="row">
+
+      <!-- LEFT -->
+
+      <div class="col-md-auto">
+
+        <div>
+          <mat-form-field appearance="fill">
+            <mat-label>Código</mat-label>
+            <input matInput formControlName="code" required>
+          </mat-form-field>
+          <br>
+          <mat-form-field appearance="fill">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+
+          <br>
+
+          <div class="row justify-content">
+            <div class="col">
+              <mat-form-field appearance="fill">
+
+                <mat-label>Tipo</mat-label>
+                <mat-select [compareWith]="compareSetType" name="setType" formControlName="setType">
+                  <mat-option *ngFor="let setType of setsTypes" [value]="setType">{{setType.name}}
+                  </mat-option>
+                </mat-select>
+
+              </mat-form-field>
             </div>
-        </div>
+            <div class="col-md-auto">
+              <button mat-raised-button (click)="openDialogSetTypeCreate()">+</button>
+            </div>
+          </div>
 
-    </form>
+        </div>
+      </div>
+
+      <!-- CENTER -->
+
+      <div class="col-md-auto">
+        <mat-form-field appearance="fill">
+          <mat-label>Unidades</mat-label>
+          <mat-select [compareWith]="compareSetUnit" multiple formControlName="units">
+            <mat-option *ngFor="let unit of units" [value]="unit">{{unit.code}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <br>
+      </div>
+      
+    </div>
+
+    <mat-form-field class="example-chip-list">
+      <mat-chip-list #chipList aria-label="Fruit selection">
+        <mat-chip *ngFor="let unit of setForm.value.units" [selectable]="selectable"
+                 [removable]="removable" (removed)="remove(unit)">
+          {{unit.code}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input readonly placeholder="Unidades..."
+               [matChipInputFor]="chipList"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur">
+      </mat-chip-list>
+    </mat-form-field>
+
+    <br>
+
+    <mat-form-field appearance="fill" style="width: 100%">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput formControlName="description"></textarea>
+    </mat-form-field>
+
+  </form>
 
 </div>
 
@@ -44,6 +91,6 @@
 <!-- ACTIONS -->
 
 <div mat-dialog-actions>
-    <button mat-raised-button mat-dialog-close>Cerrar</button>
-    <button mat-raised-button type="submit" (click)="accept()">Aceptar</button>
+  <button mat-raised-button mat-dialog-close>Cerrar</button>
+  <button mat-raised-button type="submit" (click)="accept()">Aceptar</button>
 </div>

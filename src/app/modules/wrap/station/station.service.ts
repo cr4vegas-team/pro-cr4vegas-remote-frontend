@@ -27,13 +27,6 @@ export class StationService {
     private readonly _stationFactory: StationFactory,
   ) {
     this._stations = new BehaviorSubject<StationEntity[]>(Array<StationEntity>());
-    this._authService.isAuthenticated().subscribe(
-      authenticated => {
-        if(authenticated) {
-          this.findAll();
-        }
-      }
-    );
   }
 
   public set map(map: Map) {
