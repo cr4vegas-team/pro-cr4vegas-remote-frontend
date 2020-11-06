@@ -5,7 +5,8 @@ export interface SetRO {
     set: SetEntity;
 }
 
+// ==================================================
 export interface SetsRO {
-    sets: SetEntity[],
-    count: number,
+    sets: SetEntity[];
+    count: number;
 }

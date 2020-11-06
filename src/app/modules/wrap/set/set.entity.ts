@@ -1,109 +1,18 @@
 import { UnitEntity } from '../../unit/unit/unit.entity';
-import { SetTypeEntity } from "./set-type.entity";
-
+import { SetTypeEntity } from './set-type.entity';
 
 export class SetEntity {
-
-    // ==================================================
-    // API PROPERTIES
-    // ==================================================
-
-    private _id: number;
-    private _setType: SetTypeEntity;
-    private _code: string;
-    private _name: string;
-    private _description: string;
-    private _updated: Date;
-    private _created: Date;
-    private _active: number;
-    private _units: UnitEntity[];
-
-    public get id(): number {
-        return this._id;
-    }
-
-    public set id(id: number) {
-        this._id = id;
-    }
-
-    public get setType(): SetTypeEntity {
-        return this._setType;
-    }
-
-    public set setType(setType: SetTypeEntity) {
-        this._setType = setType;
-    }
-
-    public get units(): UnitEntity[] {
-        return this._units;
-    }
-
-    public set units(units: UnitEntity[]) {
-        this._units = units;
-    }
-
-    public get code(): string {
-        return this._code;
-    }
-
-    public set code(code: string) {
-        if (!code.match(/(CJ)([0-9]{6})/)) {
-            throw new Error(`<p>El código es incorrecto. Ejemplo: CJ000111. Código + 6 dígitos. Código:</p>
-                            <ul>
-                                <li>CJ = Conjunto</li>
-                            </ul>
-                            `)
-        }
-        this._code = code;
-    }
-
-    public get name(): string {
-        return this._name;
-    }
-
-    public set name(name: string) {
-        if (!name) {
-            throw new Error('El nombre del conjunto no puede quedar vacío')
-        }
-        this._name = name;
-    }
-
-    public get description(): string {
-        return this._description;
-    }
-
-    public set description(description: string) {
-        if (description) {
-            this._description = description;
-        } else {
-            this._description = '';
-        }
-    }
-
-    public get active(): number {
-        return this._active;
-    }
-
-    public set active(active: number) {
-        if (active) {
-            this._active = active;
-        }
-    }
-
-    public get updated(): Date {
-        return this._updated;
-    }
-
-    public set updated(updated: Date) {
-        this._updated = updated;
-    }
-
-    public get created(): Date {
-        return this._created;
-    }
-
-    public set created(created: Date) {
-        this._created = created;
-    }
-
+  // ==================================================
+  // API PROPERTIES
+  // ==================================================
+  id: number;
+  setType: SetTypeEntity;
+  code: string;
+  name: string;
+  description: string;
+  updated: Date;
+  created: Date;
+  active: number;
+  units: UnitEntity[];
+  image: string;
 }

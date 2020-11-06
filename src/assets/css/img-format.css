@@ -1,0 +1,10 @@
+.unit-image {
+  border: 1px solid #c2c2c2;
+  width: 100%;
+  max-width: 500px;
+  max-height: 300px;
+}
+
+.unit-image:hover {
+  box-shadow: inset 0px 0px 15px black;
+}

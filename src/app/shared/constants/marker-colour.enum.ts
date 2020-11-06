@@ -1,6 +1,7 @@
 
 
 export enum MarkerColourEnum {
+    WITHOUT_COMMUNICATION = '#000',
     STATION = '#f7acef',
     SET = '#bff4e9',
     SECTOR = '#faddb0',

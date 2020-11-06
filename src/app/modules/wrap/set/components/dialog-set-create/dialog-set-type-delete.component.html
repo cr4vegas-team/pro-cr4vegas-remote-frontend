@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Eliminar tipo de conjunto</h1>
+<div mat-dialog-content>
+  <h2>{{ data.name }}</h2>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cerrar</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Eliminar</button>
+</div>

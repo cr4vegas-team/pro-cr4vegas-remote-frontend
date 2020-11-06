@@ -1,28 +1,27 @@
+import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Map } from 'mapbox-gl';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MapService {
 
-  private _map: Map;
+  private _map: BehaviorSubject<Map>;
 
   constructor() {
-    this._map = null;
+    this._map = new BehaviorSubject<Map>(null);
   }
 
-  public set map(map: Map) {
-    if (map) {
-      this._map = map;
-    }
+  public get map(): BehaviorSubject<Map> {
+    return this._map;
   }
 
-  centerTo(longitude: number, latitude: number) {
-    this._map.jumpTo({ zoom: 15.8, center: { lat: latitude, lng: longitude } });
+  centerTo(longitude: number, latitude: number): void {
+    this._map.value.jumpTo({ zoom: 15.8, center: { lat: latitude, lng: longitude } });
   }
 
-  setStyle(style: string) {
-    this._map.setStyle(style);
+  setStyle(style: string): void {
+    this._map.value.setStyle(style);
   }
 }

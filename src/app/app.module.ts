@@ -1,57 +1,57 @@
-import { HttpClientModule } from '@angular/common/http';
+import { MaterialModule } from './shared/material.module';
+import { GeneralModule } from './modules/general/general.module';
+import { SessionModule } from './modules/session/session.module';
+import { environment as env } from '../environments/environment';
 // ==================================================
 // MODULES
 // ==================================================
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { JwtModule } from '@auth0/angular-jwt';
 import { MqttModule } from 'ngx-mqtt';
-import { environment as env } from '../environments/environment';
+import { UnitModule } from './modules/unit/unit.module';
+import { WrapModule } from './modules/wrap/wrap.module';
+import { SharedModule } from './shared/shared.module';
 // ==================================================
 // COMPONENTS
 // ==================================================
 import { AppComponent } from './app.component';
-import { UnitModule } from './modules/unit/unit.module';
-import { WrapModule } from './modules/wrap/wrap.module';
-import { SharedModule } from './shared/shared.module';
 
-export function tokenGetter() {
-  return localStorage.getItem("access_token");
+export function tokenGetter(): string {
+  return localStorage.getItem('access_token');
 }
 
 @NgModule({
-
-  //===========================================================
-  // DECLARATIONS
-  //===========================================================
-  declarations: [
-    AppComponent,
-  ],
-  //===========================================================
-  // IMPORTS
-  //===========================================================
+  // ===========================================================
+  //  DECLARATIONS
+  // ===========================================================
+  declarations: [AppComponent],
+  // ===========================================================
+  //  IMPORTS
+  // ===========================================================
   imports: [
-
     MqttModule.forRoot({
       hostname: env.mqtt.hostname,
-      protocol: (env.mqtt.protocol === "wss") ? "wss" : "ws",
+      protocol: env.mqtt.protocol === 'wss' ? 'wss' : 'ws',
       path: env.mqtt.path,
-      rejectUnauthorized: false,
+      port: 8084,
     }),
-    
+
     HttpClientModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: tokenGetter,
+        tokenGetter,
         allowedDomains: ['http://localhost:8881'],
-      }
+      },
     }),
-
 
     SharedModule,
     UnitModule,
     WrapModule,
+    SessionModule,
+    GeneralModule,
   ],
 
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

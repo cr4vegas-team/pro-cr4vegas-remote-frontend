@@ -11,12 +11,12 @@ import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 })
 export class LoginComponent implements OnInit {
 
-  private MESSAGE_AUTH_ERR: string = 'Datos incorrectos. Vuelva a intentarlo';
-  private MESSAGE_AUTH_OK: string = 'Usuario identificado correctamente...';
+  private MESSAGE_AUTH_ERR = 'Datos incorrectos. Vuelva a intentarlo';
+  private MESSAGE_AUTH_OK = 'Usuario identificado correctamente...';
 
-  message: string = "---";
-  auth: boolean = false;
-  hide: boolean = true;
+  message = '---';
+  auth = false;
+  hide = true;
 
   constructor(
     private readonly _authService: AuthService,
@@ -42,8 +42,8 @@ export class LoginComponent implements OnInit {
     this.login('test', 'test');
   }
 
-  login(user: string, password: string) {
-    this._authService.login(user, password)
+  login(user: string, password: string): void {
+    this._authService.login(user, password);
   }
 
 }

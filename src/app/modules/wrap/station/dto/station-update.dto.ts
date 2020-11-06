@@ -9,5 +9,8 @@ export class StationUpdateDto {
     altitude: number;
     latitude: number;
     longitude: number;
+    active: number;
+    units: number[];
+    image: string;
 
 }

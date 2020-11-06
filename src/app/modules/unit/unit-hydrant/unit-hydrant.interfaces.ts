@@ -1,10 +1,12 @@
 import { UnitHydrantEntity } from './unit-hydrant.entity';
 
 export interface UnitHydrantRO {
-    unitHydrant: UnitHydrantEntity;
+  unitHydrant: UnitHydrantEntity;
 }
 
+// ==================================================
+
 export interface UnitsHydrantsRO {
-    unitsHydrants: UnitHydrantEntity[];
-    count: number;
+  unitsHydrants: UnitHydrantEntity[];
+  count: number;
 }

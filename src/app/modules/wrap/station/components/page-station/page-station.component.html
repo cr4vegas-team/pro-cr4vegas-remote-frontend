@@ -23,7 +23,7 @@
             <!-- UnitHydrant code Column -->
             <ng-container matColumnDef="code">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Code </th>
-                <td mat-cell *matCellDef="let row" [style.color]="row.active? 'green' : 'red'"> {{row.code}}</td>
+                <td mat-cell *matCellDef="let row" [style.color]="row.active === 1? 'green' : 'red'"> {{row.code}}</td>
             </ng-container>
 
             <!-- Unit name Column -->

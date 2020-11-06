@@ -3,15 +3,15 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-	production: false,
-	hmr: false,
-	api: 'http://localhost:8881/api/',
-	mqtt: {
-		hostname: 'cr4v-emqx-ws.rubenfgr.com',
-		protocol: "wss",
-		port: 8084,
-		path: '/mqtt',
-	}
+  production: false,
+  hmr: false,
+  api: 'http://172.26.200.236:8881/api/',
+  mqtt: {
+    hostname: 'emqx.rubenfgr.com',
+    protocol: 'wss',
+    port: 8084,
+    path: '/mqtt',
+  },
 };
 
 /*

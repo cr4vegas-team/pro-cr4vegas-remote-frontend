@@ -1,10 +1,11 @@
 import { UnitGenericEntity } from './unit-generic.entity';
 
 export interface UnitGenericRO {
-    unitGeneric: UnitGenericEntity;
+  unitGeneric: UnitGenericEntity;
 }
 
+// ==================================================
 export interface UnitsGenericsRO {
-    unitsGenerics: UnitGenericEntity[];
-    count: number;
+  unitsGenerics: UnitGenericEntity[];
+  count: number;
 }

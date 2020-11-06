@@ -1,63 +1,135 @@
-<h1 mat-dialog-title>{{unitPond.id}} - {{unitPond.unit.code}}</h1>
+<!-- ====================================
+      TITLE
+     ==================================== -->
+<h1 mat-dialog-title>{{ unitPond.id }} - {{ unitPond.unit.code }}</h1>
+<!-- ====================================
+          CONTENT
+          ==================================== -->
 <div mat-dialog-content>
-    <div class="row">
-        <div class="col-sm">
-            <img src="assets/img/default.jpg" alt="" style="width: 100%; max-width: 300px;">
-            <hr>
-            <ng-template #empty>
-                <b>---</b>
-            </ng-template>
-            <table>
-                <tr>
-                    <td>Sector:</td>
-                    <td *ngIf="unitPond.unit.sector; else empty" style="padding-left: 5px;">
-                        <b>{{unitPond.unit.sector.name}}</b></td>
-                </tr>
-                <tr>
-                    <td>Estación:</td>
-                    <td *ngIf="unitPond.unit.station; else empty" style="padding-left: 5px;">
-                        <b>{{unitPond.unit.station.name}}</b></td>
-                </tr>
-                <hr>
-                <tr>
-                    <td>Altitud:</td>
-                    <td style="padding-left: 5px;"><b>{{unitPond.unit.altitude}} m</b></td>
-                </tr>
-                <tr>
-                    <td>Latitud:</td>
-                    <td style="padding-left: 5px;"><b>{{unitPond.unit.latitude}}º</b></td>
-                </tr>
-                <tr>
-                    <td>Longitud:</td>
-                    <td style="padding-left: 5px;"><b>{{unitPond.unit.longitude}}º</b></td>
-                </tr>
-            </table>
+  <div class="row">
+    <div class="col-sm mr-3">
+      <mat-checkbox
+        class="example-margin"
+        [checked]="unitPond.unit.active"
+        disabled
+        >Activo</mat-checkbox
+      >
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <mat-checkbox
+        class="example-margin"
+        [checked]="unitPond.unit.communication"
+        disabled
+        >Comunicación</mat-checkbox
+      >
+    </div>
+  </div>
 
+  <div class="row">
+    <!-- ====================================
+            LEFT COLUMN
+            ==================================== -->
+    <div class="col dialog-col-mw">
+      <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
+      <br /><br />
+    </div>
+    <!-- ====================================
+                        RIGTH COLUMN
+                       ==================================== -->
+    <div class="col dialog-col-mw">
+      <div class="container-fluid">
+        <div class="text-center">
+          <b>{{ (unitPond.level$.value) / 1000 }}&nbsp;m</b>
+          &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+          <small>{{ unitPond.level$.value }}&nbsp;cm</small>
         </div>
-        <div class="col-sm">
-            <div class="text-center">
-                <b>{{unitPond.level / 100 | number: '1:2'}}m</b> - <small>{{unitPond.level}}cm</small>
-            </div>
 
-                <div style="display: block">
-                <canvas baseChart
-                    [datasets]="barChartData"
-                    [labels]="barChartLabels"
-                    [options]="barChartOptions"
-                    [legend]="barChartLegend"
-                    [chartType]="barChartType">
-                </canvas>
-            </div>
-            <hr>
+        <div style="display: block">
+          <canvas
+            baseChart
+            [datasets]="barChartData"
+            [labels]="barChartLabels"
+            [options]="barChartOptions"
+            [legend]="barChartLegend"
+            [chartType]="barChartType"
+          >
+          </canvas>
         </div>
-        
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col dialog-col-mw">
+      <div class="row">
+        <div class="col-3">
+          Sector:
+          <br />
+          Estación:
+          <br />
+          Conjuntos:
+        </div>
+        <div class="col">
+          <b>{{ unitPond.unit.sector ? unitPond.unit.sector.name : "---" }}</b>
+          <br />
+          <b>{{ unitPond.unit.station ? unitPond.unit.station.name : "---" }}</b>
+          <br />
+          <span *ngIf="unitPond.unit.sets.length === 0"><b>---</b></span>
+          <span *ngFor="let set of unitPond.unit.sets; let i = index"
+            ><span *ngIf="i > 0"><b>, </b></span><b>{{ set.name }}</b></span
+          >
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="row">
+        <div class="col-3">
+          Altitud:
+          <br />
+          Latitud:
+          <br />
+          Longitud:
+        </div>
+        <div class="col">
+          <b>{{ unitPond.unit.altitude || 0 }} m</b>
+          <br />
+          <b>{{ unitPond.unit.latitude || 0.0 }} </b>
+          <br />
+          <b>{{ unitPond.unit.longitude || 0.0 }}</b>
+        </div>
+      </div>
     </div>
 
+    <div class="col dialog-col-mw">
+      <div class="row">
+        <div class="col-4">
+          Metros cúbicos:
+          <br />
+          Altura:
+          <br />
+          Descripción:
+        </div>
+        <div class="col">
+          <b>{{ unitPond.m3 || 0 }} m3</b>
+          <br />
+          <b>{{ unitPond.height || 0 }} m</b>
+          <br />
+          {{ unitPond.unit.description }}
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<hr>
+<hr />
 
+<!-- ====================================
+                    BOOTOM CONTENT
+                   ==================================== -->
 <div mat-dialog-actions>
-    <button mat-raised-button mat-dialog-close>Cerrar</button>
-    <button mat-raised-button (click)="openDialogUnitPondCreate()">Modificar</button>
+  <button mat-raised-button mat-dialog-close>Cerrar</button>
+  <button mat-raised-button (click)="openDialogUnitPondCreate()">
+    Modificar
+  </button>
 </div>

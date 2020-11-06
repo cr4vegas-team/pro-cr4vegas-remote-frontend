@@ -4,7 +4,9 @@ export interface SectorRO {
     sector: SectorEntity;
 }
 
+// ==================================================
+
 export interface SectorsRO {
-    sectors: SectorEntity[],
+    sectors: SectorEntity[];
     count: number;
 }

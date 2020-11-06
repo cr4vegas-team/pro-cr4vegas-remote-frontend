@@ -7,7 +7,6 @@ import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialo
 import { TableEmptyMSGEnum } from 'src/app/shared/constants/table-empty-msg.enum';
 import { SetEntity } from '../../set.entity';
 import { SetService } from '../../set.service';
-import { DialogSetCreateComponent } from '../dialog-set-create/dialog-set-create.component';
 import { DialogSetComponent } from '../dialog-set/dialog-set.component';
 
 @Component({
@@ -19,7 +18,7 @@ export class PageSetComponent implements OnInit {
   tableEmptyMSG = TableEmptyMSGEnum;
 
   sets: SetEntity[];
-  displayedColumns: string[] = ['id', 'active', 'code', 'name'];
+  displayedColumns: string[] = ['id', 'active', 'code', 'name', 'setType'];
   dataSource: MatTableDataSource<SetEntity>;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
@@ -47,7 +46,7 @@ export class PageSetComponent implements OnInit {
     ).unsubscribe();
   }
 
-  applyFilter(event: Event) {
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -56,8 +55,8 @@ export class PageSetComponent implements OnInit {
     }
   }
 
-  openDialogSet(set: SetEntity) {
-    this._matDialog.open(DialogSetCreateComponent, { data: set });
+  openDialogSet(set: SetEntity): void {
+    this._matDialog.open(DialogSetComponent, { data: set });
   }
 
 }

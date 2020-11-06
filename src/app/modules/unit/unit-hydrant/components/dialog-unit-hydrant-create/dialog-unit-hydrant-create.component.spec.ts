@@ -1,12 +1,12 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DialogUnitHydrantCreateComponent } from './dialog-unit-hydrant-create.component';
+
 
 describe('DialogHydrantCreateComponent', () => {
   let component: DialogUnitHydrantCreateComponent;
   let fixture: ComponentFixture<DialogUnitHydrantCreateComponent>;
 
-  beforeEach(async(() => {
+  beforeEach((() => {
     TestBed.configureTestingModule({
       declarations: [DialogUnitHydrantCreateComponent]
     })

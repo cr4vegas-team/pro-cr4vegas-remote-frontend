@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -12,15 +12,15 @@ import { DialogUnitGenericComponent } from '../dialog-unit-generic/dialog-unit-g
   selector: 'app-page-unit-generic',
   templateUrl: './page-unit-generic.component.html',
 })
-export class PageUnitGenericComponent implements OnInit {
+export class PageUnitGenericComponent implements OnInit, AfterViewInit {
 
   tableEmptyMSG = TableEmptyMSGEnum;
   unitsGenerics: UnitGenericEntity[];
-  displayedColumns: string[] = ['id', 'code', 'sector', 'station', 'sets'];
+  displayedColumns: string[] = ['id', 'code', 'active', 'communication', 'sector', 'station', 'sets'];
   dataSource: MatTableDataSource<UnitGenericEntity>;
 
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
 
   constructor(
     private readonly _unitGenericService: UnitGenericService,
@@ -35,9 +35,7 @@ export class PageUnitGenericComponent implements OnInit {
     this._unitGenericService.unitsGenerics.subscribe(
       res => {
         this.unitsGenerics = res;
-        this.dataSource.data = this.unitsGenerics;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        this.dataSource = new MatTableDataSource(this.unitsGenerics);
       },
       err => {
         console.log('ERROR - UnitGenericComponent: ' + err.message);
@@ -45,7 +43,7 @@ export class PageUnitGenericComponent implements OnInit {
     ).unsubscribe();
 
     this.dataSource.filterPredicate = (unitGeneric, filterValue) => {
-      let setsString: string = '';
+      let setsString = '';
       unitGeneric.unit.sets.forEach(set => setsString += set.name);
       return unitGeneric.unit.code.toLowerCase().includes(filterValue) ||
              (unitGeneric.unit.sector && unitGeneric.unit.sector.name.toLowerCase().includes(filterValue)) ||
@@ -54,7 +52,12 @@ export class PageUnitGenericComponent implements OnInit {
     };
   }
 
-  applyFilter(event: Event) {
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -63,7 +66,7 @@ export class PageUnitGenericComponent implements OnInit {
     }
   }
 
-  openDialogUnitGeneric(unitGeneric: UnitGenericEntity) {
+  openDialogUnitGeneric(unitGeneric: UnitGenericEntity): void {
     this._matDialog.open(DialogUnitGenericComponent, { data: unitGeneric });
   }
 

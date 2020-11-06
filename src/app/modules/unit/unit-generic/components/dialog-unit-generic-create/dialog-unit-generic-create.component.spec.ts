@@ -1,12 +1,12 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DialogUnitGenericCreateComponent } from './dialog-unit-generic-create.component';
+
 
 describe('DialogUnitGenericCreateComponent', () => {
   let component: DialogUnitGenericCreateComponent;
   let fixture: ComponentFixture<DialogUnitGenericCreateComponent>;
 
-  beforeEach(async(() => {
+  beforeEach((() => {
     TestBed.configureTestingModule({
       declarations: [ DialogUnitGenericCreateComponent ]
     })

@@ -1,26 +1,45 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
+import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
+import { UnitService } from 'src/app/modules/unit/unit/unit.service';
+import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
 import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
+import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { StationCreateDto } from '../../dto/station-create.dto';
 import { StationUpdateDto } from '../../dto/station-update.dto';
 import { StationEntity } from '../../station.entity';
 import { StationFactory } from '../../station.factory';
 import { StationService } from '../../station.service';
+import { UploadService } from './../../../../../shared/services/upload.service';
 
 @Component({
   selector: 'app-dialog-station-create',
   templateUrl: './dialog-station-create.component.html',
 })
-export class DialogStationCreateComponent implements OnInit {
-
-
+export class DialogStationCreateComponent implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
-  create: boolean = true;
+  create = true;
+  loading = false;
 
-  // Froms control
   stationForm: FormGroup;
+  units: UnitEntity[];
+  subUnits: Subscription;
+
+  selectable = false;
+  removable = true;
+
+  imageUrl = GLOBAL.IMAGE_DEFAULT;
+  file: File;
+
+  // ==================================================
 
   constructor(
     private readonly _matDialog: MatDialog,
@@ -28,94 +47,269 @@ export class DialogStationCreateComponent implements OnInit {
     private readonly _stationFactory: StationFactory,
     private readonly _formBuilder: FormBuilder,
     private readonly _dialogRef: MatDialogRef<DialogStationCreateComponent>,
+    private readonly _unitService: UnitService,
+    private readonly _uploadService: UploadService,
+    private readonly _sanitizer: DomSanitizer,
     @Inject(MAT_DIALOG_DATA)
     public station: StationEntity
-  ) {
+  ) {}
+
+  // ==================================================
+
+  ngOnInit(): void {
+    this.subUnits = this._unitService.findAll().subscribe((unitsRO) => {
+      this.units = unitsRO.units;
+    });
+
     if (this.station) {
-      this.create = false;
+      this.initStationUpdate();
     } else {
-      this.create = true;
-      this.station = new StationEntity();
+      this.initStationCreate();
     }
 
     this.stationForm = this._formBuilder.group({
       id: [this.station.id],
-      code: [this.station.code],
-      name: [this.station.name],
+      code: [this.station.code, [Validators.pattern('(ET)([0-9]{6})')]],
+      name: [this.station.name, [Validators.required]],
       description: [this.station.description],
-      altitude: [this.station.altitude],
-      longitude: [this.station.longitude],
-      latitude: [this.station.latitude],
+      altitude: [this.station.altitude, [Validators.required]],
+      longitude: [this.station.longitude, [Validators.required]],
+      latitude: [this.station.latitude, [Validators.required]],
+      active: [this.station.active, [Validators.required]],
+      units: [this.station.units],
+      image: [this.station.image],
     });
   }
 
-  ngOnInit(): void {}
+  // ==================================================
 
-  ngOnDestroy() {
-    this.station = null;
-  }
-
-  openDialogInfo(data: string) {
-    this._matDialog.open(DialogInfoComponent, { data });
-  }
-
-  accept() {
-    try {
-      if (!this.stationForm.valid) {
-        throw new Error(`
-          <p>El código es incorrecto. Ejemplo: ET000150. Código + 6 dígitos. Código:</p>
-          <ul>
-              <li>ET = Estación</li>
-          </ul>
-        `);
-      }
-      const newStation: StationEntity = this._stationFactory.createStation(this.stationForm.value);
-      if (this.create) {
-        this.createStation(newStation);
-      } else {
-        this.updateStation(newStation);
-      }
-    } catch (error) {
-      this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error } });
+  private initStationUpdate(): void {
+    this.create = false;
+    if (
+      this.station.image !== undefined &&
+      this.station.image !== null &&
+      this.station.image !== ''
+    ) {
+      this._uploadService.getImage(this.station.image).subscribe(
+        (next) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.imageUrl = this._sanitizer.bypassSecurityTrustResourceUrl(
+              reader.result as string
+            ) as string;
+          };
+          reader.readAsDataURL(next);
+        },
+        (error) => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: {
+              errorType: ErrorTypeEnum.FRONT_ERROR,
+              title: DialogInfoTitleEnum.WARNING,
+              error,
+            },
+          });
+        }
+      );
     }
   }
 
-  createStation(newStation: StationEntity) {
-    const stationCreateDto: StationCreateDto = this._stationFactory.getStationCreateDto(newStation);
+  // ==================================================
+
+  private initStationCreate(): void {
+    this.create = true;
+    this.station = new StationEntity();
+    this.imageUrl = GLOBAL.IMAGE_DEFAULT;
+  }
+
+  // ==================================================
+
+  accept(): void {
+    if (this.stationForm.valid) {
+      this.loading = true;
+      this.uploadImage();
+      this.loading = false;
+    } else {
+      let html = '<h2>Existen campos incorrectos</h2><ul>';
+      if (this.stationForm.get('code').invalid) {
+        html +=
+          '<li>El código es incorrecto. Ejemplo: ET000150. Código + 6 dígitos</li>';
+      }
+      if (this.stationForm.get('name').invalid) {
+        html += '<li>El nombre debe estar entre 3 y 45 caracteres</li>';
+      }
+      if (this.stationForm.get('altitude').invalid) {
+        html += '<li>La altitud debe estar entre 0 y 1000</li>';
+      }
+      if (this.stationForm.get('latitude').invalid) {
+        html += '<li>La latitud debe estar entre -90 y 90';
+      }
+      if (this.stationForm.get('longitude').invalid) {
+        html += '<li>La longitud debe estar entre -90 y 90';
+      }
+      html += '</ul>';
+      this._matDialog.open(DialogInfoComponent, {
+        data: {
+          errorType: ErrorTypeEnum.FRONT_ERROR,
+          title: DialogInfoTitleEnum.WARNING,
+          html,
+        },
+      });
+    }
+  }
+
+  // ==================================================
+
+  private createOrUpdateStation(): void {
+    const newStation: StationEntity = this._stationFactory.createStation(
+      this.stationForm.value
+    );
+    if (this.create) {
+      this.createStation(newStation);
+    } else {
+      this.updateStation(newStation);
+    }
+  }
+
+  // ==================================================
+
+  createStation(createStation: StationEntity): void {
+    const stationCreateDto: StationCreateDto = this._stationFactory.getStationCreateDto(
+      createStation
+    );
     this._stationService.create(stationCreateDto).subscribe(
-      stationRO => {
-        const newStation: StationEntity = this._stationFactory.createStation(stationRO.station);
-        this._stationService.addMarker(newStation);
-        this._stationService.stations.value.push(newStation);
-        this._stationService.next();
+      (stationRO) => {
+        const newStation: StationEntity = this._stationFactory.createStation(
+          stationRO.station
+        );
+        this._stationService.addOne(newStation);
+        this._stationService.refresh();
         this.close();
       },
-      error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      (error) => {
+        this._matDialog.open(DialogInfoComponent, {
+          data: {
+            errorType: ErrorTypeEnum.API_ERROR,
+            title: DialogInfoTitleEnum.WARNING,
+            html: error,
+          },
+        });
       }
     );
   }
 
-  updateStation(newStation: StationEntity) {
-    const stationUpdateDto: StationUpdateDto = this._stationFactory.getStationUpdateDto(newStation);
+  // ==================================================
+
+  private updateStation(newStation: StationEntity): void {
+    const stationUpdateDto: StationUpdateDto = this._stationFactory.getStationUpdateDto(
+      newStation
+    );
     this._stationService.update(stationUpdateDto).subscribe(
-      stationRO => {
-        this._stationFactory.copy(this.station, stationRO.station);
-        this._stationService.addMarker(this.station);
-        this._stationService.next();
+      (stationRO) => {
+        this._stationFactory.updateStation(this.station, stationRO.station);
+        this._stationService.refresh();
+        this.close();
       },
-      error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      (error) => {
+        this._matDialog.open(DialogInfoComponent, {
+          data: {
+            errorType: ErrorTypeEnum.API_ERROR,
+            title: DialogInfoTitleEnum.WARNING,
+            html: error,
+          },
+        });
       }
-    )
+    );
   }
 
-  compareUnitGeneric(d1: any, d2: any) {
+  // ==================================================
+
+  private uploadImage(): void {
+    if (this.file !== undefined && this.file !== null) {
+      const formData = new FormData();
+      formData.append('file', this.file, this.file.name);
+      this._uploadService.uploadImage(formData).subscribe(
+        (next) => {
+          if (next) {
+            this.stationForm.value.image = next.filename;
+            this.createOrUpdateStation();
+          }
+        },
+        (error) => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: {
+              errorType: ErrorTypeEnum.API_ERROR,
+              title: DialogInfoTitleEnum.WARNING,
+              html: error,
+            },
+          });
+        }
+      );
+    } else {
+      this.createOrUpdateStation();
+    }
+  }
+
+  // ==================================================
+
+  compareUnitGeneric(d1: any, d2: any): boolean {
     return d1 && d2 && d1.id === d2.id;
   }
 
-  close() {
+  // ==================================================
+
+  close(): void {
     this._dialogRef.close();
   }
 
+  // ==================================================
+
+  remove(removeUnit: UnitEntity): void {
+    this.stationForm
+      .get('units')
+      .setValue(
+        this.stationForm.value.units.filter((unit) => unit.id !== removeUnit.id)
+      );
+  }
+
+  // ==================================================
+
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files[0];
+    let validImage = true;
+    let html = '<h2>Existen campos incorrectos</h2><ul>';
+    if (!file.name.endsWith('.jpg')) {
+      html += '<li>Solo se permiten imágenes en .jpg</li>';
+      validImage = false;
+    }
+    if (file.size > 5000000) {
+      html += '<li>El tamaño máximo permitido son 5 MB (5000000 Bytes)';
+      validImage = false;
+    }
+    html += '</ul>';
+    if (!validImage) {
+      this._matDialog.open(DialogInfoComponent, {
+        data: {
+          errorType: ErrorTypeEnum.FRONT_ERROR,
+          title: DialogInfoTitleEnum.WARNING,
+          html,
+        },
+      });
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imageUrl = reader.result as string;
+        this.file = file;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // ==================================================
+
+  ngOnDestroy(): void {
+    this.station = null;
+    if (this.subUnits) {
+      this.subUnits.unsubscribe();
+    }
+  }
 }

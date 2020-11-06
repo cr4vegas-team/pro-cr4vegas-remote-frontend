@@ -1,40 +1,82 @@
-<h1 mat-dialog-title>{{station.id}} - {{station.code}} - {{station.name}}</h1>
-<div mat-dialog-content>
-  <div class="row">
-    <div class="col-sm">
-      <img src="assets/img/default.jpg" alt="" width="100%">
-      <hr>
-      <ng-template #empty>
-        <b>---</b>
-      </ng-template>
-      <table>
-        <tr>
-          <td>Altitud:</td>
-          <td style="padding-left: 5px;"><b>{{station.altitude}} m</b></td>
-        </tr>
-        <tr>
-          <td>Latitud:</td>
-          <td style="padding-left: 5px;"><b>{{station.latitude}}º</b></td>
-        </tr>
-        <tr>
-          <td>Longitud:</td>
-          <td style="padding-left: 5px;"><b>{{station.longitude}}º</b></td>
-        </tr>
-      </table>
 
-    </div>
-    <div class="col-sm">
-      <table>
+  <!-- ====================================
+      TITLE
+     ==================================== -->
+  <h1 mat-dialog-title *ngIf="station.active === 1" class="ok">
+    {{ station.id }} - {{ station.code }} - {{ station.name }}
+  </h1>
+  <h1 mat-dialog-title *ngIf="station.active === 0" class="error">
+    {{ station.id }} - {{ station.code }} - {{ station.name }}
+  </h1>
+  <!-- ====================================
+          CONTENT
+         ==================================== -->
+  <div mat-dialog-content>
+    <div class="row">
+      <!-- ====================================
+              LEFT COLUMN
+             ==================================== -->
+      <div class="col dialog-col-mw" >
+        <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
+        <br /><br />
 
-      </table>
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-3">
+              Altitud:
+              <br />
+              Latitud:
+              <br />
+              Longitud:
+              <br />
+              Descripción:
+            </div>
+            <div class="col">
+              <b>{{ station.altitude }} m</b>
+              <br />
+              <b>{{ station.latitude }}º</b>
+              <br />
+              <b>{{ station.longitude }}º</b>
+              <br />
+              {{ station.description }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ====================================
+              RIGTH COLUMN
+             ==================================== -->
+      <div class="col dialog-col-mw">
+        <mat-form-field>
+          <mat-label>Filter</mat-label>
+          <input
+            matInput
+            (keyup)="applyFilter($event)"
+            placeholder="Ex. ium"
+            #input
+          />
+        </mat-form-field>
+
+        <mat-selection-list [multiple]="false">
+          <mat-list-option
+            *ngFor="let unit of units"
+            role="listitem"
+            (click)="openDialogUnit(unit)"
+            >{{ unit.code }}</mat-list-option
+          >
+        </mat-selection-list>
+      </div>
     </div>
   </div>
 
-</div>
+  <hr />
 
-<hr>
-
-<div mat-dialog-actions>
-  <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button mat-raised-button (click)="openDialogHydrantCreate()">Modificar</button>
-</div>
+  <!-- ====================================
+          BOOTOM CONTENT
+         ==================================== -->
+  <div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button mat-raised-button (click)="openDialogStationCreate()">
+      Modificar
+    </button>
+  </div>

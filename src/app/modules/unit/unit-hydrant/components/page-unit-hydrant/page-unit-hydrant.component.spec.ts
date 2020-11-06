@@ -1,12 +1,12 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PageUnitHydrantComponent } from './page-unit-hydrant.component';
+
 
 describe('HydrantComponent', () => {
   let component: PageUnitHydrantComponent;
   let fixture: ComponentFixture<PageUnitHydrantComponent>;
 
-  beforeEach(async(() => {
+  beforeEach((() => {
     TestBed.configureTestingModule({
       declarations: [ PageUnitHydrantComponent ]
     })

@@ -10,31 +10,26 @@ import { MaterialModule } from './material.module';
 import { AuthService } from './services/auth.service';
 import { MapService } from './services/map.service';
 import { MqttEventsService } from './services/mqtt-events.service';
+import { DialogImageComponent } from './components/dialog-image/dialog-image.component';
 
-const modules = [
-  MaterialModule,
-  ChartsModule,
-  AppRoutingModule
-];
+const modules = [MaterialModule, ChartsModule, AppRoutingModule];
 
 @NgModule({
-
   declarations: [
     MapComponent,
     LoginComponent,
     NavbarComponent,
     DialogInfoComponent,
     DialogResultComponent,
+    DialogImageComponent,
   ],
-  //===========================================================
-  // IMPORTS
-  //===========================================================
-  imports: [
-    ...modules
-  ],
-  //===========================================================
-  // EXPORTS
-  //===========================================================
+  // ===========================================================
+  //  IMPORTS
+  // ===========================================================
+  imports: [...modules],
+  // ===========================================================
+  //  EXPORTS
+  // ===========================================================
   exports: [
     ...modules,
 
@@ -45,14 +40,9 @@ const modules = [
     DialogResultComponent,
   ],
 
-  //===========================================================
-  // PROVIDERS
-  //===========================================================
-  providers: [
-    MqttEventsService,
-    MapService,
-    AuthService,
-  ],
-
+  // ===========================================================
+  //  PROVIDERS
+  // ===========================================================
+  providers: [MqttEventsService, MapService, AuthService],
 })
-export class SharedModule { }
+export class SharedModule {}

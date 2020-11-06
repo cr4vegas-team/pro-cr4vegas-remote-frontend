@@ -1,6 +1,6 @@
-//===========================================================
-// MODULES
-//===========================================================
+// ===========================================================
+//  MODULES
+// ===========================================================
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
@@ -11,21 +11,19 @@ import { DialogSectorComponent } from './sector/components/dialog-sector/dialog-
 // ==================================================
 import { PageSectorComponent } from './sector/components/page-sector/page-sector.component';
 import { SectorService } from './sector/sector.service';
-import { DialogSetCreateComponent } from './set/components/dialog-set-create/dialog-set-create.component';
+import { DialogSetCreateComponent, DialogSetTypeCreateComponent, DialogSetTypeDeleteComponent } from './set/components/dialog-set-create/dialog-set-create.component';
 import { DialogSetComponent } from './set/components/dialog-set/dialog-set.component';
 import { PageSetComponent } from './set/components/page-set/page-set.component';
-//===========================================================
-// SERVICES
-//===========================================================
+// ===========================================================
+//  SERVICES
+// ===========================================================
 import { SetService } from './set/set.service';
 import { DialogStationCreateComponent } from './station/components/dialog-station-create/dialog-station-create.component';
 import { DialogStationComponent } from './station/components/dialog-station/dialog-station.component';
 import { PageStationComponent } from './station/components/page-station/page-station.component';
 import { StationService } from './station/station.service';
 
-
 @NgModule({
-
   // ==================================================
   // DECLARATIONS
   // ==================================================
@@ -39,21 +37,16 @@ import { StationService } from './station/station.service';
     PageSetComponent,
     DialogSetComponent,
     DialogSetCreateComponent,
+    DialogSetTypeCreateComponent,
+    DialogSetTypeDeleteComponent
   ],
   // ==================================================
   // IMPORTS
   // ==================================================
-  imports: [
-    CommonModule,
-    SharedModule,
-  ],
+  imports: [CommonModule, SharedModule],
   // ==================================================
   // PROVIDERS
   // ==================================================
-  providers: [
-    StationService,
-    SectorService,
-    SetService,
-  ],
+  providers: [StationService, SectorService, SetService],
 })
-export class WrapModule { }
+export class WrapModule {}

@@ -1,130 +1,263 @@
-<mat-sidenav-container class="navbar-container" (backdropClick)="close('backdrop')">
+<mat-sidenav-container
+  class="navbar-container"
+  (backdropClick)="close('backdrop')"
+>
+  <mat-sidenav
+    class="navbar"
+    #sidenav
+    (keydown.escape)="close('escape')"
+    disableClose
+  >
+    <img class="logo" src="../../../../assets/img/logo.png" />
+    <br />
+    <br />
+    <!-- <p><button mat-button (click)="close('toggle button')">Toggle</button></p> -->
 
-    <mat-sidenav class="navbar" #sidenav (keydown.escape)="close('escape')" disableClose>
+    <!-- START Map -->
+    <button class="button-navbar" mat-button (click)="goMap()">Mapa</button>
+    <br />
+    <!-- END Map -->
 
-        <img class="logo" src="../../../../assets/img/logo.png" />
-        <br>
-        <br>
-        <!-- <p><button mat-button (click)="close('toggle button')">Toggle</button></p> -->
+    <!-- START Show Menú -->
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuShows">
+      Mostrar
+    </button>
+    <mat-menu #menuShows="matMenu">
+      <div class="container">
+        <mat-checkbox
+          class="example-margin"
+          [(ngModel)]="cbxStationChecked"
+          (ngModelChange)="showStations()"
+          (click)="$event.stopPropagation()"
+        >
+          Estaciones
+        </mat-checkbox>
+        <br />
+        <mat-checkbox
+          class="example-margin"
+          [(ngModel)]="cbxUnitHydrantChecked"
+          (ngModelChange)="showUnitsHydrants()"
+          (click)="$event.stopPropagation()"
+        >
+          Hidrantes
+        </mat-checkbox>
+        <br />
+        <mat-checkbox
+          class="example-margin"
+          [(ngModel)]="cbxUnitPondChecked"
+          (ngModelChange)="showUnitsPonds()"
+          (click)="$event.stopPropagation()"
+        >
+          Balsas
+        </mat-checkbox>
+        <br />
+        <mat-checkbox
+          class="example-margin"
+          [(ngModel)]="cbxUnitGenericChecked"
+          (ngModelChange)="showUnitsGenerics()"
+          (click)="$event.stopPropagation()"
+        >
+          Genéricos
+        </mat-checkbox>
+      </div>
+      <button mat-button (click)="$event.stopPropagation(); setCbxToTrue()">
+        Mostrartodo
+      </button>
+      <button mat-button (click)="$event.stopPropagation(); setCbxToFalse()">
+        Limpiar
+      </button>
+      <hr />
+      <div class="container">
+        <mat-radio-group
+          aria-labelledby="radio-group"
+          #group="matRadioGroup"
+          (change)="setStyle($event)"
+        >
+          <mat-radio-button
+            class="radio-button"
+            value="{{ mapboxStyleEnum.STREETS }}"
+            (click)="$event.stopPropagation()"
+          >
+            Carretera
+          </mat-radio-button>
+          <br />
+          <mat-radio-button
+            class="radio-button"
+            value="{{ mapboxStyleEnum.SATELITE }}"
+            (click)="$event.stopPropagation()"
+            checked
+          >
+            Satélite
+          </mat-radio-button>
+          <br />
+          <mat-radio-button
+            class="radio-button"
+            value="{{ mapboxStyleEnum.DARK }}"
+            (click)="$event.stopPropagation()"
+          >
+            Oscuro
+          </mat-radio-button>
+          <br />
+          <mat-radio-button
+            class="radio-button"
+            value="{{ mapboxStyleEnum.LIGHT }}"
+            (click)="$event.stopPropagation()"
+          >
+            Claro
+          </mat-radio-button>
+          <br />
+        </mat-radio-group>
+      </div>
+    </mat-menu>
+    <br />
+    <!-- END Show Menú -->
 
-        <!-- START Map -->
-        <button class="button-navbar" mat-button (click)="goMap()">Mapa</button>
-        <br>
-        <!-- END Map -->
+    <!-- START Go to... -->
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuStations">
+      Ir a...
+    </button>
+    <mat-menu #menuStations="matMenu">
+      <button
+        mat-menu-item
+        *ngFor="let station of stations"
+        (click)="centerMapTo(station)"
+      >
+        {{ station.name }}
+      </button>
+    </mat-menu>
+    <br />
+    <!-- END Go to... -->
 
-        <!-- START Show Menú -->
-        <button class="button-navbar" mat-button [matMenuTriggerFor]="menuShows">Mostrar</button>
-        <mat-menu #menuShows="matMenu">
-            <div class="container">
-                <mat-checkbox class="example-margin" [(ngModel)]="cbxStationChecked" (ngModelChange)="showStations()" (click)="$event.stopPropagation()">
-                    Estaciones
-                </mat-checkbox>
-                <br>
-                <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitHydrantChecked" (ngModelChange)="showUnitsHydrants()" (click)="$event.stopPropagation()">
-                    Hidrantes
-                </mat-checkbox>
-                <br>
-                <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitPondChecked" (ngModelChange)="showUnitsPonds()" (click)="$event.stopPropagation()">
-                    Balsas
-                </mat-checkbox>
-                <br>
-                <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitGenericChecked" (ngModelChange)="showUnitsGenerics()" (click)="$event.stopPropagation()">
-                    Genéricos
-                </mat-checkbox>
-            </div>
-            <button mat-button (click)="$event.stopPropagation(); setCbxToTrue()">Mostrartodo</button>
-            <button mat-button (click)="$event.stopPropagation(); setCbxToFalse()">Limpiar</button>
-            <hr>
-            <div class="container">
-                <mat-radio-group aria-labelledby="radio-group" #group="matRadioGroup" (change)="setStyle($event)">
-                    <mat-radio-button class="radio-button" value="{{mapboxStyleEnum.STREETS}}" (click)="$event.stopPropagation()">
-                        Carretera
-                    </mat-radio-button>
-                    <br>
-                    <mat-radio-button class="radio-button" value="{{mapboxStyleEnum.SATELITE}}" (click)="$event.stopPropagation()" checked>
-                        Satélite
-                    </mat-radio-button>
-                    <br>
-                    <mat-radio-button class="radio-button" value="{{mapboxStyleEnum.DARK}}" (click)="$event.stopPropagation()">
-                        Oscuro
-                    </mat-radio-button>
-                    <br>
-                    <mat-radio-button class="radio-button" value="{{mapboxStyleEnum.LIGHT}}" (click)="$event.stopPropagation()">
-                        Claro
-                    </mat-radio-button>
-                    <br>
-                </mat-radio-group>
-            </div>
+    <hr />
 
-        </mat-menu>
-        <br>
-        <!-- END Show Menú -->
+    <!-- START Unit Control -->
+    <button
+      class="button-navbar"
+      mat-button
+      [matMenuTriggerFor]="unitControlList"
+    >
+      Unidades de control
+    </button>
 
-        <!-- START Go to... -->
-        <button class="button-navbar" mat-button [matMenuTriggerFor]="menuStations">Ir a...</button>
-        <mat-menu #menuStations="matMenu">
-            <button mat-menu-item *ngFor="let station of stations"
-                (click)="centerMapTo(station)">{{station.name}}</button>
-        </mat-menu>
-        <br>
-        <!-- END Go to... -->
+    <mat-menu #unitControlList="matMenu">
+      <button mat-menu-item [matMenuTriggerFor]="unitHydrantList">
+        Hidrantes
+      </button>
+      <button mat-menu-item [matMenuTriggerFor]="unitGenericList">
+        Genéricos
+      </button>
+      <button mat-menu-item [matMenuTriggerFor]="unitPondList">Balsas</button>
+    </mat-menu>
 
-        <hr>
+    <mat-menu #unitHydrantList="matMenu">
+      <button mat-menu-item (click)="goUnitsHydrants()">Listar</button>
+      <button mat-menu-item (click)="openDialogUnitHydrantCreate()">
+        Crear
+      </button>
+    </mat-menu>
 
-        <!-- START List -->
-        <button class="button-navbar" mat-button [matMenuTriggerFor]="list">Listar</button>
+    <mat-menu #unitGenericList="matMenu">
+      <button mat-menu-item (click)="goUnitsGenerics()">Listar</button>
+      <button mat-menu-item (click)="openDialogUnitGenericCreate()">
+        Crear
+      </button>
+    </mat-menu>
 
-        <mat-menu #list="matMenu">
-            <button mat-menu-item [matMenuTriggerFor]="listUnits">Unidades</button>
-            <button mat-menu-item (click)="goStations()">Estaciones</button>
-            <button mat-menu-item (click)="goSectors()">Sectores</button>
-            <button mat-menu-item (click)="goSets()">Conjuntos</button>
-        </mat-menu>
+    <mat-menu #unitPondList="matMenu">
+      <button mat-menu-item (click)="goUnitsPonds()">Listar</button>
+      <button mat-menu-item (click)="openDialogUnitPondCreate()">Crear</button>
+    </mat-menu>
+    <!-- END Unit Control -->
 
-        <mat-menu #listUnits="matMenu">
-            <button mat-menu-item (click)="goUnitsGenerics()">Genéricos</button>
-            <button mat-menu-item (click)="goUnitsHydrants()">Hidrantes</button>
-            <button mat-menu-item (click)="goUnitsPonds()">Balsas</button>
-        </mat-menu>
-        <!-- END List -->
+    <!-- START Station -->
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="stationList">
+      Estaciones
+    </button>
 
-        <!-- START Primary Menú -->
-        <button class="button-navbar" mat-button [matMenuTriggerFor]="menuPrimary">Crear</button>
+    <mat-menu #stationList="matMenu">
+      <button mat-menu-item (click)="goStations()">Listar</button>
+      <button mat-menu-item (click)="openDialogStationCreate()">Crear</button>
+    </mat-menu>
+    <!-- END Station -->
 
-        <mat-menu #menuPrimary="matMenu">
-            <button mat-menu-item [matMenuTriggerFor]="createUnit">Unidad</button>
-            <button mat-menu-item (click)="openDialogStationCreate()">Estacion</button>
-            <button mat-menu-item (click)="openDialogSectorCreate()">Sector</button>
-            <button mat-menu-item (click)="openDialogSetCreate()">Conjunto</button>
-        </mat-menu>
+    <!-- START Sectors -->
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="sectorList">
+      Sectores
+    </button>
 
-        <mat-menu #createUnit="matMenu">
-            <button mat-menu-item (click)="openDialogUnitGenericCreate()">Genérico</button>
-            <button mat-menu-item (click)="openDialogUnitHydrantCreate()">Hidrante</button>
-            <button mat-menu-item (click)="openDialogUnitPondCreate()">Balsa</button>
-        </mat-menu>
-        <!-- END Primary Menú -->
+    <mat-menu #sectorList="matMenu">
+      <button mat-menu-item (click)="goSectors()">Listar</button>
+      <button mat-menu-item (click)="openDialogSectorCreate()">Crear</button>
+    </mat-menu>
+    <!-- END Sectors -->
 
-        <!-- START Logout -->
-        <button class="button-navbar" mat-button (click)="openDialogInfo(consDialogInfo.FUNCTION_NOT_ALLOWED)">Ajustes</button>
-        <br>
-        <!-- END Logout -->
+    <!-- START Sectors -->
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="setList">
+      Conjuntos
+    </button>
 
-        <!-- START Logout -->
-        <button class="button-navbar" mat-button (click)="logout()">Desconectar</button>
-        <br>
-        <!-- END Logout -->
+    <mat-menu #setList="matMenu">
+      <button mat-menu-item (click)="goSets()">Listar</button>
+      <button mat-menu-item (click)="openDialogSetCreate()">Crear</button>
+    </mat-menu>
+    <!-- END Sectors -->
 
-    </mat-sidenav>
+    <hr />
 
-    <mat-sidenav-content>
-        <button class="button-menu" mat-button (click)="sidenav.open()" [disabled]="!isAuthenticated">
-            <mat-icon>line_weight</mat-icon>
-        </button>
-        <div>
-            <router-outlet></router-outlet>
-        </div>
-    </mat-sidenav-content>
+    <!-- START Registry -->
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuHistory">
+      Historial
+    </button>
 
+    <mat-menu #menuHistory="matMenu">
+      <button mat-menu-item (click)="openPageSession()">Sesiones</button>
+      <button mat-menu-item (click)="openPageRegistry()">Registro</button>
+      <button mat-menu-item (click)="openPageAction()">Acciones</button>
+      <button mat-menu-item (click)="openPageAlarm()">Alarmas</button>
+    </mat-menu>
+    <!-- END Registry -->
+
+    <!-- START Order -->
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuOrder">
+      Ordenes
+    </button>
+
+    <mat-menu #menuOrder="matMenu">
+      <button mat-menu-item (click)="openPageOrder()">Listado</button>
+      <button mat-menu-item (click)="openDialogOrderCreate()">Crear</button>
+    </mat-menu>
+    <!-- END Order -->
+
+    <!-- START Settings -->
+    <button
+      class="button-navbar"
+      mat-button
+      (click)="openDialogSetting()"
+    >
+      Ajustes
+    </button>
+    <br />
+    <!-- END Settings -->
+
+    <!-- START Logout -->
+    <button class="button-navbar" mat-button (click)="logout()">
+      Desconectar
+    </button>
+    <br />
+    <!-- END Logout -->
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <button
+      class="button-menu"
+      mat-button
+      (click)="sidenav.open()"
+      [disabled]="!isAuthenticated"
+    >
+      <mat-icon>line_weight</mat-icon>
+    </button>
+    <div>
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
 </mat-sidenav-container>
-

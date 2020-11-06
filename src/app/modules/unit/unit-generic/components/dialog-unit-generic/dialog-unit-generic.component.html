@@ -1,76 +1,138 @@
+<!-- ====================================
+      TITLE
+     ==================================== -->
+<h1 mat-dialog-title>
+  {{ unitGeneric.id }} - {{ unitGeneric.unit.code }}
+</h1>
+<!-- ====================================
+            CONTENT
+           ==================================== -->
+<div mat-dialog-content>
+  <div class="row">
+    <div class="col-sm mr-3">
+      <mat-checkbox class="example-margin" [checked]="unitGeneric.unit.active" disabled>Activo</mat-checkbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <mat-checkbox class="example-margin" [checked]="unitGeneric.unit.communication" disabled>Comunicación</mat-checkbox>
+    </div>
+  </div>
 
-  <h1 mat-dialog-title>{{unitGeneric.id}} - {{unitGeneric.unit.code}}</h1>
-  <div mat-dialog-content>
-    <div class="row">
-      <div class="col-sm">
-        <img src="assets/img/default.jpg" alt="" width="100%">
-        <hr>
-        <ng-template #empty>
-          <b>---</b>
-        </ng-template>
-        <table>
-          <tr>
-            <td>Sector:</td>
-            <td *ngIf="unitGeneric.unit.sector; else empty" style="padding-left: 5px;">
-              <b>{{unitGeneric.unit.sector.name}}</b></td>
-          </tr>
-          <tr>
-            <td>Estación:</td>
-            <td *ngIf="unitGeneric.unit.station; else empty" style="padding-left: 5px;">
-              <b>{{unitGeneric.unit.station.name}}</b></td>
-          </tr>
-          <tr>
-            <td>Conjuntos:</td>
-            <td *ngIf="unitGeneric.unit.sets; else empty" style="padding-left: 5px;"><b
-                *ngFor="let set of unitGeneric.unit.sets">{{set.name}}, </b></td>
-          </tr>
-          <hr>
-          <tr>
-            <td>Altitud:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.unit.altitude}} m</b></td>
-          </tr>
-          <tr>
-            <td>Latitud:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.unit.latitude}}º</b></td>
-          </tr>
-          <tr>
-            <td>Longitud:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.unit.longitude}}º</b></td>
-          </tr>
-        </table>
-  
-      </div>
-      <div class="col-sm">
-        <table>
-          <tr>
-            <td>Dato 1:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.data1? unitGeneric.data1 : '---'}}</b></td>
-          </tr>
-          <tr>
-            <td>Dato 2:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.data2? unitGeneric.data2 : '---'}}</b></td>
-          </tr>
-          <tr>
-            <td>Dato 3:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.data3? unitGeneric.data3 : '---'}}</b></td>
-          </tr>
-          <tr>
-            <td>Dato 4:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.data4? unitGeneric.data4 : '---'}}</b></td>
-          </tr>
-          <tr>
-            <td>Dato 5:</td>
-            <td style="padding-left: 5px;"><b>{{unitGeneric.data5? unitGeneric.data5 : '---'}}</b></td>
-          </tr>
-        </table>
+  <div class="row">
+    <!-- ====================================
+                LEFT COLUMN
+               ==================================== -->
+    <div class="col dialog-col-mw">
+      <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
+      <br /><br />
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-3">
+            Sector:
+            <br />
+            Estación:
+            <br />
+            Conjuntos:
+          </div>
+          <div class="col">
+            {{ unitGeneric.unit.sector ? unitGeneric.unit.sector.name : "" }}
+            <br />
+            {{ unitGeneric.unit.station ? unitGeneric.unit.station.name : "" }}
+            <br />
+            <span *ngFor="let set of unitGeneric.unit.sets; let i = index"
+              ><span *ngIf="i > 0">, </span>{{ set.name }}</span
+            >
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-3">
+            Altitud:
+            <br />
+            Latitud:
+            <br />
+            Longitud:
+          </div>
+          <div class="col">
+            {{ unitGeneric.unit.altitude }}
+            <br />
+            {{ unitGeneric.unit.latitude }}
+            <br />
+            {{ unitGeneric.unit.longitude }}
+          </div>
+        </div>
       </div>
     </div>
-  
+    <!-- ====================================
+                RIGTH COLUMN
+               ==================================== -->
+    <div class="col dialog-col-mw">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-4">
+            Sensor 1:
+            <br />
+            Sensor 2:
+            <br />
+            Sensor 3:
+            <br />
+            Sensor 4:
+            <br />
+            Sensor 5:
+          </div>
+          <div class="col">
+            {{ unitGeneric.property1 }}
+            <br />
+            {{ unitGeneric.property2 }}
+            <br />
+            {{ unitGeneric.property3 }}
+            <br />
+            {{ unitGeneric.property4 }}
+            <br />
+            {{ unitGeneric.property5 }}
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-3">
+            Dato 1:
+            <br />
+            Dato 2:
+            <br />
+            Dato 3:
+            <br />
+            Dato 4:
+            <br />
+            Dato 5:
+          </div>
+          <div class="col">
+            {{ unitGeneric.data1 }}
+            <br />
+            {{ unitGeneric.data2 }}
+            <br />
+            {{ unitGeneric.data3 }}
+            <br />
+            {{ unitGeneric.data4 }}
+            <br />
+            {{ unitGeneric.data5 }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  
-  <hr>
-  
-  <div mat-dialog-actions>
-    <button mat-raised-button mat-dialog-close>Cerrar</button>
-    <button mat-raised-button (click)="openDialogGenericCreate()">Modificar</button>
-  </div>
+</div>
+
+<hr />
+
+<!-- ====================================
+            BOOTOM CONTENT
+           ==================================== -->
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cerrar</button>
+  <button mat-raised-button (click)="openDialogUnitGenericCreate()">
+    Modificar
+  </button>
+</div>

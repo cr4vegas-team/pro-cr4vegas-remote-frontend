@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -12,12 +12,19 @@ import { DialogUnitHydrantComponent } from '../dialog-unit-hydrant/dialog-unit-h
   selector: 'app-hydrant',
   templateUrl: './page-unit-hydrant.component.html',
 })
-export class PageUnitHydrantComponent implements OnInit {
-
+export class PageUnitHydrantComponent implements OnInit, AfterViewInit {
   tableEmptyMSG = TableEmptyMSGEnum;
 
   unitsHydrants: UnitHydrantEntity[];
-  displayedColumns: string[] = ['id', 'code', 'sector', 'station', 'sets'];
+  displayedColumns: string[] = [
+    'id',
+    'code',
+    'active',
+    'communication',
+    'sector',
+    'station',
+    'sets',
+  ];
   dataSource: MatTableDataSource<UnitHydrantEntity>;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
@@ -32,29 +39,38 @@ export class PageUnitHydrantComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._unitHydrantService.unitsHydrants.subscribe(
-      res => {
-        this.unitsHydrants = res;
-        this.dataSource.data = this.unitsHydrants;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      },
-      err => {
-        console.log('ERROR - HydrantComponent: ' + err.message);
-      }
-    ).unsubscribe();
+    this._unitHydrantService.unitsHydrants
+      .subscribe(
+        (res) => {
+          this.unitsHydrants = res;
+          this.dataSource.data = this.unitsHydrants;
+        },
+        (err) => {
+          console.log('ERROR - HydrantComponent: ' + err.message);
+        }
+      )
+      .unsubscribe();
 
     this.dataSource.filterPredicate = (unitHydrant, filterValue) => {
-      let setsString: string = '';
-      unitHydrant.unit.sets.forEach(set => setsString += set.name);
-      return unitHydrant.unit.code.toLowerCase().includes(filterValue) ||
-             (unitHydrant.unit.sector && unitHydrant.unit.sector.name.toLowerCase().includes(filterValue)) ||
-             (unitHydrant.unit.station && unitHydrant.unit.station.name.toLowerCase().includes(filterValue)) ||
-             (setsString.toLowerCase().includes(filterValue));
+      let setsString = '';
+      unitHydrant.unit.sets.forEach((set) => (setsString += set.name));
+      return (
+        unitHydrant.unit.code.toLowerCase().includes(filterValue) ||
+        (unitHydrant.unit.sector &&
+          unitHydrant.unit.sector.name.toLowerCase().includes(filterValue)) ||
+        (unitHydrant.unit.station &&
+          unitHydrant.unit.station.name.toLowerCase().includes(filterValue)) ||
+        setsString.toLowerCase().includes(filterValue)
+      );
     };
   }
 
-  applyFilter(event: Event) {
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -63,8 +79,7 @@ export class PageUnitHydrantComponent implements OnInit {
     }
   }
 
-  openDialogHydrant(unitHydrant: UnitHydrantEntity) {
+  openDialogHydrant(unitHydrant: UnitHydrantEntity): void {
     this._matDialog.open(DialogUnitHydrantComponent, { data: unitHydrant });
   }
-
 }

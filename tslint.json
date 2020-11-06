@@ -19,8 +19,7 @@
     "directive-selector": [
       true,
       "attribute",
-      "app",
-      "camelCase"
+      "app"
     ],
     "component-selector": [
       true,
@@ -42,7 +41,7 @@
     "max-classes-per-file": false,
     "max-line-length": [
       true,
-      140
+      150
     ],
     "member-ordering": [
       true,
@@ -119,7 +118,6 @@
     "variable-name": {
       "options": [
         "ban-keywords",
-        "check-format",
         "allow-pascal-case"
       ]
     },

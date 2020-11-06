@@ -9,5 +9,7 @@ export class UnitCreateDto {
   latitude: number;
   longitude: number;
   description: string;
+  image: string;
+  active: number;
 
 }

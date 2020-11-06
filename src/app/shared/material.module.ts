@@ -1,6 +1,6 @@
-//===========================================================
-// MODULES
-//===========================================================
+// ===========================================================
+//  MODULES
+// ===========================================================
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,7 +26,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
 
@@ -59,18 +59,13 @@ const modules = [
 ];
 
 @NgModule({
-  //===========================================================
-  // IMPORTS
-  //===========================================================
-  imports: [
-    ...modules
-  ],
-  //===========================================================
-  // EXPORTS
-  //===========================================================
-  exports: [
-    ...modules
-  ]
-
+  // ===========================================================
+  //  IMPORTS
+  // ===========================================================
+  imports: [...modules],
+  // ===========================================================
+  //  EXPORTS
+  // ===========================================================
+  exports: [...modules],
 })
-export class MaterialModule { }
+export class MaterialModule {}

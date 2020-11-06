@@ -1,30 +1,41 @@
+import { TopicDestinationEnum } from './../constants/topic-destination.enum';
 import { Injectable } from '@angular/core';
 import { IMqttMessage, MqttService } from 'ngx-mqtt';
 import { Observable } from 'rxjs';
 import { TopicTypeEnum } from '../../shared/constants/topic-type.enum';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MqttEventsService {
+  constructor(private _mqttService: MqttService) {}
 
-  private CLIENT_TOPIC = 'client';
-  private SERVER_TOPIC = 'server';
-
-  constructor(private _mqttService: MqttService) { }
-
-  subscribe(topicType: TopicTypeEnum, endPoint: string): Observable<IMqttMessage> {
-    let topic = `${this.CLIENT_TOPIC}/${topicType}/${endPoint}`;
-    if (endPoint !== null && endPoint !== '') {
+  subscribe(
+    topicDestination: TopicDestinationEnum,
+    topicType: TopicTypeEnum,
+    endPoint: number
+  ): Observable<IMqttMessage> {
+    const topic = `${topicDestination}/${topicType}/${endPoint}`;
+    if (endPoint !== null && !isNaN(endPoint)) {
       return this._mqttService.observeRetained(topic);
     } else {
-      throw new Error('El punto final no puede estar vacío')
+      throw new Error('El punto final debe ser un número (ID)');
     }
   }
 
-  async publish(topicType: TopicTypeEnum, endPoint: number, message: string) {
-    let topic = `${this.SERVER_TOPIC}/${topicType}/${endPoint}`;
-    if (endPoint !== null && !isNaN(endPoint) && message !== null && message !== '') {
+  async publish(
+    topicDestination: TopicDestinationEnum,
+    topicType: TopicTypeEnum,
+    endPoint: number,
+    message: string
+  ): Promise<void> {
+    const topic = `${topicDestination}/${topicType}/${endPoint}`;
+    if (
+      endPoint !== null &&
+      !isNaN(endPoint) &&
+      message !== null &&
+      message !== ''
+    ) {
       while (true) {
         try {
           await this._mqttService.unsafePublish(topic, message);
@@ -34,8 +45,7 @@ export class MqttEventsService {
         }
       }
     } else {
-      throw new Error('El punto final y el mensaje no pueden quedan vacíos')
+      throw new Error('El punto final y el mensaje no pueden quedan vacíos');
     }
   }
-
 }

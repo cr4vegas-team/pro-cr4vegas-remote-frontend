@@ -1,17 +1,15 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PageUnitPondComponent } from './page-unit-pond.component';
 
 describe('UnitPondComponent', () => {
   let component: PageUnitPondComponent;
   let fixture: ComponentFixture<PageUnitPondComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      declarations: [ PageUnitPondComponent ]
-    })
-    .compileComponents();
-  }));
+      declarations: [PageUnitPondComponent],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PageUnitPondComponent);

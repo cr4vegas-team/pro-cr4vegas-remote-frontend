@@ -1,0 +1,29 @@
+[1104/153600.234:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)
+[1105/083633.871:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.871:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.871:ERROR:exception_snapshot_win.cc(99)] thread ID 16368 not found in process
+[1105/083633.871:ERROR:exception_snapshot_win.cc(99)] thread ID 24240 not found in process
+[1105/083633.871:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.871:ERROR:exception_snapshot_win.cc(99)] thread ID 20596 not found in process
+[1105/083633.881:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.881:ERROR:exception_snapshot_win.cc(99)] thread ID 24148 not found in process
+[1105/083633.896:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.901:ERROR:exception_snapshot_win.cc(99)] thread ID 23524 not found in process
+[1105/083633.901:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.901:ERROR:exception_snapshot_win.cc(99)] thread ID 8864 not found in process
+[1105/083633.901:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.901:ERROR:exception_snapshot_win.cc(99)] thread ID 9544 not found in process
+[1105/083633.906:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.906:ERROR:exception_snapshot_win.cc(99)] thread ID 17608 not found in process
+[1105/083633.906:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.911:ERROR:exception_snapshot_win.cc(99)] thread ID 20252 not found in process
+[1105/083633.916:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.916:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.916:ERROR:exception_snapshot_win.cc(99)] thread ID 4748 not found in process
+[1105/083633.916:ERROR:exception_snapshot_win.cc(99)] thread ID 20504 not found in process
+[1105/083633.926:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.926:ERROR:exception_snapshot_win.cc(99)] thread ID 25200 not found in process
+[1105/083633.931:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.931:ERROR:exception_snapshot_win.cc(99)] thread ID 16352 not found in process
+[1105/083633.951:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acceso denegado} Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso. (0xc0000022)
+[1105/083633.951:ERROR:exception_snapshot_win.cc(99)] thread ID 12964 not found in process

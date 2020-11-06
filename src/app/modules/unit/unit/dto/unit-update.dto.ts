@@ -1,7 +1,4 @@
-
-
 export class UnitUpdateDto {
-
   id: number;
   code: string;
   station?: number;
@@ -11,5 +8,6 @@ export class UnitUpdateDto {
   latitude: number;
   longitude: number;
   description: string;
-
+  image: string;
+  active: number;
 }

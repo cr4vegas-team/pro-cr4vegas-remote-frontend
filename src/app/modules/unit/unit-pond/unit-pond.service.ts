@@ -1,7 +1,11 @@
+import { MapService } from './../../../shared/services/map.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Map, Marker } from 'mapbox-gl';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
+import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
+import { PondStateEnum } from 'src/app/shared/constants/pond-state.enum';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { TopicTypeEnum } from '../../../shared/constants/topic-type.enum';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -11,128 +15,134 @@ import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
 import { UnitPondEntity } from './unit-pond.entity';
 import { UnitPondFactory } from './unit-pond.factory';
 import { UnitPondRO, UnitsPondsRO } from './unit-pond.interfaces';
+import { IMqttMessage } from 'ngx-mqtt';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UnitPondService {
-
   private _url: string = GLOBAL.API + 'unit-pond';
-
-  private _unitsPonds: BehaviorSubject<UnitPondEntity[]>;
-
   private _map: Map;
+  private _unitsPonds: BehaviorSubject<UnitPondEntity[]>;
+  private _hiddenMarker = new BehaviorSubject<boolean>(false);
+
+  // ==================================================
 
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitPondFactory: UnitPondFactory,
     private readonly _mqttEventService: MqttEventsService,
+    private readonly _mapService: MapService
   ) {
-    this._unitsPonds = new BehaviorSubject<UnitPondEntity[]>(Array<UnitPondEntity>());
+    this._unitsPonds = new BehaviorSubject<UnitPondEntity[]>(
+      Array<UnitPondEntity>()
+    );
+    this._mapService.map.subscribe((map) => {
+      if (map) {
+        this._map = map;
+        this.addAllMarkersToMap();
+      }
+    });
+    this._hiddenMarker.subscribe((hidden) => {
+      this._unitsPonds.value.forEach((unitPond) => {
+        unitPond.marker.getElement().hidden = hidden;
+      });
+    });
   }
 
-  public set map(map: Map) {
-    if(map) {
-      this._map = map;
-      this.addAllMarkersToMap();
-    }
-  }
+  // ==================================================
 
   public get unitsPonds(): BehaviorSubject<UnitPondEntity[]> {
     return this._unitsPonds;
   }
 
-  updateUnitsPonds() {
+  // ==================================================
+
+  public refresh(): void {
     this._unitsPonds.next(this._unitsPonds.value);
+  }
+
+  // ==================================================
+
+  public get factory(): UnitPondFactory {
+    return this._unitPondFactory;
+  }
+
+  // ==================================================
+
+  public get hiddenMarker(): BehaviorSubject<boolean> {
+    return this._hiddenMarker;
   }
 
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-
-   async findAll() {
+  public findAll(): Observable<UnitsPondsRO> {
     const httpOptions = this._authService.getHttpOptions({});
-    await this._httpClient.get<UnitsPondsRO>(this._url, httpOptions).subscribe(
-      unitsPondsRO => {
-        this._unitsPonds.value.forEach(unitPond => {
-          this.removeMarkerAndUnsubscribeMqtt(unitPond);
-        });
-        this._unitsPonds.value.splice(0);
-        unitsPondsRO.unitsPonds.forEach((unitPond: UnitPondEntity) => {
-          const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(unitPond);
-          this.addMarkerAndSubscribeMqtt(newUnitPond);
-          this._unitsPonds.value.push(newUnitPond);
-        });
-        this.updateUnitsPonds();
-      },
-      error => {
-        throw new Error(error);
-      }
-    );
+    return this._httpClient.get<UnitsPondsRO>(this._url, httpOptions);
   }
+
+  // ==================================================
 
   create(unitPondCreateDto: UnitPondCreateDto): Observable<UnitPondRO> {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.post<UnitPondRO>(this._url, unitPondCreateDto, httpOptions);
+    return this._httpClient.post<UnitPondRO>(
+      this._url,
+      unitPondCreateDto,
+      httpOptions
+    );
   }
+
+  // ==================================================
 
   update(unitPondUpdateDto: UnitPondUpdateDto): Observable<UnitPondRO> {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.put<UnitPondRO>(this._url, unitPondUpdateDto, httpOptions);
+    return this._httpClient.put<UnitPondRO>(
+      this._url,
+      unitPondUpdateDto,
+      httpOptions
+    );
   }
 
   // ==================================================
   // FRONTEND FUNCTIONS
   // ==================================================
-
-  getOne(id: number): UnitPondEntity {
-    return this._unitsPonds.value.filter(unitPond => unitPond.id === id)[0];
+  public addOne(unitPond: UnitPondEntity): void {
+    this._unitsPonds.value.push(unitPond);
+    this.addMarkerToMap(unitPond);
   }
 
-  // ==================================================
-  // MQTT & MARKER
-  // ==================================================
+  getOneByUnitId(id: number): UnitPondEntity {
+    return this._unitsPonds.value.filter((unitPond) => unitPond.id === id)[0];
+  }
 
-  addMarkersAndSubscribeMQTTAll() {
-    this._unitsPonds.value.forEach(unitPond => {
-      this.addMarkerAndSubscribeMqtt(unitPond);
+  public cleanAll(): void {
+    this._unitsPonds.value.forEach((unitPond) => {
+      this._unitPondFactory.clean(unitPond);
     });
-    this._unitsPonds.next(this._unitsPonds.value);
+    this._unitsPonds.value.splice(0);
   }
 
-  addMarkerAndSubscribeMqtt(unitPond: UnitPondEntity) {
-    unitPond.addMarker();
-    this.addMarkerToMap(unitPond.marker);
-    unitPond.addSubscription(this._mqttEventService.subscribe(TopicTypeEnum.UNIT_POND, unitPond.unit.code));
-  }
-
-  removeMarkersAndUnsubscribeMQTTAll() {
-    this._unitsPonds.value.forEach(unitPond => {
-      this.removeMarkerAndUnsubscribeMqtt(unitPond);
-    });
-    this._unitsPonds.next(this._unitsPonds.value);
-  }
-
-  removeMarkerAndUnsubscribeMqtt(unitPond: UnitPondEntity) {
-    unitPond.marker.remove();
-    unitPond.subscription.unsubscribe();
-  }
-
-    //===========================================================
-  // MAP
-  //===========================================================
-  
-  private addAllMarkersToMap() {
-    this._unitsPonds.value.forEach(unitPond => {
-      this.addMarkerToMap(unitPond.marker);
-    })
-  }
-  
-  private addMarkerToMap(marker: Marker) {
-    if(this._map && marker) {
-      marker.addTo(this._map);
+  // ===========================================================
+  //  MAP
+  // ===========================================================
+  private addMarkerToMap(unitPond: UnitPondEntity): void {
+    if (this._map && unitPond.marker) {
+      unitPond.marker.addTo(this._map);
+      if (this._hiddenMarker.value) {
+        unitPond.marker.getElement().hidden = false;
+      } else {
+        unitPond.marker.getElement().hidden = true;
+      }
     }
   }
 
+  // ==================================================
+
+  private addAllMarkersToMap(): void {
+    this._unitsPonds.value.forEach((unitPond) => {
+      unitPond.marker.addTo(this._map);
+    });
+  }
 }

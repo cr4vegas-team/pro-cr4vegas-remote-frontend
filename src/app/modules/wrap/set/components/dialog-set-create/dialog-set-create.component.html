@@ -1,96 +1,129 @@
-<h1 mat-dialog-title *ngIf="create">Crear Conjunto</h1>
-<h1 mat-dialog-title *ngIf="!create">Modificar Conjunto - <span>{{set.code}}</span></h1>
+<div>
+  <div class="spinner">
+    <mat-spinner *ngIf="loading"></mat-spinner>
+  </div>
 
-<!-- CONTENT -->
+  <h1 mat-dialog-title *ngIf="create">Crear Conjunto</h1>
+  <h1 mat-dialog-title *ngIf="!create">
+    Modificar Conjunto - <span>{{ set.code }}</span>
+  </h1>
 
-<div mat-dialog-content>
+  <!-- CONTENT -->
 
-  <form [formGroup]="setForm">
-
-    <div class="row">
-
-      <!-- LEFT -->
-
-      <div class="col-md-auto">
-
-        <div>
-          <mat-form-field appearance="fill">
-            <mat-label>Código</mat-label>
-            <input matInput formControlName="code" required>
-          </mat-form-field>
-          <br>
-          <mat-form-field appearance="fill">
-            <mat-label>Nombre</mat-label>
-            <input matInput formControlName="name">
-          </mat-form-field>
-
-          <br>
-
-          <div class="row justify-content">
-            <div class="col">
-              <mat-form-field appearance="fill">
-
-                <mat-label>Tipo</mat-label>
-                <mat-select [compareWith]="compareSetType" name="setType" formControlName="setType">
-                  <mat-option *ngFor="let setType of setsTypes" [value]="setType">{{setType.name}}
-                  </mat-option>
-                </mat-select>
-
-              </mat-form-field>
-            </div>
-            <div class="col-md-auto">
-              <button mat-raised-button (click)="openDialogSetTypeCreate()">+</button>
-            </div>
-          </div>
-
+  <div mat-dialog-content>
+    <form [formGroup]="setForm">
+      <div class="row">
+        <div class="col-sm mr-3">
+          <mat-checkbox class="example-margin" formControlName="active"
+            >Activo</mat-checkbox
+          >
         </div>
       </div>
 
-      <!-- CENTER -->
+      <div class="row">
+        <!-- LEFT COL -->
 
-      <div class="col-md-auto">
-        <mat-form-field appearance="fill">
-          <mat-label>Unidades</mat-label>
-          <mat-select [compareWith]="compareSetUnit" multiple formControlName="units">
-            <mat-option *ngFor="let unit of units" [value]="unit">{{unit.code}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <br>
+        <div class="col-sm mr-3">
+          <div>
+            <img class="unit-image" [src]="imageUrl" alt="" />
+            <br /><br />
+            <button type="button" mat-raised-button (click)="fileInput.click()">
+              Seleccionar Imagen
+            </button>
+            <br />
+            <input
+              hidden
+              (change)="onFileSelected($event)"
+              #fileInput
+              type="file"
+              id="file"
+            />
+            <br />
+          </div>
+        </div>
+
+        <!-- RIGHT COL -->
+
+        <div class="col-sm mr-3">
+          <div>
+            <mat-form-field appearance="fill">
+              <mat-label>Código</mat-label>
+              <input matInput formControlName="code" required />
+            </mat-form-field>
+            <br />
+            <mat-form-field appearance="fill">
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="name" required/>
+            </mat-form-field>
+            <br />
+            <div class="row">
+              <div class="col">
+                <mat-form-field appearance="fill">
+                  <mat-label>Tipo</mat-label>
+                  <mat-select
+                    [compareWith]="compareUnitSetType"
+                    formControlName="setType" required #setTypeSelected
+                  >
+                    <mat-option
+                      *ngFor="let setType of setTypes"
+                      [value]="setType"
+                      >{{ setType.name }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col">
+                <button mat-raised-button (click)="openDialogCreateSetType()">+</button>
+                <button mat-raised-button (click)="openDialogDeleteSetType(setForm.value.setType)">-</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-    </div>
 
-    <mat-form-field class="example-chip-list">
-      <mat-chip-list #chipList aria-label="Fruit selection">
-        <mat-chip *ngFor="let unit of setForm.value.units" [selectable]="selectable"
-                 [removable]="removable" (removed)="remove(unit)">
-          {{unit.code}}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
-        <input readonly placeholder="Unidades..."
-               [matChipInputFor]="chipList"
-               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-               [matChipInputAddOnBlur]="addOnBlur">
-      </mat-chip-list>
-    </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Unidades</mat-label>
+        <mat-select
+          [compareWith]="compareUnitSet"
+          multiple
+          formControlName="units"
+        >
+          <mat-select-trigger>
+            <mat-chip-list #chipList aria-label="Fruit selection">
+              <mat-chip
+                *ngFor="let unit of setForm.value.units"
+                [selectable]="selectable"
+                [removable]="removable"
+                (removed)="remove(unit)"
+              >
+                {{ unit.code }}
+                <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+              </mat-chip>
+            </mat-chip-list>
+          </mat-select-trigger>
 
-    <br>
+          <mat-option *ngFor="let unit of units" [value]="unit"
+            >{{ unit.code }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="fill" style="width: 100%">
-      <mat-label>Descripción</mat-label>
-      <textarea matInput formControlName="description"></textarea>
-    </mat-form-field>
+      <!-- Text Area -->
+      <div>
+        <mat-form-field appearance="fill" style="width: 100%">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="description"></textarea>
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
 
-  </form>
+  <hr />
 
-</div>
+  <!-- ACTIONS -->
 
-<hr>
-
-<!-- ACTIONS -->
-
-<div mat-dialog-actions>
-  <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button mat-raised-button type="submit" (click)="accept()">Aceptar</button>
+  <div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button mat-raised-button type="submit" (click)="accept()">Aceptar</button>
+  </div>
 </div>

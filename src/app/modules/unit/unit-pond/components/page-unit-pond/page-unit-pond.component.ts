@@ -17,11 +17,13 @@ export class PageUnitPondComponent implements OnInit {
   tableEmptyMSG = TableEmptyMSGEnum;
 
   unitsPonds: UnitPondEntity[];
-  displayedColumns: string[] = ['id', 'code', 'm3', 'height', 'sector', 'station', 'sets'];
+  displayedColumns: string[] = ['id', 'code', 'active', 'communication', 'm3', 'height', 'sector', 'station', 'sets'];
   dataSource: MatTableDataSource<UnitPondEntity>;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
+
+  // ==================================================
 
   constructor(
     private readonly _unitPondService: UnitPondService,
@@ -30,6 +32,8 @@ export class PageUnitPondComponent implements OnInit {
     this.unitsPonds = [];
     this.dataSource = new MatTableDataSource(this.unitsPonds);
   }
+
+  // ==================================================
 
   ngOnInit(): void {
     this._unitPondService.unitsPonds.subscribe(
@@ -45,7 +49,7 @@ export class PageUnitPondComponent implements OnInit {
     ).unsubscribe();
 
     this.dataSource.filterPredicate = (unitPond, filterValue) => {
-      let setsString: string = '';
+      let setsString = '';
       unitPond.unit.sets.forEach(set => setsString += set.name);
       return unitPond.unit.code.toLowerCase().includes(filterValue) ||
         (unitPond.unit.sector && unitPond.unit.sector.name.toLowerCase().includes(filterValue)) ||
@@ -54,7 +58,9 @@ export class PageUnitPondComponent implements OnInit {
     };
   }
 
-  applyFilter(event: Event) {
+  // ==================================================
+
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -63,7 +69,9 @@ export class PageUnitPondComponent implements OnInit {
     }
   }
 
-  openDialogUnitPond(unitPond: UnitPondEntity) {
+  // ==================================================
+
+  openDialogUnitPond(unitPond: UnitPondEntity): void {
     this._matDialog.open(DialogUnitPondComponent, { data: unitPond });
   }
 

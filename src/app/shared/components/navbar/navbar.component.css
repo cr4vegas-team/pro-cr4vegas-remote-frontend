@@ -33,6 +33,7 @@
 
 .navbar {
     background-color: aliceblue;
+    max-width: 250px;
 }
 
 .logo {

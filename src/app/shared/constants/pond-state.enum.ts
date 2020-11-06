@@ -1,6 +1,6 @@
 
 
-export enum UnitPondStateEnum {
+export enum PondStateEnum {
     LOW = 'Balsa vacía',
     MEDIUM = 'Balsa media',
     HIGTH = 'Balsa llena',

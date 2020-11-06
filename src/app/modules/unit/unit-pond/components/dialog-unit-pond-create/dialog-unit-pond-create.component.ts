@@ -1,6 +1,12 @@
+import { ErrorTypeEnum } from './../../../../../shared/constants/error-type.enum';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
+import { Observable } from 'rxjs';
 import { UnitPondEntity } from '../../../../../modules/unit/unit-pond/unit-pond.entity';
 import { UnitPondFactory } from '../../../../../modules/unit/unit-pond/unit-pond.factory';
 import { UnitPondService } from '../../../../../modules/unit/unit-pond/unit-pond.service';
@@ -15,22 +21,29 @@ import { DialogInfoComponent } from '../../../../../shared/components/dialog-inf
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitPondCreateDto } from '../../dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from '../../dto/unit-pond-update.dto';
+import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
+import { DomSanitizer } from '@angular/platform-browser';
+import { UploadService } from 'src/app/shared/services/upload.service';
 
 @Component({
   selector: 'app-dialog-unit-pond-create',
   templateUrl: './dialog-unit-pond-create.component.html',
 })
 export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
-
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
-  create: boolean = true;
+  create = true;
+  loading = false;
 
-  sectors: SectorEntity[];
-  stations: StationEntity[];
-  sets: SetEntity[];
+  sectors: Observable<SectorEntity[]>;
+  stations: Observable<StationEntity[]>;
+  sets: Observable<SetEntity[]>;
 
-  // Froms control
   unitPondForm: FormGroup;
+
+  imageURL = GLOBAL.IMAGE_DEFAULT;
+  file: File;
+
+  // ==================================================
 
   constructor(
     private readonly _matDialog: MatDialog,
@@ -40,122 +53,271 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     private readonly _unitPondService: UnitPondService,
     private readonly _unitPondFactory: UnitPondFactory,
     private readonly _formBuilder: FormBuilder,
+    private readonly _uploadService: UploadService,
+    private readonly _sanitizer: DomSanitizer,
     private readonly _dialogRef: MatDialogRef<DialogUnitPondCreateComponent>,
     @Inject(MAT_DIALOG_DATA)
     public unitPond: UnitPondEntity
-  ) {
+  ) {}
+
+  // ==================================================
+
+  ngOnInit(): void {
+    this.sectors = this._sectorService.sectors;
+    this.stations = this._stationService.stations;
+    this.sets = this._setService.sets;
+
     if (this.unitPond) {
-      this.create = false;
+      this.initUnitPondUpdate();
     } else {
-      this.create = true;
-      this.unitPond = new UnitPondEntity();
-      this.unitPond.unit = new UnitEntity();
+      this.initUnitPondCreate();
     }
-    this.sectors = [];
-    this.stations = [];
-    this.sets = [];
 
     this.unitPondForm = this._formBuilder.group({
       id: [this.unitPond.id],
       m3: [this.unitPond.m3],
       height: [this.unitPond.height],
       unit: this._formBuilder.group({
+        active: [this.unitPond.unit.active, [Validators.required]],
         id: [this.unitPond.unit.id],
         code: [this.unitPond.unit.code, [Validators.pattern('(BS)([0-9]{6})')]],
-        altitude: [this.unitPond.unit.altitude],
-        latitude: [this.unitPond.unit.latitude],
-        longitude: [this.unitPond.unit.longitude],
+        altitude: [this.unitPond.unit.altitude, [Validators.required]],
+        latitude: [this.unitPond.unit.latitude, [Validators.required]],
+        longitude: [this.unitPond.unit.longitude, [Validators.required]],
         sector: [this.unitPond.unit.sector],
         station: [this.unitPond.unit.station],
         sets: [this.unitPond.unit.sets],
         description: [this.unitPond.unit.description],
+        image: [this.unitPond.unit.image],
       }),
     });
   }
 
-  ngOnInit(): void {
-    this._sectorService.sectors.subscribe(
-      res => {
-        this.sectors = res;
-      }
-    ).unsubscribe();
-    this._stationService.stations.subscribe(
-      res => {
-        this.stations = res;
-      }
-    ).unsubscribe();
-    this._setService.sets.subscribe(
-      res => {
-        this.sets = res;
-      }
-    ).unsubscribe();
-  }
+  // ==================================================
 
-  ngOnDestroy() {
-    this.unitPond = null;
-  }
-
-  openDialogInfo(data: string) {
-    this._matDialog.open(DialogInfoComponent, { data });
-  }
-
-  accept() {
-    try {
-      if(!this.unitPondForm.valid) {
-        throw new Error(`
-          <p>El código es incorrecto. Ejemplo: BS000150. Código + 6 dígitos. Código:</p>
-          <ul>
-              <li>BS = Balsa</li>
-          </ul>
-        `);
-      }
-      const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(this.unitPondForm.value);
-      if (this.create) {
-        this.createUnitPond(newUnitPond);
-      } else {
-        this.updateUnitPond(newUnitPond);
-      }
-    } catch (error) {
-      this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error } });
+  private initUnitPondUpdate(): void {
+    this.create = false;
+    if (
+      this.unitPond.unit.image !== undefined &&
+      this.unitPond.unit.image !== null &&
+      this.unitPond.unit.image !== ''
+    ) {
+      this._uploadService.getImage(this.unitPond.unit.image).subscribe(
+        (next) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
+              reader.result as string
+            ) as string;
+          };
+          reader.readAsDataURL(next);
+        },
+        (error) => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: {
+              errorType: ErrorTypeEnum.FRONT_ERROR,
+              title: DialogInfoTitleEnum.WARNING,
+              error,
+            },
+          });
+        }
+      );
     }
   }
 
-  createUnitPond(newUnitPond: UnitPondEntity) {
-    const unitPondCreateDto: UnitPondCreateDto = this._unitPondFactory.getUnitPondCreateDto(newUnitPond);
+  // ==================================================
+
+  private initUnitPondCreate(): void {
+    this.create = true;
+    this.unitPond = new UnitPondEntity();
+    this.unitPond.unit = new UnitEntity();
+  }
+
+  // ==================================================
+
+  openDialogInfo(data: string): void {
+    this._matDialog.open(DialogInfoComponent, { data });
+  }
+
+  // ==================================================
+
+  accept(): void {
+    if (this.unitPondForm.valid) {
+      this.loading = true;
+      this.uploadImage();
+      this.loading = false;
+    } else {
+      let html = '<h2>Existen campos incorrectos</h2><ul>';
+      if (this.unitPondForm.get('unit.code').invalid) {
+        html +=
+          '<li>El código es incorrecto. Ejemplo: BS000150. Código + 6 dígitos</li>';
+      }
+      if (this.unitPondForm.get('unit.altitude').invalid) {
+        html += '<li>La altitud debe estar entre 0 y 1000</li>';
+      }
+      if (this.unitPondForm.get('unit.latitude').invalid) {
+        html += '<li>La latitud debe estar entre -90 y 90';
+      }
+      if (this.unitPondForm.get('unit.longitude').invalid) {
+        html += '<li>La longitud debe estar entre -90 y 90';
+      }
+      html += '</ul>';
+      this._matDialog.open(DialogInfoComponent, {
+        data: {
+          errorType: ErrorTypeEnum.FRONT_ERROR,
+          title: DialogInfoTitleEnum.WARNING,
+          html,
+        },
+      });
+    }
+  }
+
+  // ==================================================
+
+  private createOrUpdateUnitPond(): void {
+    const newUnitHydrant: UnitPondEntity = this._unitPondFactory.createUnitPond(
+      this.unitPondForm.value
+    );
+    if (this.create) {
+      this.createUnitPond(newUnitHydrant);
+    } else {
+      this.updateUnitPond(newUnitHydrant);
+    }
+  }
+
+  // ==================================================
+
+  createUnitPond(unitPond: UnitPondEntity): void {
+    const unitPondCreateDto: UnitPondCreateDto = this._unitPondFactory.getUnitPondCreateDto(
+      unitPond
+    );
     this._unitPondService.create(unitPondCreateDto).subscribe(
-      unitPondRO => {
-        const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(unitPondRO.unitPond);
-        this._unitPondService.addMarkerAndSubscribeMqtt(newUnitPond);
-        this._unitPondService.unitsPonds.value.push(newUnitPond);
-        this._unitPondService.updateUnitsPonds();
+      (unitPondRO) => {
+        const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(
+          unitPondRO.unitPond
+        );
+        this._unitPondService.addOne(newUnitPond);
+        this._unitPondService.refresh();
         this.close();
       },
-      error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      (error) => {
+        this._matDialog.open(DialogInfoComponent, {
+          data: {
+            errorType: ErrorTypeEnum.API_ERROR,
+            title: DialogInfoTitleEnum.WARNING,
+            html: error,
+          },
+        });
       }
     );
   }
 
-  updateUnitPond(newUnitPond: UnitPondEntity) {
-    const unitPondUpdateDto: UnitPondUpdateDto = this._unitPondFactory.getUnitPondUpdateDto(newUnitPond);
+  // ==================================================
+
+  updateUnitPond(unitPond: UnitPondEntity): void {
+    const unitPondUpdateDto: UnitPondUpdateDto = this._unitPondFactory.getUnitPondUpdateDto(
+      unitPond
+    );
     this._unitPondService.update(unitPondUpdateDto).subscribe(
-      unitGenericRO => {
-        this._unitPondFactory.copyUnitPond(this.unitPond, unitGenericRO.unitPond);
-        this._unitPondService.addMarkerAndSubscribeMqtt(this.unitPond);
-        this._unitPondService.updateUnitsPonds();
+      (unitGenericRO) => {
+        this._unitPondFactory.copyUnitPond(
+          this.unitPond,
+          unitGenericRO.unitPond
+        );
+        this._unitPondService.addMarkerToUnitPond(unitPond);
+        this._unitPondService.addNodeSubscription(unitPond);
+        this._unitPondService.addServerSubscription(unitPond);
+        this._unitPondService.refresh();
+        this.close();
       },
-      error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error.error.description } });
+      (error) => {
+        this._matDialog.open(DialogInfoComponent, {
+          data: {
+            errorType: ErrorTypeEnum.API_ERROR,
+            title: DialogInfoTitleEnum.WARNING,
+            html: error,
+          },
+        });
       }
-    )
+    );
   }
 
-  compareUnitHydrant(d1: any, d2: any) {
+  // ==================================================
+
+  private uploadImage(): void {
+    if (this.file !== undefined && this.file !== null) {
+      const formData = new FormData();
+      formData.append('file', this.file, this.file.name);
+      this._uploadService.uploadImage(formData).subscribe(
+        (next) => {
+          if (next) {
+            this.unitPondForm.value.unit.image = next.filename;
+            this.createOrUpdateUnitPond();
+          }
+        },
+        (error) => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: {
+              errorType: ErrorTypeEnum.API_ERROR,
+              title: DialogInfoTitleEnum.WARNING,
+              html: error,
+            },
+          });
+        }
+      );
+    } else {
+      this.createOrUpdateUnitPond();
+    }
+  }
+
+  // ==================================================
+
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files[0];
+    let validImage = true;
+    let html = '<h2>Existen campos incorrectos</h2><ul>';
+    if (!file.name.endsWith('.jpg')) {
+      html += '<li>Solo se permiten imágenes en .jpg</li>';
+      validImage = false;
+    }
+    if (file.size > 5000000) {
+      html += '<li>El tamaño máximo permitido son 5 MB (5000000 Bytes)';
+      validImage = false;
+    }
+    html += '</ul>';
+    if (!validImage) {
+      this._matDialog.open(DialogInfoComponent, {
+        data: {
+          errorType: ErrorTypeEnum.FRONT_ERROR,
+          title: DialogInfoTitleEnum.WARNING,
+          html,
+        },
+      });
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imageURL = reader.result as string;
+        this.file = file;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // ==================================================
+
+  compareUnitHydrant(d1: any, d2: any): boolean {
     return d1 && d2 && d1.id === d2.id;
   }
 
-  close() {
+  // ==================================================
+
+  close(): void {
     this._dialogRef.close();
   }
 
+  // ==================================================
+
+  ngOnDestroy(): void {
+    this.unitPond = null;
+  }
 }
