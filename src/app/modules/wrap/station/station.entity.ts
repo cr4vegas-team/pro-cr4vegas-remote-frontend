@@ -2,6 +2,9 @@ import { Marker } from 'mapbox-gl';
 import { UnitEntity } from '../../unit/unit/unit.entity';
 
 export class StationEntity {
+  // ==================================================
+  //  CONSTRUCTOR
+  // ==================================================
   constructor() {
     this.active = 1;
   }
@@ -25,5 +28,5 @@ export class StationEntity {
   // ==================================================
   // FRONTEND PROPERTIES
   // ==================================================
-  public marker: Marker;
+  marker: Marker;
 }

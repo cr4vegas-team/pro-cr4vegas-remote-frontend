@@ -1,17 +1,15 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DialogSectorCreateComponent } from './dialog-sector-create.component';
 
 describe('DialogSectorCreateComponent', () => {
   let component: DialogSectorCreateComponent;
   let fixture: ComponentFixture<DialogSectorCreateComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      declarations: [ DialogSectorCreateComponent ]
-    })
-    .compileComponents();
-  }));
+      declarations: [DialogSectorCreateComponent],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DialogSectorCreateComponent);

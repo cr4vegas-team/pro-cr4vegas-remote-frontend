@@ -139,7 +139,7 @@ export class UnitGenericFactory {
 
   private runTestCommunication(unitGeneric: UnitGenericEntity): void {
     unitGeneric.unit.received = 0;
-    this._mqttEventService.publish(
+    this._mqttEventService.publishWithID(
       TopicDestinationEnum.NODE_SERVER,
       TopicTypeEnum.UNIT_GENERIC,
       unitGeneric.id,
@@ -167,7 +167,7 @@ export class UnitGenericFactory {
     if (unitGeneric.nodeSubscription) {
       unitGeneric.nodeSubscription.unsubscribe();
     }
-    const observable = this._mqttEventService.subscribe(
+    const observable = this._mqttEventService.observerWithID(
       TopicDestinationEnum.NODE,
       TopicTypeEnum.UNIT_GENERIC,
       unitGeneric.id
@@ -210,8 +210,8 @@ export class UnitGenericFactory {
     if (unitGeneric.serverSubscription) {
       unitGeneric.serverSubscription.unsubscribe();
     }
-    const observable = this._mqttEventService.subscribe(
-      TopicDestinationEnum.SERVER_DATA,
+    const observable = this._mqttEventService.observerWithID(
+      TopicDestinationEnum.SERVER_DATA_UPDATE,
       TopicTypeEnum.UNIT_GENERIC,
       unitGeneric.id
     );

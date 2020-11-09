@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Marker } from 'mapbox-gl';
+import { Map, Marker } from 'mapbox-gl';
 import { IMqttMessage } from 'ngx-mqtt';
 import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
 import { PondStateEnum } from 'src/app/shared/constants/pond-state.enum';
@@ -7,6 +7,7 @@ import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination
 import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
 import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { UnitFactory } from '../unit/unit.factory';
+import { MapService } from './../../../shared/services/map.service';
 import { UnitPondCreateDto } from './dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
 import { UnitPondEntity } from './unit-pond.entity';
@@ -15,13 +16,29 @@ import { UnitPondEntity } from './unit-pond.entity';
   providedIn: 'root',
 })
 export class UnitPondFactory {
-  constructor(
-    private readonly _unitFactory: UnitFactory,
-    private readonly _mqttEventService: MqttEventsService
-  ) {}
+  // ==================================================
+  //  VARS
+  // ==================================================
+  private _map: Map;
 
   // ==================================================
+  //  CONSTRUCTOR
+  // ==================================================
+  constructor(
+    private readonly _unitFactory: UnitFactory,
+    private readonly _mqttEventService: MqttEventsService,
+    private readonly _mapService: MapService
+  ) {
+    this._mapService.map.subscribe((map) => {
+      if (map) {
+        this._map = map;
+      }
+    });
+  }
 
+  // ==================================================
+  //  FACTORY FUNCTIONS
+  // ==================================================
   public createUnitPond(unitPond: UnitPondEntity): UnitPondEntity {
     const newUnitPond: UnitPondEntity = new UnitPondEntity();
     if (unitPond) {
@@ -31,19 +48,17 @@ export class UnitPondFactory {
       newUnitPond.unit = this._unitFactory.createUnit(unitPond.unit);
       this.createMarker(newUnitPond);
       this.subscribeToNode(newUnitPond);
-      this.subscribeToServer(newUnitPond);
-      this.loadTestCommunication(newUnitPond);
     }
     return newUnitPond;
   }
 
-  // ==================================================
-
-  public copyUnitPond(target: UnitPondEntity, source: UnitPondEntity): void {
+  public updateUnitPond(target: UnitPondEntity, source: UnitPondEntity): void {
     target.m3 = source.m3;
     target.height = source.height;
     target.unit = this._unitFactory.createUnit(source.unit);
     target.marker.setLngLat([target.unit.longitude, target.unit.latitude]);
+    this.createMarker(target);
+    this.subscribeToNode(target);
   }
 
   // ==================================================
@@ -76,12 +91,6 @@ export class UnitPondFactory {
     if (unitPond.nodeSubscription) {
       unitPond.nodeSubscription.unsubscribe();
     }
-    if (unitPond.serverSubscription) {
-      unitPond.serverSubscription.unsubscribe();
-    }
-    if (unitPond.testInterval) {
-      clearInterval(unitPond.testInterval);
-    }
   }
 
   // ==================================================
@@ -92,15 +101,21 @@ export class UnitPondFactory {
       unitPond.marker.remove();
     }
     unitPond.marker = new Marker({
-      color: this.getMarkerColourAccordingBouyState(unitPond),
+      color: this.getMarkerColour(unitPond),
     }).setLngLat([unitPond.unit.longitude, unitPond.unit.latitude]);
+    if (this._map) {
+      unitPond.marker.addTo(this._map);
+    }
   }
 
-  // ==================================================
+  private getMarkerColour(unitPond: UnitPondEntity): string {
+    if (unitPond.unit.active) {
+      return this.getMarkerColourAccordingBouyState(unitPond);
+    }
+    return MarkerColourEnum.INACTIVE;
+  }
 
-  private getMarkerColourAccordingBouyState(
-    unitPond: UnitPondEntity
-  ): MarkerColourEnum {
+  private getMarkerColourAccordingBouyState(unitPond: UnitPondEntity): string {
     if (unitPond.pondState) {
       if (unitPond.pondState === PondStateEnum.LOW) {
         return MarkerColourEnum.UNIT_POND_LOW;
@@ -120,34 +135,6 @@ export class UnitPondFactory {
   }
 
   // ==================================================
-  //  TEST COMMUNICATION FUNCTIONS
-  // ==================================================
-  private loadTestCommunication(unitPond: UnitPondEntity): void {
-    this.runTestCommunication(unitPond);
-    unitPond.testInterval = setInterval(() => {
-      this.runTestCommunication(unitPond);
-    }, 300000);
-  }
-
-  // ==================================================
-
-  private runTestCommunication(unitPond: UnitPondEntity): void {
-    unitPond.unit.received = 0;
-    this._mqttEventService.publish(
-      TopicDestinationEnum.NODE_SERVER,
-      TopicTypeEnum.UNIT_POND,
-      unitPond.id,
-      '0'
-    );
-    setTimeout(() => {
-      if (unitPond.unit.received === 0 && unitPond.unit.communication !== 0) {
-        unitPond.unit.communication = 0;
-        this.createMarker(unitPond);
-      }
-    }, 20000);
-  }
-
-  // ==================================================
   //  MQTT
   // ==================================================
 
@@ -158,7 +145,7 @@ export class UnitPondFactory {
     if (unitPond.nodeSubscription) {
       unitPond.nodeSubscription.unsubscribe();
     }
-    const observable = this._mqttEventService.subscribe(
+    const observable = this._mqttEventService.observerWithID(
       TopicDestinationEnum.NODE,
       TopicTypeEnum.UNIT_POND,
       unitPond.id
@@ -199,30 +186,5 @@ export class UnitPondFactory {
       unitPond.pondState = bouysState;
       this.createMarker(unitPond);
     }
-  }
-
-  // ----------------------------
-  //  SERVER SUBSCRIPTION
-  // ----------------------------
-
-  private subscribeToServer(unitPond: UnitPondEntity): void {
-    if (unitPond.serverSubscription) {
-      unitPond.serverSubscription.unsubscribe();
-    }
-    const observable = this._mqttEventService.subscribe(
-      TopicDestinationEnum.SERVER_DATA,
-      TopicTypeEnum.UNIT_POND,
-      unitPond.id
-    );
-    unitPond.serverSubscription = observable.subscribe((data: IMqttMessage) => {
-      const json: any = JSON.parse(data.payload.toString());
-      if (json.unitPond) {
-        unitPond.height = json.unitPond.height ? json.unitPond.height : '';
-        unitPond.m3 = json.unitPond.m3 ? json.unitPond.m3 : '';
-        unitPond.unit = json.unitPond.unit ? json.unitPond.unit : '';
-      } else {
-        console.error('json.unitPond undefined or null');
-      }
-    });
   }
 }

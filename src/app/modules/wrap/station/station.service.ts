@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Map, Marker } from 'mapbox-gl';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Map } from 'mapbox-gl';
+import { IMqttMessage } from 'ngx-mqtt';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
+import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
+import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { StationFactory } from '../../../modules/wrap/station/station.factory';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
@@ -14,72 +18,130 @@ import { StationRO, StationsRO } from './station.interfaces';
 @Injectable({
   providedIn: 'root',
 })
-export class StationService {
+export class StationService implements OnDestroy {
+  // ==================================================
+  //  VARS CONSTANTS
+  // ==================================================
   private _url: string = GLOBAL.API + 'station';
+  // ==================================================
+  //  VARS
+  // ==================================================
   private _map: Map;
+  // ==================================================
+  //  VARS SUBJECTS
+  // ==================================================
   private _stations: BehaviorSubject<StationEntity[]>;
   private _hiddenMarker = new BehaviorSubject<boolean>(false);
+  // ==================================================
+  //  VARS SUBSCRIPTIONS
+  // ==================================================
+  private _subMap: Subscription;
+  private _subHiddenMarker: Subscription;
+  private _subServerUpdate: Subscription;
+  private _subServerCreate: Subscription;
 
   // ==================================================
-
+  //  CONSTRUCTOR
+  // ==================================================
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _stationFactory: StationFactory,
-    private readonly _mapService: MapService
+    private readonly _mapService: MapService,
+    private readonly _mqttEventService: MqttEventsService
   ) {
     this._stations = new BehaviorSubject<StationEntity[]>(
       Array<StationEntity>()
     );
-    this._mapService.map.subscribe((map) => {
+    this.subscribeToMap();
+    this.subscribeToHiddenMarker();
+    this.subscribeToServerCreate();
+    this.subscribeToServerUpdate();
+  }
+
+  // ==================================================
+  //  LIFE CYCLE FUNCTIONS
+  // ==================================================
+  ngOnDestroy(): void {
+    if (this._subServerCreate) {
+      this._subServerCreate.unsubscribe();
+    }
+    if (this._subServerUpdate) {
+      this._subServerUpdate.unsubscribe();
+    }
+    if (this._subMap) {
+      this._subMap.unsubscribe();
+    }
+    if (this._subHiddenMarker) {
+      this._subHiddenMarker.unsubscribe();
+    }
+  }
+
+  // ==================================================
+  //  SUBSCRIPTIONS FUNCTIONS
+  // ==================================================
+  private subscribeToMap(): void {
+    this._subMap = this._mapService.map.subscribe((map) => {
       if (map !== null) {
         this._map = map;
-        this.addAllMarkersToMap();
+        this._stations.value.forEach((station) => {
+          if (station.marker) {
+            station.marker.addTo(map);
+          }
+        });
       }
     });
-    this._hiddenMarker.subscribe((hidden) => {
+  }
+
+  private subscribeToHiddenMarker(): void {
+    this._subHiddenMarker = this._hiddenMarker.subscribe((hidden) => {
       this._stations.value.forEach((station) => {
         station.marker.getElement().hidden = hidden;
       });
     });
   }
 
-  // ==================================================
-
-  public get stations(): BehaviorSubject<StationEntity[]> {
-    return this._stations;
+  private subscribeToServerCreate(): void {
+    this._subServerCreate = this._mqttEventService
+      .observe(TopicDestinationEnum.SERVER_DATA_CREATE, TopicTypeEnum.STATION)
+      .subscribe((data: IMqttMessage) => {
+        const stationJSON = JSON.parse(data.payload.toString());
+        const foundedStations = this._stations.value.filter(
+          (station) => station.id === stationJSON.id
+        );
+        if (foundedStations.length === 0) {
+          const newStation = this._stationFactory.createStation(stationJSON);
+          this._stations.value.push(newStation);
+          this.refresh();
+        }
+      });
   }
 
-  // ==================================================
-
-  public refresh(): void {
-    this._stations.next(this._stations.value);
-  }
-
-  // ==================================================
-
-  public hiddenMarkers(): BehaviorSubject<boolean> {
-    return this._hiddenMarker;
-  }
-
-  // ==================================================
-
-  public getFactory(): StationFactory {
-    return this._stationFactory;
+  private subscribeToServerUpdate(): void {
+    this._subServerUpdate = this._mqttEventService
+      .observe(TopicDestinationEnum.SERVER_DATA_UPDATE, TopicTypeEnum.STATION)
+      .subscribe((data: IMqttMessage) => {
+        const stationJSON = JSON.parse(data.payload.toString());
+        const foundedStations = this._stations.value.filter(
+          (station) => station.id === stationJSON.id
+        );
+        if (foundedStations.length > 0) {
+          const foundedStation = foundedStations[0];
+          this._stationFactory.updateStation(foundedStation, stationJSON);
+          this.refresh();
+        }
+      });
   }
 
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-
-  findAll(): Observable<StationsRO> {
+  public findAll(): Observable<StationsRO> {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.get<StationsRO>(this._url, httpOptions);
   }
 
-  // ==================================================
-
-  create(stationCreateDto: StationCreateDto): Observable<StationRO> {
+  public create(stationCreateDto: StationCreateDto): Observable<StationRO> {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.post<StationRO>(
       this._url,
@@ -88,9 +150,7 @@ export class StationService {
     );
   }
 
-  // ==================================================
-
-  update(stationUpdateDto: StationUpdateDto): Observable<StationRO> {
+  public update(stationUpdateDto: StationUpdateDto): Observable<StationRO> {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.put<StationRO>(
       this._url,
@@ -100,20 +160,23 @@ export class StationService {
   }
 
   // ==================================================
-  // FRONT FUNCTIONS
+  // FRONTEND FUNCTIONS
   // ==================================================
-  public addOne(station: StationEntity): void {
-    this._stations.value.push(station);
-    this.addMarkerToMap(station);
+  public getStations(): BehaviorSubject<StationEntity[]> {
+    return this._stations;
   }
 
-  // ==================================================
-
-  public getOne(id: number): StationEntity {
+  public getOneStation(id: number): StationEntity {
     return this._stations.value.filter((station) => station.id === id)[0];
   }
 
-  // ==================================================
+  public getHiddenMarkers(): BehaviorSubject<boolean> {
+    return this._hiddenMarker;
+  }
+
+  public refresh(): void {
+    this._stations.next(this._stations.value);
+  }
 
   public cleanAll(): void {
     this._stations.value.forEach((station) => {
@@ -122,25 +185,19 @@ export class StationService {
     this._stations.value.splice(0);
   }
 
-  // ===========================================================
-  //  MAP
-  // ===========================================================
-  private addMarkerToMap(station: StationEntity): void {
-    if (this._map && station.marker) {
-      station.marker.addTo(this._map);
-      if (this._hiddenMarker.value) {
-        station.marker.getElement().hidden = false;
-      } else {
-        station.marker.getElement().hidden = true;
-      }
-    }
+  public publishCreateOnMQTT(station: StationEntity): void {
+    this._mqttEventService.publish(
+      TopicDestinationEnum.SERVER_DATA_CREATE,
+      TopicTypeEnum.STATION,
+      JSON.stringify(station)
+    );
   }
 
-  // ==================================================
-
-  private addAllMarkersToMap(): void {
-    this._stations.value.forEach((station) => {
-      station.marker.addTo(this._map);
-    });
+  public publishUpdateOnMQTT(station: StationEntity): void {
+    this._mqttEventService.publish(
+      TopicDestinationEnum.SERVER_DATA_UPDATE,
+      TopicTypeEnum.STATION,
+      JSON.stringify(station)
+    );
   }
 }

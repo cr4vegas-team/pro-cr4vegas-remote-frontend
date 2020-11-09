@@ -21,12 +21,10 @@ export class UnitPondEntity {
   // ==================================================
   level$: BehaviorSubject<number>;
   pondState: PondStateEnum;
+  nodeSubscription: Subscription;
 
   // ==================================================
   // FRONTEND PROPERTIES
   // ==================================================
   marker: Marker;
-  nodeSubscription: Subscription;
-  serverSubscription: Subscription;
-  testInterval: NodeJS.Timeout;
 }

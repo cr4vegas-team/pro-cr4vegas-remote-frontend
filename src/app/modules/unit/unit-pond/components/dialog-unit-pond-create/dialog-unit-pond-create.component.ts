@@ -65,7 +65,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sectors = this._sectorService.sectors;
     this.stations = this._stationService.stations;
-    this.sets = this._setService.sets;
+    this.sets = this._setService.getSets;
 
     if (this.unitPond) {
       this.initUnitPondUpdate();
@@ -220,13 +220,10 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     );
     this._unitPondService.update(unitPondUpdateDto).subscribe(
       (unitGenericRO) => {
-        this._unitPondFactory.copyUnitPond(
+        this._unitPondFactory.updateUnitPond(
           this.unitPond,
           unitGenericRO.unitPond
         );
-        this._unitPondService.addMarkerToUnitPond(unitPond);
-        this._unitPondService.addNodeSubscription(unitPond);
-        this._unitPondService.addServerSubscription(unitPond);
         this._unitPondService.refresh();
         this.close();
       },

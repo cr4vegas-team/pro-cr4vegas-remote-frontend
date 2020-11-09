@@ -70,7 +70,7 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   // ==================================================
 
   openValve(): void {
-    this._mqttEventService.publish(
+    this._mqttEventService.publishWithID(
       TopicDestinationEnum.NODE_SERVER,
       TopicTypeEnum.UNIT_HYDRANT,
       this.unitHydrant.id,
@@ -81,7 +81,7 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   // ==================================================
 
   closeValve(): void {
-    this._mqttEventService.publish(
+    this._mqttEventService.publishWithID(
       TopicDestinationEnum.NODE_SERVER,
       TopicTypeEnum.UNIT_HYDRANT,
       this.unitHydrant.id,

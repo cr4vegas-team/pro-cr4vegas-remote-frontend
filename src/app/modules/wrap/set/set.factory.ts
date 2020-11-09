@@ -1,4 +1,3 @@
-import { SetTypeEntity } from './set-type.entity';
 import { Injectable } from '@angular/core';
 import { SetCreateDto } from './dto/set-create.dto';
 import { SetUpdateDto } from './dto/set-update.dto';
@@ -8,7 +7,10 @@ import { SetEntity } from './set.entity';
   providedIn: 'root',
 })
 export class SetFactory {
-  createSet(source: any): SetEntity {
+  // ==================================================
+  //  FACTORY FUNCTIONS
+  // ==================================================
+  public createSet(source: any): SetEntity {
     const set: SetEntity = new SetEntity();
     if (source) {
       set.id = source.id;
@@ -25,9 +27,7 @@ export class SetFactory {
     return set;
   }
 
-  // ==================================================
-
-  copy(target: SetEntity, source: SetEntity): void {
+  public updateSet(target: SetEntity, source: SetEntity): void {
     target.id = source.id;
     target.code = source.code;
     target.name = source.name;
@@ -41,33 +41,28 @@ export class SetFactory {
   }
 
   // ==================================================
-
-  getSetCreateDto(set: SetEntity): SetCreateDto {
+  //  DTO FUNCTIONS
+  // ==================================================
+  public getSetCreateDto(set: SetEntity): SetCreateDto {
     const setCreateDto: SetCreateDto = new SetCreateDto();
     setCreateDto.code = set.code;
     setCreateDto.name = set.name;
     setCreateDto.description = set.description;
     setCreateDto.setType = set.setType.name;
-    setCreateDto.units = set.units
-    ? set.units.map((unit) => unit.id)
-    : [];
+    setCreateDto.units = set.units ? set.units.map((unit) => unit.id) : [];
     setCreateDto.active = set.active;
     setCreateDto.image = set.image;
     return setCreateDto;
   }
 
-  // ==================================================
-
-  getSetUpdateDto(set: SetEntity): SetUpdateDto {
+  public getSetUpdateDto(set: SetEntity): SetUpdateDto {
     const setUpdateDto: SetUpdateDto = new SetUpdateDto();
     setUpdateDto.id = set.id;
     setUpdateDto.code = set.code;
     setUpdateDto.name = set.name;
     setUpdateDto.description = set.description;
     setUpdateDto.setType = set.setType.name;
-    setUpdateDto.units = set.units
-    ? set.units.map((unit) => unit.id)
-    : [];
+    setUpdateDto.units = set.units ? set.units.map((unit) => unit.id) : [];
     setUpdateDto.active = set.active;
     setUpdateDto.image = set.image;
     return setUpdateDto;

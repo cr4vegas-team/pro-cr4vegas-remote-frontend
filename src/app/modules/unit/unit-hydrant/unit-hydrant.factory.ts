@@ -1,28 +1,45 @@
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { Injectable } from '@angular/core';
+import { Map, Marker } from 'mapbox-gl';
+import { IMqttMessage } from 'ngx-mqtt';
+import { MarkerAnimationEnum } from 'src/app/shared/constants/marker-animation.enum';
+import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
+import { PondStateEnum } from 'src/app/shared/constants/pond-state.enum';
+import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
+import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
+import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { UnitFactory } from '../unit/unit.factory';
+import { MapService } from './../../../shared/services/map.service';
 import { UnitHydrantCreateDto } from './dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from './dto/unit-hydrant-update.dto';
 import { UnitHydrantEntity } from './unit-hydrant.entity';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
-import { IMqttMessage } from 'ngx-mqtt';
-import { PondStateEnum } from 'src/app/shared/constants/pond-state.enum';
-import { MarkerAnimationEnum } from 'src/app/shared/constants/marker-animation.enum';
-import { Marker } from 'mapbox-gl';
-import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UnitHydrantFactory {
-  constructor(
-    private readonly _unitFactory: UnitFactory,
-    private readonly _mqttEventService: MqttEventsService
-  ) {}
+  // ==================================================
+  //  VARS
+  // ==================================================
+  private _map: Map;
 
   // ==================================================
+  //  CONSTRUCTOR
+  // ==================================================
+  constructor(
+    private readonly _unitFactory: UnitFactory,
+    private readonly _mqttEventService: MqttEventsService,
+    private readonly _mapService: MapService
+  ) {
+    this._mapService.map.subscribe((map) => {
+      if (map) {
+        this._map = map;
+      }
+    });
+  }
 
+  // ==================================================
+  //  FACTORY FUNCTIONS
+  // ==================================================
   public createUnitHydrant(unitHydrant: any): UnitHydrantEntity {
     const newUnitHydrant: UnitHydrantEntity = new UnitHydrantEntity();
     if (unitHydrant) {
@@ -32,13 +49,9 @@ export class UnitHydrantFactory {
       newUnitHydrant.unit = this._unitFactory.createUnit(unitHydrant.unit);
       this.createMarker(newUnitHydrant);
       this.subscribeToNode(newUnitHydrant);
-      this.subscribeToServer(newUnitHydrant);
-      this.loadTestCommunication(newUnitHydrant);
     }
     return newUnitHydrant;
   }
-
-  // ==================================================
 
   public copyUnitHydrant(
     target: UnitHydrantEntity,
@@ -47,11 +60,13 @@ export class UnitHydrantFactory {
     target.filter = source.filter;
     target.diameter = source.diameter;
     target.unit = this._unitFactory.createUnit(source.unit);
-    target.marker.setLngLat([target.unit.longitude, target.unit.latitude]);
+    this.createMarker(target);
+    this.subscribeToNode(target);
   }
 
   // ==================================================
-
+  //  DTO FUNCTIONS
+  // ==================================================
   public getUnitHydrantCreateDto(
     unitHydrant: UnitHydrantEntity
   ): UnitHydrantCreateDto {
@@ -63,8 +78,6 @@ export class UnitHydrantFactory {
     );
     return unitHydrantCreateDto;
   }
-
-  // ==================================================
 
   public getUnitHydrantUpdateDto(
     unitHydrant: UnitHydrantEntity
@@ -79,20 +92,12 @@ export class UnitHydrantFactory {
     return unitHydrantUpdateDto;
   }
 
-  // ==================================================
-
   public clean(unitHydrant: UnitHydrantEntity): void {
     if (unitHydrant.marker) {
       unitHydrant.marker.remove();
     }
     if (unitHydrant.nodeSubscription) {
       unitHydrant.nodeSubscription.unsubscribe();
-    }
-    if (unitHydrant.serverSubscription) {
-      unitHydrant.serverSubscription.unsubscribe();
-    }
-    if (unitHydrant.testInterval) {
-      clearInterval(unitHydrant.testInterval);
     }
   }
 
@@ -104,16 +109,24 @@ export class UnitHydrantFactory {
       unitHydrant.marker.remove();
     }
     unitHydrant.marker = new Marker({
-      color: this.getMarkerColourAccordingBouyState(unitHydrant),
+      color: this.getMarkerColour(unitHydrant),
     }).setLngLat([unitHydrant.unit.longitude, unitHydrant.unit.latitude]);
+    if (this._map) {
+      unitHydrant.marker.addTo(this._map);
+    }
     this.setAnimationAccordingState(unitHydrant);
   }
 
-  // ==================================================
+  private getMarkerColour(unitHydrant: UnitHydrantEntity): string {
+    if (unitHydrant.unit.active) {
+      return this.getMarkerColourAccordingBouyState(unitHydrant);
+    }
+    return MarkerColourEnum.INACTIVE;
+  }
 
   private getMarkerColourAccordingBouyState(
     unitHydrant: UnitHydrantEntity
-  ): MarkerColourEnum {
+  ): string {
     if (unitHydrant.unit.communication) {
       if (unitHydrant.pondState) {
         if (unitHydrant.pondState === PondStateEnum.LOW) {
@@ -137,33 +150,6 @@ export class UnitHydrantFactory {
   }
 
   // ==================================================
-  //  TEST COMMUNICATION FUNCTIONS
-  // ==================================================
-  private loadTestCommunication(unitHydrant: UnitHydrantEntity): void {
-    this.runTestCommunication(unitHydrant);
-    setInterval(() => {
-      this.runTestCommunication(unitHydrant);
-    }, 300000);
-  }
-
-  // ==================================================
-
-  private runTestCommunication(unitHydrant: UnitHydrantEntity): void {
-    unitHydrant.unit.received = 0;
-    this._mqttEventService.publish(
-      TopicDestinationEnum.NODE_SERVER,
-      TopicTypeEnum.UNIT_HYDRANT,
-      unitHydrant.id,
-      '0'
-    );
-    setTimeout(() => {
-      if (unitHydrant.unit.received === 0) {
-        unitHydrant.unit.communication = 0;
-      }
-    }, 20000);
-  }
-
-  // ==================================================
   //  MQTT
   // ==================================================
 
@@ -174,7 +160,7 @@ export class UnitHydrantFactory {
     if (unitHydrant.nodeSubscription) {
       unitHydrant.nodeSubscription.unsubscribe();
     }
-    const observable = this._mqttEventService.subscribe(
+    const observable = this._mqttEventService.observerWithID(
       TopicDestinationEnum.NODE,
       TopicTypeEnum.UNIT_HYDRANT,
       unitHydrant.id
@@ -222,14 +208,10 @@ export class UnitHydrantFactory {
     );
   }
 
-  // ==================================================
-
   private checkStatus(unitHydrant: UnitHydrantEntity): void {
     this.checkBouysState(unitHydrant);
     this.checkBouysWarnings(unitHydrant);
   }
-
-  // ==================================================
 
   private checkBouysState(unitHydrant: UnitHydrantEntity): void {
     let bouysState: PondStateEnum = null;
@@ -250,8 +232,6 @@ export class UnitHydrantFactory {
       this.createMarker(unitHydrant);
     }
   }
-
-  // ==================================================
 
   private checkBouysWarnings(unitHydrant: UnitHydrantEntity): void {
     let bouysWarnings = '';
@@ -279,8 +259,6 @@ export class UnitHydrantFactory {
     unitHydrant.bouyWarning = bouysWarnings;
   }
 
-  // ==================================================
-
   private setAnimationAccordingState(unitHydrant: UnitHydrantEntity): void {
     if (unitHydrant.valve) {
       unitHydrant.marker.getElement().style.animation =
@@ -297,35 +275,5 @@ export class UnitHydrantFactory {
       unitHydrant.marker.getElement().style.boxShadow =
         MarkerAnimationEnum.NONE;
     }
-  }
-
-  // ----------------------------
-  //  SERVER SUBSCRIPTION
-  // ----------------------------
-  private subscribeToServer(unitHydrant: UnitHydrantEntity): void {
-    if (unitHydrant.serverSubscription) {
-      unitHydrant.serverSubscription.unsubscribe();
-    }
-    const observable = this._mqttEventService.subscribe(
-      TopicDestinationEnum.SERVER_DATA,
-      TopicTypeEnum.UNIT_HYDRANT,
-      unitHydrant.id
-    );
-    unitHydrant.serverSubscription = observable.subscribe(
-      (data: IMqttMessage) => {
-        const json: any = JSON.parse(data.payload.toString());
-        if (json.unitHydrant) {
-          unitHydrant.filter = json.unitHydrant.filter
-            ? json.unitHydrant.filter
-            : '';
-          unitHydrant.diameter = json.unitHydrant.diameter
-            ? json.unitHydrant.diameter
-            : '';
-          unitHydrant.unit = json.unitHydrant.unit ? json.unitHydrant.unit : '';
-        } else {
-          console.error('json.unitHydrant undefined or null');
-        }
-      }
-    );
   }
 }

@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Map } from 'mapbox-gl';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { IMqttMessage } from 'ngx-mqtt';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
+import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
+import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
 import { MapService } from './../../../shared/services/map.service';
@@ -14,58 +18,130 @@ import { UnitHydrantRO, UnitsHydrantsRO } from './unit-hydrant.interfaces';
 @Injectable({
   providedIn: 'root',
 })
-export class UnitHydrantService {
+export class UnitHydrantService implements OnDestroy {
+  // ==================================================
+  //  VARS CONSTANT
+  // ==================================================
   private _url: string = GLOBAL.API + 'unit-hydrant';
+  // ==================================================
+  //  VARS
+  // ==================================================
   private _map: Map;
+  // ==================================================
+  //  VARS SUBJECTS
+  // ==================================================
   private _unitsHydrants: BehaviorSubject<UnitHydrantEntity[]>;
   private _hiddenMarker = new BehaviorSubject<boolean>(false);
+  // ==================================================
+  //  VARS SUBSCRIPTIONS
+  // ==================================================
+  private _subMap: Subscription;
+  private _subHiddenMarker: Subscription;
+  private _subServerUpdate: Subscription;
+  private _subServerCreate: Subscription;
 
   // ==================================================
-
+  //  CONSTRUCTOR
+  // ==================================================
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitHydrantFactory: UnitHydrantFactory,
-    private readonly _mapService: MapService
+    private readonly _mapService: MapService,
+    private readonly _mqttEventService: MqttEventsService
   ) {
     this._unitsHydrants = new BehaviorSubject<UnitHydrantEntity[]>(
       Array<UnitHydrantEntity>()
     );
-    this._mapService.map.subscribe((map) => {
-      if (map) {
+    this.subscribeToMap();
+    this.subscribeToHiddenMarker();
+    this.subscribeToServerCreate();
+    this.subscribeToServerUpdate();
+  }
+
+  // ==================================================
+  //  LIFE CYCLE FUNCTIONS
+  // ==================================================
+  ngOnDestroy(): void {
+    if (this._subServerCreate) {
+      this._subServerCreate.unsubscribe();
+    }
+    if (this._subServerUpdate) {
+      this._subServerUpdate.unsubscribe();
+    }
+    if (this._subMap) {
+      this._subMap.unsubscribe();
+    }
+    if (this._subHiddenMarker) {
+      this._subHiddenMarker.unsubscribe();
+    }
+  }
+
+  // ==================================================
+  //  SUBSCRIPTIONS FUNCTIONS
+  // ==================================================
+  private subscribeToMap(): void {
+    this._subMap = this._mapService.map.subscribe((map) => {
+      if (map !== null) {
         this._map = map;
-        this.addAllMarkersToMap();
+        this._unitsHydrants.value.forEach((unitHydrant) => {
+          if (unitHydrant.marker) {
+            unitHydrant.marker.addTo(map);
+          }
+        });
       }
     });
-    this._hiddenMarker.subscribe((hidden) => {
-      this._unitsHydrants.value.forEach((unitHydrant) => {
-        unitHydrant.marker.getElement().hidden = hidden;
+  }
+
+  private subscribeToHiddenMarker(): void {
+    this._subHiddenMarker = this._hiddenMarker.subscribe((hidden) => {
+      this._unitsHydrants.value.forEach((station) => {
+        station.marker.getElement().hidden = hidden;
       });
     });
   }
 
-  // ==================================================
-
-  public get unitsHydrants(): BehaviorSubject<UnitHydrantEntity[]> {
-    return this._unitsHydrants;
+  private subscribeToServerCreate(): void {
+    this._subServerCreate = this._mqttEventService
+      .observe(
+        TopicDestinationEnum.SERVER_DATA_CREATE,
+        TopicTypeEnum.UNIT_HYDRANT
+      )
+      .subscribe((data: IMqttMessage) => {
+        const unitHydrantJSON = JSON.parse(data.payload.toString());
+        const foundedUnitsHydrants = this._unitsHydrants.value.filter(
+          (unitHydrant) => unitHydrant.id === unitHydrantJSON.id
+        );
+        if (foundedUnitsHydrants.length === 0) {
+          const newUnitHydrant = this._unitHydrantFactory.createUnitHydrant(
+            unitHydrantJSON
+          );
+          this._unitsHydrants.value.push(newUnitHydrant);
+          this.refresh();
+        }
+      });
   }
 
-  // ==================================================
-
-  public refresh(): void {
-    this._unitsHydrants.next(this._unitsHydrants.value);
-  }
-
-  // ==================================================
-
-  public get factory(): UnitHydrantFactory {
-    return this._unitHydrantFactory;
-  }
-
-  // ==================================================
-
-  public get hiddenMarker(): BehaviorSubject<boolean> {
-    return this._hiddenMarker;
+  private subscribeToServerUpdate(): void {
+    this._subServerUpdate = this._mqttEventService
+      .observe(
+        TopicDestinationEnum.SERVER_DATA_UPDATE,
+        TopicTypeEnum.UNIT_HYDRANT
+      )
+      .subscribe((data: IMqttMessage) => {
+        const unitHydrantJSON = JSON.parse(data.payload.toString());
+        const foundedUnitsHydrants = this._unitsHydrants.value.filter(
+          (unitHydrant) => unitHydrant.id === unitHydrantJSON.id
+        );
+        if (foundedUnitsHydrants.length > 0) {
+          const foundedUnitHydrant = foundedUnitsHydrants[0];
+          this._unitHydrantFactory.copyUnitHydrant(
+            foundedUnitHydrant,
+            unitHydrantJSON
+          );
+          this.refresh();
+        }
+      });
   }
 
   // ==================================================
@@ -101,9 +177,16 @@ export class UnitHydrantService {
   // ==================================================
   // FRONTEND FUNCTIONS
   // ==================================================
-  public addOne(unitHydrant: UnitHydrantEntity): void {
-    this._unitsHydrants.value.push(unitHydrant);
-    this.addMarkerToMap(unitHydrant);
+  public getUnitsHydrants(): BehaviorSubject<UnitHydrantEntity[]> {
+    return this._unitsHydrants;
+  }
+
+  public refresh(): void {
+    this._unitsHydrants.next(this._unitsHydrants.value);
+  }
+
+  public getHiddenMarker(): BehaviorSubject<boolean> {
+    return this._hiddenMarker;
   }
 
   public getOneByUnitId(id: number): UnitHydrantEntity {
@@ -118,25 +201,19 @@ export class UnitHydrantService {
     });
   }
 
-  // ===========================================================
-  //  MAP
-  // ===========================================================
-  private addMarkerToMap(unitHydrant: UnitHydrantEntity): void {
-    if (this._map && unitHydrant.marker) {
-      unitHydrant.marker.addTo(this._map);
-      if (this._hiddenMarker.value) {
-        unitHydrant.marker.getElement().hidden = false;
-      } else {
-        unitHydrant.marker.getElement().hidden = true;
-      }
-    }
+  public publishCreateOnMQTT(unitHydrant: UnitHydrantEntity): void {
+    this._mqttEventService.publish(
+      TopicDestinationEnum.SERVER_DATA_CREATE,
+      TopicTypeEnum.UNIT_HYDRANT,
+      JSON.stringify(unitHydrant)
+    );
   }
 
-  // ==================================================
-
-  private addAllMarkersToMap(): void {
-    this._unitsHydrants.value.forEach((unitHydrant) => {
-      unitHydrant.marker.addTo(this._map);
-    });
+  public publishUpdateOnMQTT(unitHydrant: UnitHydrantEntity): void {
+    this._mqttEventService.publish(
+      TopicDestinationEnum.SERVER_DATA_UPDATE,
+      TopicTypeEnum.UNIT_HYDRANT,
+      JSON.stringify(unitHydrant)
+    );
   }
 }

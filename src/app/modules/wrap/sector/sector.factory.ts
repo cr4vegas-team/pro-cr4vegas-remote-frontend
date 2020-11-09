@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { IMqttMessage } from 'ngx-mqtt';
+import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
+import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
+import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { SectorCreateDto } from './dto/sector-create.dto';
 import { SectorUpdateDto } from './dto/sector-update.dto';
 import { SectorEntity } from './sector.entity';
@@ -7,7 +11,10 @@ import { SectorEntity } from './sector.entity';
   providedIn: 'root',
 })
 export class SectorFactory {
-  createSector(source: any): SectorEntity {
+  // ==================================================
+  //  FACTORY FUNCTIONS
+  // ==================================================
+  public createSector(source: any): SectorEntity {
     const sector: SectorEntity = new SectorEntity();
     if (source) {
       sector.id = source.id;
@@ -23,23 +30,24 @@ export class SectorFactory {
     return sector;
   }
 
-  // ==================================================
-
-  copy(target: SectorEntity, source: SectorEntity): void {
-    target.id = source.id;
-    target.code = source.code;
-    target.name = source.name;
-    target.active = source.active;
-    target.description = source.description;
-    target.units = source.units;
-    target.created = source.created;
-    target.updated = source.updated;
-    target.image = source.image;
+  public updateSector(target: SectorEntity, source: SectorEntity): void {
+    target.id = source.id ? source.id : target.id;
+    target.code = source.code ? source.code : target.code;
+    target.name = source.name ? source.name : target.name;
+    target.active = source.active ? source.active : target.active;
+    target.description = source.description
+      ? source.description
+      : target.description;
+    target.units = source.units ? source.units : target.units;
+    target.created = source.created ? source.created : target.created;
+    target.updated = source.updated ? source.created : target.created;
+    target.image = source.image ? source.image : target.image;
   }
 
   // ==================================================
-
-  getSectorCreateDto(sector: SectorEntity): SectorCreateDto {
+  //  DTO FUNCTIONS
+  // ==================================================
+  public getSectorCreateDto(sector: SectorEntity): SectorCreateDto {
     const sectorCreateDto: SectorCreateDto = new SectorCreateDto();
     sectorCreateDto.code = sector.code;
     sectorCreateDto.name = sector.name;
@@ -52,9 +60,7 @@ export class SectorFactory {
     return sectorCreateDto;
   }
 
-  // ==================================================
-
-  getSectorUpdateDto(sector: SectorEntity): SectorUpdateDto {
+  public getSectorUpdateDto(sector: SectorEntity): SectorUpdateDto {
     const sectorUpdateDto: SectorUpdateDto = new SectorUpdateDto();
     sectorUpdateDto.id = sector.id;
     sectorUpdateDto.code = sector.code;

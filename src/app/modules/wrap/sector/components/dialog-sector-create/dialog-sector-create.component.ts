@@ -1,25 +1,24 @@
-import { Subscription } from 'rxjs';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { UnitService } from 'src/app/modules/unit/unit/unit.service';
 import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
 import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
 import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
+import { UploadService } from 'src/app/shared/services/upload.service';
 import { SectorCreateDto } from '../../dto/sector-create.dto';
 import { SectorUpdateDto } from '../../dto/sector-update.dto';
 import { SectorEntity } from '../../sector.entity';
 import { SectorFactory } from '../../sector.factory';
 import { SectorService } from '../../sector.service';
-import { UploadService } from 'src/app/shared/services/upload.service';
-import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-dialog-sector-create',
@@ -40,8 +39,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
   imageURL = GLOBAL.IMAGE_DEFAULT;
   file: File;
 
-  // ==================================================
-
   constructor(
     private readonly _matDialog: MatDialog,
     private readonly _sectorService: SectorService,
@@ -54,8 +51,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public sector: SectorEntity
   ) {}
-
-  // ==================================================
 
   ngOnInit(): void {
     this.subUnits = this._unitService.findAll().subscribe((unitsRO) => {
@@ -78,8 +73,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       image: [this.sector.image],
     });
   }
-
-  // ==================================================
 
   private initSectorUpdate(): void {
     this.create = false;
@@ -111,15 +104,11 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ==================================================
-
   private initSectorCreate(): void {
     this.create = true;
     this.sector = new SectorEntity();
     this.imageURL = GLOBAL.IMAGE_DEFAULT;
   }
-
-  // ==================================================
 
   accept(): void {
     if (this.sectorForm.valid) {
@@ -146,8 +135,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ==================================================
-
   private createOrUpdateSector(): void {
     const newSector: SectorEntity = this._sectorFactory.createSector(
       this.sectorForm.value
@@ -159,8 +146,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ==================================================
-
   createSector(createSector: SectorEntity): void {
     const sectorCreateDto: SectorCreateDto = this._sectorFactory.getSectorCreateDto(
       createSector
@@ -170,8 +155,9 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
         const newSector: SectorEntity = this._sectorFactory.createSector(
           sectorRO.sector
         );
-        this._sectorService.sectors.value.push(newSector);
-        this._sectorService.next();
+        this._sectorService.getSectors().value.push(newSector);
+        this._sectorService.publishCreateOnMQTT(newSector);
+        this._sectorService.refresh();
         this.close();
       },
       (error) => {
@@ -185,8 +171,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       }
     );
   }
-
-  // ==================================================
 
   private updateSector(newSector: SectorEntity): void {
     const sectorUpdateDto: SectorUpdateDto = this._sectorFactory.getSectorUpdateDto(
@@ -194,8 +178,9 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     );
     this._sectorService.update(sectorUpdateDto).subscribe(
       (sectorRO) => {
-        this._sectorFactory.copy(this.sector, sectorRO.sector);
-        this._sectorService.next();
+        this._sectorFactory.updateSector(this.sector, sectorRO.sector);
+        this._sectorService.publishUpdateOnMQTT(this.sector);
+        this._sectorService.refresh();
         this.close();
       },
       (error) => {
@@ -209,8 +194,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       }
     );
   }
-
-  // ==================================================
 
   private uploadImage(): void {
     if (this.file !== undefined && this.file !== null) {
@@ -238,19 +221,13 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ==================================================
-
   compareUnitGeneric(d1: any, d2: any): boolean {
     return d1 && d2 && d1.id === d2.id;
   }
 
-  // ==================================================
-
   close(): void {
     this._dialogRef.close();
   }
-
-  // ==================================================
 
   remove(removeUnit: UnitEntity): void {
     this.sectorForm
@@ -259,8 +236,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
         this.sectorForm.value.units.filter((unit) => unit.id !== removeUnit.id)
       );
   }
-
-  // ==================================================
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files[0];
@@ -292,8 +267,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       reader.readAsDataURL(file);
     }
   }
-
-  // ==================================================
 
   ngOnDestroy(): void {
     this.sector = null;

@@ -1,10 +1,10 @@
 import { UnitPondEntity } from './unit-pond.entity';
 
 export interface UnitPondRO {
-    unitPond: UnitPondEntity;
+  unitPond: UnitPondEntity;
 }
 
 export interface UnitsPondsRO {
-    unitsPonds: UnitPondEntity[];
-    count: number;
+  unitsPonds: UnitPondEntity[];
+  count: number;
 }

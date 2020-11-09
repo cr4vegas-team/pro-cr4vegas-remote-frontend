@@ -65,7 +65,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sectors = this._sectorService.sectors;
     this.stations = this._stationService.stations;
-    this.sets = this._setService.sets;
+    this.sets = this._setService.getSets;
 
     if (this.unitHydrant) {
       this.initUnitHydrantUpdate();
@@ -189,31 +189,25 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     const unitHydrantCreateDto: UnitHydrantCreateDto = this._unitHydrantFactory.getUnitHydrantCreateDto(
       createUnitHydrant
     );
-    this._unitHydrantService
-      .create(unitHydrantCreateDto)
-      .subscribe(
-        (unitGenericRO) => {
-          const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
-            unitGenericRO.unitHydrant
-          );
-          this._unitHydrantService.addMarkerToHydrant(newUnitHydrant);
-          this._unitHydrantService.addNodeSubscription(newUnitHydrant);
-          this._unitHydrantService.addServerSubscription(newUnitHydrant);
-          this._unitHydrantService.loadIntervalTestCommunication(newUnitHydrant);
-          this._unitHydrantService.unitsHydrants.value.push(newUnitHydrant);
-          this._unitHydrantService.updateUnitsHydrants();
-          this.close();
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
-        }
-      );
+    this._unitHydrantService.create(unitHydrantCreateDto).subscribe(
+      (unitGenericRO) => {
+        const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
+          unitGenericRO.unitHydrant
+        );
+        this._unitHydrantService.unitsHydrants.value.push(newUnitHydrant);
+        this._unitHydrantService.refresh();
+        this.close();
+      },
+      (error) => {
+        this._matDialog.open(DialogInfoComponent, {
+          data: {
+            errorType: ErrorTypeEnum.API_ERROR,
+            title: DialogInfoTitleEnum.WARNING,
+            html: error,
+          },
+        });
+      }
+    );
   }
 
   // ==================================================
@@ -228,11 +222,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
           this.unitHydrant,
           unitHydrantRO.unitHydrant
         );
-        this._unitHydrantService.addMarkerToHydrant(updateUnitHydrant);
-        this._unitHydrantService.addNodeSubscription(updateUnitHydrant);
-        this._unitHydrantService.addServerSubscription(updateUnitHydrant);
-        this._unitHydrantService.loadIntervalTestCommunication(updateUnitHydrant);
-        this._unitHydrantService.updateUnitsHydrants();
+        this._unitHydrantService.refresh();
         this.close();
       },
       (error) => {

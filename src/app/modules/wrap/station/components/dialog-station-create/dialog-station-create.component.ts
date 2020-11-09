@@ -172,16 +172,15 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  createStation(createStation: StationEntity): void {
+  private createStation(createStation: StationEntity): void {
     const stationCreateDto: StationCreateDto = this._stationFactory.getStationCreateDto(
       createStation
     );
     this._stationService.create(stationCreateDto).subscribe(
       (stationRO) => {
-        const newStation: StationEntity = this._stationFactory.createStation(
-          stationRO.station
-        );
-        this._stationService.addOne(newStation);
+        const newStation = this._stationFactory.createStation(stationRO.station);
+        this._stationService.getStations().value.push(newStation);
+        this._stationService.publishCreateOnMQTT(createStation);
         this._stationService.refresh();
         this.close();
       },
@@ -199,13 +198,14 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  private updateStation(newStation: StationEntity): void {
+  private updateStation(updateStation: StationEntity): void {
     const stationUpdateDto: StationUpdateDto = this._stationFactory.getStationUpdateDto(
-      newStation
+      updateStation
     );
     this._stationService.update(stationUpdateDto).subscribe(
       (stationRO) => {
         this._stationFactory.updateStation(this.station, stationRO.station);
+        this._stationService.publishUpdateOnMQTT(this.station);
         this._stationService.refresh();
         this.close();
       },

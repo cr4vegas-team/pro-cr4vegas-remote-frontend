@@ -37,7 +37,5 @@ export class UnitHydrantEntity {
   // FRONTEND PROPERTIES
   // ==================================================
   nodeSubscription: Subscription;
-  serverSubscription: Subscription;
   marker: Marker;
-  testInterval: NodeJS.Timeout;
 }

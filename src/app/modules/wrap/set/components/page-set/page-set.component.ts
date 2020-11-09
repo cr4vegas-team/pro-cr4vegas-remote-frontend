@@ -14,7 +14,6 @@ import { DialogSetComponent } from '../dialog-set/dialog-set.component';
   templateUrl: './page-set.component.html',
 })
 export class PageSetComponent implements OnInit {
-
   tableEmptyMSG = TableEmptyMSGEnum;
 
   sets: SetEntity[];
@@ -26,24 +25,28 @@ export class PageSetComponent implements OnInit {
 
   constructor(
     private readonly _setService: SetService,
-    private readonly _matDialog: MatDialog,
+    private readonly _matDialog: MatDialog
   ) {
     this.sets = [];
     this.dataSource = new MatTableDataSource(this.sets);
   }
 
   ngOnInit(): void {
-    this._setService.sets.subscribe(
-      res => {
-        this.sets = res;
-        this.dataSource.data = this.sets;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      },
-      error => {
-        this._matDialog.open(DialogInfoComponent, {data: {title: 'Error', html: error}});
-      }
-    ).unsubscribe();
+    this._setService.getSets
+      .subscribe(
+        (res) => {
+          this.sets = res;
+          this.dataSource.data = this.sets;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        },
+        (error) => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: { title: 'Error', html: error },
+          });
+        }
+      )
+      .unsubscribe();
   }
 
   applyFilter(event: Event): void {
@@ -58,5 +61,4 @@ export class PageSetComponent implements OnInit {
   openDialogSet(set: SetEntity): void {
     this._matDialog.open(DialogSetComponent, { data: set });
   }
-
 }

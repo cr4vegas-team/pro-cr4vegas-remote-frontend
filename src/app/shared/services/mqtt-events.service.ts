@@ -10,7 +10,7 @@ import { TopicTypeEnum } from '../../shared/constants/topic-type.enum';
 export class MqttEventsService {
   constructor(private _mqttService: MqttService) {}
 
-  subscribe(
+  public observerWithID(
     topicDestination: TopicDestinationEnum,
     topicType: TopicTypeEnum,
     endPoint: number
@@ -23,7 +23,15 @@ export class MqttEventsService {
     }
   }
 
-  async publish(
+  public observe(
+    topicDestination: TopicDestinationEnum,
+    topicType: TopicTypeEnum
+  ): Observable<IMqttMessage> {
+    const topic = `${topicDestination}/${topicType}`;
+    return this._mqttService.observeRetained(topic);
+  }
+
+  public async publishWithID(
     topicDestination: TopicDestinationEnum,
     topicType: TopicTypeEnum,
     endPoint: number,
@@ -36,6 +44,26 @@ export class MqttEventsService {
       message !== null &&
       message !== ''
     ) {
+      while (true) {
+        try {
+          await this._mqttService.unsafePublish(topic, message);
+          break;
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    } else {
+      throw new Error('El punto final y el mensaje no pueden quedan vacíos');
+    }
+  }
+
+  public async publish(
+    topicDestination: TopicDestinationEnum,
+    topicType: TopicTypeEnum,
+    message: string
+  ): Promise<void> {
+    const topic = `${topicDestination}/${topicType}`;
+    if (message !== null && message !== '') {
       while (true) {
         try {
           await this._mqttService.unsafePublish(topic, message);

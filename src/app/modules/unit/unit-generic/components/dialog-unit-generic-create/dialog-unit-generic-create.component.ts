@@ -65,7 +65,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sectors = this._sectorService.sectors;
     this.stations = this._stationService.stations;
-    this.sets = this._setService.sets;
+    this.sets = this._setService.getSets;
 
     if (this.unitGeneric) {
       this.initUnitGenericUpdate();

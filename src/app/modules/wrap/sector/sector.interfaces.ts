@@ -1,12 +1,10 @@
 import { SectorEntity } from './sector.entity';
 
 export interface SectorRO {
-    sector: SectorEntity;
+  sector: SectorEntity;
 }
 
-// ==================================================
-
 export interface SectorsRO {
-    sectors: SectorEntity[];
-    count: number;
+  sectors: SectorEntity[];
+  count: number;
 }
