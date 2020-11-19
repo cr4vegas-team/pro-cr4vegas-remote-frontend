@@ -32,7 +32,8 @@ export class PageSetComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this._setService.getSets
+    this._setService
+      .getSets()
       .subscribe(
         (res) => {
           this.sets = res;

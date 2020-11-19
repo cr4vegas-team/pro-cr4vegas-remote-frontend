@@ -1,7 +1,7 @@
 <!-- ====================================
       TITLE
      ==================================== -->
-<h1 mat-dialog-title>{{ unitPond.id }} - {{ unitPond.unit.code }}</h1>
+<h1 mat-dialog-title>Balsa {{ unitPond.unit.code }}</h1>
 <!-- ====================================
           CONTENT
           ==================================== -->
@@ -38,7 +38,7 @@
     <div class="col dialog-col-mw">
       <div class="container-fluid">
         <div class="text-center">
-          <b>{{ (unitPond.level$.value) / 1000 }}&nbsp;m</b>
+          <b>{{ unitPond.level$.value / 1000 }}&nbsp;m</b>
           &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
           <small>{{ unitPond.level$.value }}&nbsp;cm</small>
         </div>
@@ -71,7 +71,9 @@
         <div class="col">
           <b>{{ unitPond.unit.sector ? unitPond.unit.sector.name : "---" }}</b>
           <br />
-          <b>{{ unitPond.unit.station ? unitPond.unit.station.name : "---" }}</b>
+          <b>{{
+            unitPond.unit.station ? unitPond.unit.station.name : "---"
+          }}</b>
           <br />
           <span *ngIf="unitPond.unit.sets.length === 0"><b>---</b></span>
           <span *ngFor="let set of unitPond.unit.sets; let i = index"
@@ -118,7 +120,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -129,7 +130,11 @@
                    ==================================== -->
 <div mat-dialog-actions>
   <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button mat-raised-button (click)="openDialogUnitPondCreate()">
+  <button
+    mat-raised-button
+    (click)="openDialogUnitPondCreate()"
+    [disabled]="disabled"
+  >
     Modificar
   </button>
 </div>

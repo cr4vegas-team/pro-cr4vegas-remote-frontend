@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Map, Marker } from 'mapbox-gl';
 import { IMqttMessage } from 'ngx-mqtt';
-import { MarkerAnimationEnum } from 'src/app/shared/constants/marker-animation.enum';
+import { BehaviorSubject } from 'rxjs';
 import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
 import { PondStateEnum } from 'src/app/shared/constants/pond-state.enum';
 import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
 import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
+import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { UnitFactory } from '../unit/unit.factory';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitHydrantCreateDto } from './dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from './dto/unit-hydrant-update.dto';
+import { UnitHydrantWSDto } from './dto/unit-hydrant-ws.dto';
 import { UnitHydrantEntity } from './unit-hydrant.entity';
 
 @Injectable({
@@ -21,6 +23,11 @@ export class UnitHydrantFactory {
   //  VARS
   // ==================================================
   private _map: Map;
+
+  // ==================================================
+  //  VARS SUBJECTS
+  // ==================================================
+  private _markerChange$ = new BehaviorSubject<UnitHydrantEntity>(null);
 
   // ==================================================
   //  CONSTRUCTOR
@@ -37,6 +44,10 @@ export class UnitHydrantFactory {
     });
   }
 
+  public getMarkerChange(): BehaviorSubject<UnitHydrantEntity> {
+    return this._markerChange$;
+  }
+
   // ==================================================
   //  FACTORY FUNCTIONS
   // ==================================================
@@ -47,6 +58,7 @@ export class UnitHydrantFactory {
       newUnitHydrant.filter = unitHydrant.filter;
       newUnitHydrant.diameter = unitHydrant.diameter;
       newUnitHydrant.unit = this._unitFactory.createUnit(unitHydrant.unit);
+      newUnitHydrant.unit.unitTypeTable = UnitTypeTableEnum.UNIT_HYDRANT;
       this.createMarker(newUnitHydrant);
       this.subscribeToNode(newUnitHydrant);
     }
@@ -67,21 +79,19 @@ export class UnitHydrantFactory {
   // ==================================================
   //  DTO FUNCTIONS
   // ==================================================
-  public getUnitHydrantCreateDto(
-    unitHydrant: UnitHydrantEntity
-  ): UnitHydrantCreateDto {
+  public getUnitHydrantCreateDto(unitHydrant: any): UnitHydrantCreateDto {
     const unitHydrantCreateDto: UnitHydrantCreateDto = new UnitHydrantCreateDto();
     unitHydrantCreateDto.filter = unitHydrant.filter;
     unitHydrantCreateDto.diameter = unitHydrant.diameter;
     unitHydrantCreateDto.unit = this._unitFactory.getUnitCreateDto(
       unitHydrant.unit
     );
+    unitHydrantCreateDto.unit.unitTypeTable = UnitTypeTableEnum.UNIT_HYDRANT;
+
     return unitHydrantCreateDto;
   }
 
-  public getUnitHydrantUpdateDto(
-    unitHydrant: UnitHydrantEntity
-  ): UnitHydrantUpdateDto {
+  public getUnitHydrantUpdateDto(unitHydrant: any): UnitHydrantUpdateDto {
     const unitHydrantUpdateDto: UnitHydrantUpdateDto = new UnitHydrantUpdateDto();
     unitHydrantUpdateDto.id = unitHydrant.id;
     unitHydrantUpdateDto.filter = unitHydrant.filter;
@@ -90,6 +100,15 @@ export class UnitHydrantFactory {
       unitHydrant.unit
     );
     return unitHydrantUpdateDto;
+  }
+
+  public getUnitHydrantWSDto(unitHydrant: any): UnitHydrantWSDto {
+    const unitHydrantWSDto: UnitHydrantWSDto = new UnitHydrantWSDto();
+    unitHydrantWSDto.id = unitHydrant.id;
+    unitHydrantWSDto.filter = unitHydrant.filter;
+    unitHydrantWSDto.diameter = unitHydrant.diameter;
+    unitHydrantWSDto.unit = this._unitFactory.getUnitWSDto(unitHydrant.unit);
+    return unitHydrantWSDto;
   }
 
   public clean(unitHydrant: UnitHydrantEntity): void {
@@ -108,18 +127,76 @@ export class UnitHydrantFactory {
     if (unitHydrant.marker) {
       unitHydrant.marker.remove();
     }
-    unitHydrant.marker = new Marker({
-      color: this.getMarkerColour(unitHydrant),
-    }).setLngLat([unitHydrant.unit.longitude, unitHydrant.unit.latitude]);
+    const divCode = document.createElement('div');
+    divCode.style.display = 'block';
+    divCode.style.padding = '2px';
+    divCode.style.borderRadius = '5px';
+    divCode.style.border = '1px solid black';
+    divCode.style.backgroundColor = 'rgba(255,255,255,1)';
+    divCode.style.justifyContent = 'center';
+    divCode.style.zIndex = '1';
+    divCode.onmouseover = () => {
+      (divCode.children[0] as HTMLElement).style.display = 'block';
+      divCode.style.width = '60px';
+      divCode.style.height = '70px';
+      divCode.style.zIndex = '2';
+    };
+    divCode.onmouseleave = () => {
+      (divCode.children[0] as HTMLElement).style.display = 'none';
+      divCode.style.width = 'min-content';
+      divCode.style.height = 'min-content';
+      divCode.style.zIndex = '1';
+    };
+    const title = document.createElement('div');
+    title.innerHTML = `
+        Hidrante<br>
+        <b>${unitHydrant.unit.sector.code} - ${unitHydrant.unit.code}</b>
+    `;
+    title.style.fontSize = '1em';
+    title.style.display = 'none';
+    title.style.textAlign = 'center';
+
+    const point = document.createElement('div');
+    point.style.width = '1.8em';
+    point.style.height = '1.8em';
+    point.style.backgroundColor = this.getMarkerColour(unitHydrant);
+    point.style.margin = '0px auto';
+    point.style.borderRadius = '50%';
+
+    divCode.appendChild(title);
+    divCode.appendChild(point);
+
+    unitHydrant.marker = new Marker(divCode, {}).setLngLat([
+      unitHydrant.unit.longitude,
+      unitHydrant.unit.latitude,
+    ]);
+
+    this._markerChange$.next(unitHydrant);
     if (this._map) {
       unitHydrant.marker.addTo(this._map);
     }
-    this.setAnimationAccordingState(unitHydrant);
+  }
+
+  public setMarkerState(unitHydrant: UnitHydrantEntity): void {
+    this.setMarkerColourAccourdingState(unitHydrant);
+    this.setMarkerAnimationAccordingState(unitHydrant);
+  }
+
+  private setMarkerColourAccourdingState(unitHydrant: UnitHydrantEntity): void {
+    unitHydrant.marker
+      .getElement()
+      .getElementsByTagName(
+        'div'
+      )[1].style.backgroundColor = this.getMarkerColour(unitHydrant);
   }
 
   private getMarkerColour(unitHydrant: UnitHydrantEntity): string {
     if (unitHydrant.unit.active) {
-      return this.getMarkerColourAccordingBouyState(unitHydrant);
+      if (unitHydrant.unit.communication) {
+        return this.getMarkerColourAccordingBouyState(unitHydrant);
+      } else {
+        return MarkerColourEnum.WITHOUT_COMMUNICATION;
+      }
     }
     return MarkerColourEnum.INACTIVE;
   }
@@ -127,25 +204,21 @@ export class UnitHydrantFactory {
   private getMarkerColourAccordingBouyState(
     unitHydrant: UnitHydrantEntity
   ): string {
-    if (unitHydrant.unit.communication) {
-      if (unitHydrant.pondState) {
-        if (unitHydrant.pondState === PondStateEnum.LOW) {
-          return MarkerColourEnum.UNIT_HYDRANT_LOW;
-        }
-        if (unitHydrant.pondState === PondStateEnum.MEDIUM) {
-          return MarkerColourEnum.UNIT_HYDRANT_MEDIUM;
-        }
-        if (unitHydrant.pondState === PondStateEnum.HIGTH) {
-          return MarkerColourEnum.UNIT_HYDRANT_HIGTH;
-        }
-        if (unitHydrant.pondState === PondStateEnum.ALARM) {
-          return MarkerColourEnum.ALARM;
-        }
-      } else {
-        return MarkerColourEnum.UNIT_HYDRANT_LOW;
+    if (unitHydrant.pondState) {
+      if (unitHydrant.pondState === PondStateEnum.LOW) {
+        return MarkerColourEnum.UNIT_POND_LOW;
+      }
+      if (unitHydrant.pondState === PondStateEnum.MEDIUM) {
+        return MarkerColourEnum.UNIT_POND_MEDIUM;
+      }
+      if (unitHydrant.pondState === PondStateEnum.HIGTH) {
+        return MarkerColourEnum.UNIT_POND_HIGTH;
+      }
+      if (unitHydrant.pondState === PondStateEnum.ALARM) {
+        return MarkerColourEnum.ALARM;
       }
     } else {
-      return MarkerColourEnum.WITHOUT_COMMUNICATION;
+      return MarkerColourEnum.UNIT_POND_LOW;
     }
   }
 
@@ -169,38 +242,33 @@ export class UnitHydrantFactory {
       (data: IMqttMessage) => {
         const dataString = data.payload.toString();
         const dataSplit: string[] = dataString.split(',');
-        const con = unitHydrant.unit.communication
-          ? unitHydrant.unit.communication.toString()
-          : '';
-        if (dataString && dataString !== con) {
-          if (dataString === '1') {
+        if (dataSplit.length > 0) {
+          if (dataSplit[0]) {
             unitHydrant.unit.communication = 1;
             unitHydrant.unit.received = 1;
           }
-        }
-        if (dataSplit.length > 1) {
-          if (dataSplit[0]) {
-            unitHydrant.valve = dataSplit[0] === '0' ? 0 : 1;
-            this.setAnimationAccordingState(unitHydrant);
-          }
-          if (dataSplit[1] && dataSplit[1] !== '') {
-            unitHydrant.flow = Number.parseFloat(dataSplit[1]);
+          if (dataSplit[1]) {
+            unitHydrant.valve = dataSplit[1] === '0' ? 0 : 1;
+            this.setMarkerAnimationAccordingState(unitHydrant);
           }
           if (dataSplit[2] && dataSplit[2] !== '') {
-            unitHydrant.reading = Number.parseFloat(dataSplit[2]);
+            unitHydrant.flow = Number.parseFloat(dataSplit[2]);
+          }
+          if (dataSplit[3] && dataSplit[3] !== '') {
+            unitHydrant.reading = Number.parseFloat(dataSplit[3]);
             unitHydrant.readingBatch = unitHydrant.reading - unitHydrant.batch;
           }
-          if (dataSplit[3]) {
-            unitHydrant.bouyLow = dataSplit[3] === '0' ? false : true;
-          }
           if (dataSplit[4]) {
-            unitHydrant.bouyMedium = dataSplit[4] === '0' ? false : true;
+            unitHydrant.bouyLow = dataSplit[4] === '0' ? false : true;
           }
           if (dataSplit[5]) {
-            unitHydrant.bouyHight = dataSplit[5] === '0' ? false : true;
+            unitHydrant.bouyMedium = dataSplit[5] === '0' ? false : true;
           }
           if (dataSplit[6]) {
-            unitHydrant.pressure = Number.parseFloat(dataSplit[6]);
+            unitHydrant.bouyHight = dataSplit[6] === '0' ? false : true;
+          }
+          if (dataSplit[7]) {
+            unitHydrant.pressure = Number.parseFloat(dataSplit[7]);
           }
         }
         this.checkStatus(unitHydrant);
@@ -229,7 +297,8 @@ export class UnitHydrantFactory {
     }
     if (unitHydrant.pondState !== bouysState) {
       unitHydrant.pondState = bouysState;
-      this.createMarker(unitHydrant);
+      this.setMarkerColourAccourdingState(unitHydrant);
+      this.setMarkerAnimationAccordingState(unitHydrant);
     }
   }
 
@@ -259,21 +328,16 @@ export class UnitHydrantFactory {
     unitHydrant.bouyWarning = bouysWarnings;
   }
 
-  private setAnimationAccordingState(unitHydrant: UnitHydrantEntity): void {
-    if (unitHydrant.valve) {
-      unitHydrant.marker.getElement().style.animation =
-        'fade 0.5s 0.5s infinite linear both';
-      if (unitHydrant.pondState === PondStateEnum.ALARM) {
-        unitHydrant.marker.getElement().style.boxShadow = `${MarkerAnimationEnum.CLOSED}`;
-      } else {
-        unitHydrant.marker.getElement().style.boxShadow = `${MarkerAnimationEnum.OPEN}`;
-      }
-      unitHydrant.marker.getElement().style.borderRadius = '50%';
-    } else {
-      unitHydrant.marker.getElement().style.animation =
-        MarkerAnimationEnum.NONE;
+  private setMarkerAnimationAccordingState(
+    unitHydrant: UnitHydrantEntity
+  ): void {
+    if (
+      unitHydrant.unit.active &&
+      unitHydrant.unit.communication &&
+      unitHydrant.valve
+    ) {
       unitHydrant.marker.getElement().style.boxShadow =
-        MarkerAnimationEnum.NONE;
+        '0px 0px 10px 5px green';
     }
   }
 }

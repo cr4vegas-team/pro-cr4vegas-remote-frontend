@@ -63,9 +63,9 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   ngOnInit(): void {
-    this.sectors = this._sectorService.sectors;
-    this.stations = this._stationService.stations;
-    this.sets = this._setService.getSets;
+    this.sectors = this._sectorService.getSectors();
+    this.stations = this._stationService.getStations();
+    this.sets = this._setService.getSets();
 
     if (this.unitPond) {
       this.initUnitPondUpdate();
@@ -80,11 +80,24 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
       unit: this._formBuilder.group({
         active: [this.unitPond.unit.active, [Validators.required]],
         id: [this.unitPond.unit.id],
-        code: [this.unitPond.unit.code, [Validators.pattern('(BS)([0-9]{6})')]],
-        altitude: [this.unitPond.unit.altitude, [Validators.required]],
-        latitude: [this.unitPond.unit.latitude, [Validators.required]],
-        longitude: [this.unitPond.unit.longitude, [Validators.required]],
-        sector: [this.unitPond.unit.sector],
+        code: [
+          this.unitPond.unit.code,
+          [Validators.required, Validators.min(0), Validators.max(99999)],
+        ],
+        altitude: [
+          this.unitPond.unit.altitude,
+          [Validators.required, Validators.min(0), Validators.max(1000)],
+        ],
+        latitude: [
+          this.unitPond.unit.latitude,
+          [Validators.required, Validators.min(-90), Validators.max(90)],
+        ],
+        longitude: [
+          this.unitPond.unit.longitude,
+          [Validators.required, Validators.min(-90), Validators.max(90)],
+        ],
+        unitTypeTable: [this.unitPond.unit.unitTypeTable],
+        sector: [this.unitPond.unit.sector, [Validators.required]],
         station: [this.unitPond.unit.station],
         sets: [this.unitPond.unit.sets],
         description: [this.unitPond.unit.description],
@@ -149,8 +162,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     } else {
       let html = '<h2>Existen campos incorrectos</h2><ul>';
       if (this.unitPondForm.get('unit.code').invalid) {
-        html +=
-          '<li>El código es incorrecto. Ejemplo: BS000150. Código + 6 dígitos</li>';
+        html += '<li>El código debe estar entre 0 y 99999</li>';
       }
       if (this.unitPondForm.get('unit.altitude').invalid) {
         html += '<li>La altitud debe estar entre 0 y 1000</li>';
@@ -160,6 +172,9 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
       }
       if (this.unitPondForm.get('unit.longitude').invalid) {
         html += '<li>La longitud debe estar entre -90 y 90';
+      }
+      if (this.unitPondForm.get('unit.sector').invalid) {
+        html += '<li>Debe seleccionar un sector</li>';
       }
       html += '</ul>';
       this._matDialog.open(DialogInfoComponent, {
@@ -175,28 +190,28 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   private createOrUpdateUnitPond(): void {
-    const newUnitHydrant: UnitPondEntity = this._unitPondFactory.createUnitPond(
-      this.unitPondForm.value
-    );
     if (this.create) {
-      this.createUnitPond(newUnitHydrant);
+      this.createUnitPond();
     } else {
-      this.updateUnitPond(newUnitHydrant);
+      this.updateUnitPond();
     }
   }
 
   // ==================================================
 
-  createUnitPond(unitPond: UnitPondEntity): void {
+  createUnitPond(): void {
     const unitPondCreateDto: UnitPondCreateDto = this._unitPondFactory.getUnitPondCreateDto(
-      unitPond
+      this.unitPondForm.value
     );
     this._unitPondService.create(unitPondCreateDto).subscribe(
       (unitPondRO) => {
         const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(
           unitPondRO.unitPond
         );
-        this._unitPondService.addOne(newUnitPond);
+        this._unitPondService.getUnitsPonds().value.push(newUnitPond);
+        this._unitPondService.publishCreateOnMQTT(
+          this._unitPondFactory.getUnitPondWSDto(newUnitPond)
+        );
         this._unitPondService.refresh();
         this.close();
       },
@@ -214,15 +229,18 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  updateUnitPond(unitPond: UnitPondEntity): void {
+  updateUnitPond(): void {
     const unitPondUpdateDto: UnitPondUpdateDto = this._unitPondFactory.getUnitPondUpdateDto(
-      unitPond
+      this.unitPondForm.value
     );
     this._unitPondService.update(unitPondUpdateDto).subscribe(
       (unitGenericRO) => {
         this._unitPondFactory.updateUnitPond(
           this.unitPond,
           unitGenericRO.unitPond
+        );
+        this._unitPondService.publishUpdateOnMQTT(
+          this._unitPondFactory.getUnitPondWSDto(this.unitPond)
         );
         this._unitPondService.refresh();
         this.close();

@@ -39,7 +39,8 @@ export class PageUnitHydrantComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this._unitHydrantService.unitsHydrants
+    this._unitHydrantService
+      .getUnitsHydrants()
       .subscribe(
         (res) => {
           this.unitsHydrants = res;
@@ -55,7 +56,7 @@ export class PageUnitHydrantComponent implements OnInit, AfterViewInit {
       let setsString = '';
       unitHydrant.unit.sets.forEach((set) => (setsString += set.name));
       return (
-        unitHydrant.unit.code.toLowerCase().includes(filterValue) ||
+        String(unitHydrant.unit.code).includes(filterValue) ||
         (unitHydrant.unit.sector &&
           unitHydrant.unit.sector.name.toLowerCase().includes(filterValue)) ||
         (unitHydrant.unit.station &&

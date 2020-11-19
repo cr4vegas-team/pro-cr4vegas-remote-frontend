@@ -69,12 +69,21 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
 
     this.stationForm = this._formBuilder.group({
       id: [this.station.id],
-      code: [this.station.code, [Validators.pattern('(ET)([0-9]{6})')]],
+      code: [this.station.code, [Validators.pattern('[A-Z0-9]{1,5}')]],
       name: [this.station.name, [Validators.required]],
       description: [this.station.description],
-      altitude: [this.station.altitude, [Validators.required]],
-      longitude: [this.station.longitude, [Validators.required]],
-      latitude: [this.station.latitude, [Validators.required]],
+      altitude: [
+        this.station.altitude,
+        [Validators.required, Validators.min(0), Validators.max(1000)],
+      ],
+      latitude: [
+        this.station.latitude,
+        [Validators.required, Validators.min(-90), Validators.max(90)],
+      ],
+      longitude: [
+        this.station.longitude,
+        [Validators.required, Validators.min(-90), Validators.max(90)],
+      ],
       active: [this.station.active, [Validators.required]],
       units: [this.station.units],
       image: [this.station.image],
@@ -132,7 +141,7 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
       let html = '<h2>Existen campos incorrectos</h2><ul>';
       if (this.stationForm.get('code').invalid) {
         html +=
-          '<li>El código es incorrecto. Ejemplo: ET000150. Código + 6 dígitos</li>';
+          '<li>El código debe contener de 1 a 5 caracteres (letras mayúsculas o números)</li>';
       }
       if (this.stationForm.get('name').invalid) {
         html += '<li>El nombre debe estar entre 3 y 45 caracteres</li>';
@@ -160,27 +169,28 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   private createOrUpdateStation(): void {
-    const newStation: StationEntity = this._stationFactory.createStation(
-      this.stationForm.value
-    );
     if (this.create) {
-      this.createStation(newStation);
+      this.createStation();
     } else {
-      this.updateStation(newStation);
+      this.updateStation();
     }
   }
 
   // ==================================================
 
-  private createStation(createStation: StationEntity): void {
+  private createStation(): void {
     const stationCreateDto: StationCreateDto = this._stationFactory.getStationCreateDto(
-      createStation
+      this.stationForm.value
     );
     this._stationService.create(stationCreateDto).subscribe(
       (stationRO) => {
-        const newStation = this._stationFactory.createStation(stationRO.station);
+        const newStation = this._stationFactory.createStation(
+          stationRO.station
+        );
         this._stationService.getStations().value.push(newStation);
-        this._stationService.publishCreateOnMQTT(createStation);
+        this._stationService.publishCreateOnMQTT(
+          this._stationFactory.getStationWSDto(newStation)
+        );
         this._stationService.refresh();
         this.close();
       },
@@ -198,14 +208,16 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  private updateStation(updateStation: StationEntity): void {
+  private updateStation(): void {
     const stationUpdateDto: StationUpdateDto = this._stationFactory.getStationUpdateDto(
-      updateStation
+      this.stationForm.value
     );
     this._stationService.update(stationUpdateDto).subscribe(
       (stationRO) => {
         this._stationFactory.updateStation(this.station, stationRO.station);
-        this._stationService.publishUpdateOnMQTT(this.station);
+        this._stationService.publishUpdateOnMQTT(
+          this._stationFactory.getStationWSDto(this.station)
+        );
         this._stationService.refresh();
         this.close();
       },

@@ -1,5 +1,5 @@
 import { Marker } from 'mapbox-gl';
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import { UnitEntity } from '../unit/unit.entity';
 
 export class UnitGenericEntity {
@@ -17,17 +17,15 @@ export class UnitGenericEntity {
   // ==================================================
   // MQTT PROPERTIES
   // ==================================================
-  property1: string;
-  property2: string;
-  property3: string;
-  property4: string;
-  property5: string;
+  property1$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  property2$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  property3$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  property4$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  property5$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
 
   // ==================================================
   // FRONTEND PROPERTIES
   // ==================================================
   nodeSubscription: Subscription;
-  serverSubscription: Subscription;
   marker: Marker;
-  testInterval: NodeJS.Timeout;
 }

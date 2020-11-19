@@ -1,3 +1,4 @@
+import { SectorWSDto } from './dto/sector-ws.dto';
 import { Injectable } from '@angular/core';
 import { IMqttMessage } from 'ngx-mqtt';
 import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
@@ -31,23 +32,21 @@ export class SectorFactory {
   }
 
   public updateSector(target: SectorEntity, source: SectorEntity): void {
-    target.id = source.id ? source.id : target.id;
-    target.code = source.code ? source.code : target.code;
-    target.name = source.name ? source.name : target.name;
-    target.active = source.active ? source.active : target.active;
-    target.description = source.description
-      ? source.description
-      : target.description;
-    target.units = source.units ? source.units : target.units;
-    target.created = source.created ? source.created : target.created;
-    target.updated = source.updated ? source.created : target.created;
-    target.image = source.image ? source.image : target.image;
+    target.id = source.id;
+    target.code = source.code;
+    target.name = source.name;
+    target.active = source.active;
+    target.description = source.description;
+    target.units = source.units;
+    target.created = source.created;
+    target.updated = source.updated;
+    target.image = source.image;
   }
 
   // ==================================================
   //  DTO FUNCTIONS
   // ==================================================
-  public getSectorCreateDto(sector: SectorEntity): SectorCreateDto {
+  public getSectorCreateDto(sector: any): SectorCreateDto {
     const sectorCreateDto: SectorCreateDto = new SectorCreateDto();
     sectorCreateDto.code = sector.code;
     sectorCreateDto.name = sector.name;
@@ -60,7 +59,7 @@ export class SectorFactory {
     return sectorCreateDto;
   }
 
-  public getSectorUpdateDto(sector: SectorEntity): SectorUpdateDto {
+  public getSectorUpdateDto(sector: any): SectorUpdateDto {
     const sectorUpdateDto: SectorUpdateDto = new SectorUpdateDto();
     sectorUpdateDto.id = sector.id;
     sectorUpdateDto.code = sector.code;
@@ -72,5 +71,17 @@ export class SectorFactory {
       ? sector.units.map((unit) => unit.id)
       : [];
     return sectorUpdateDto;
+  }
+
+  public getSectorWSDto(sector: any): SectorWSDto {
+    const sectorWSDto: SectorWSDto = new SectorWSDto();
+    sectorWSDto.id = sector.id;
+    sectorWSDto.code = sector.code;
+    sectorWSDto.name = sector.name;
+    sectorWSDto.description = sector.description;
+    sectorWSDto.active = sector.active;
+    sectorWSDto.image = sector.image;
+    sectorWSDto.units = sector.units ? sector.units : [];
+    return sectorWSDto;
   }
 }

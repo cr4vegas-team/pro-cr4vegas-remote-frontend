@@ -1,11 +1,10 @@
 import { UnitEntity } from './unit.entity';
 
-
 export interface UnitRO {
-    unit: UnitEntity;
+  unit: UnitEntity;
 }
 
 export interface UnitsRO {
-    units: UnitEntity[];
-    count: number;
+  units: UnitEntity[];
+  count: number;
 }

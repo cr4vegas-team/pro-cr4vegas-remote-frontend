@@ -1,3 +1,4 @@
+import { StationWSDto } from './dto/station-ws.dto';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Map } from 'mapbox-gl';
@@ -185,19 +186,19 @@ export class StationService implements OnDestroy {
     this._stations.value.splice(0);
   }
 
-  public publishCreateOnMQTT(station: StationEntity): void {
+  public publishCreateOnMQTT(stationDto: StationWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_CREATE,
       TopicTypeEnum.STATION,
-      JSON.stringify(station)
+      JSON.stringify(stationDto)
     );
   }
 
-  public publishUpdateOnMQTT(station: StationEntity): void {
+  public publishUpdateOnMQTT(stationDto: StationWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_UPDATE,
       TopicTypeEnum.STATION,
-      JSON.stringify(station)
+      JSON.stringify(stationDto)
     );
   }
 }

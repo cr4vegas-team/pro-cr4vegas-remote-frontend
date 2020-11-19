@@ -128,83 +128,56 @@
     <br />
     <!-- END Go to... -->
 
-    <hr />
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="list">
+      Listar
+    </button>
 
-    <!-- START Unit Control -->
+    <mat-menu #list="matMenu">
+      <button mat-menu-item [matMenuTriggerFor]="listUnits">
+        Unidades de control
+      </button>
+      <button mat-menu-item (click)="goSectors()">Sectores</button>
+      <button mat-menu-item (click)="goStations()">Estaciones</button>
+      <button mat-menu-item (click)="goSets()">Conjuntos</button>
+    </mat-menu>
+
+    <mat-menu #listUnits="matMenu">
+      <button mat-menu-item (click)="goUnitsGenerics()">Genéricos</button>
+      <button mat-menu-item (click)="goUnitsHydrants()">Hidrantes</button>
+      <button mat-menu-item (click)="goUnitsPonds()">Balsas</button>
+    </mat-menu>
+
     <button
       class="button-navbar"
       mat-button
-      [matMenuTriggerFor]="unitControlList"
+      [matMenuTriggerFor]="create"
+      [disabled]="disabled"
     >
-      Unidades de control
+      Crear
     </button>
 
-    <mat-menu #unitControlList="matMenu">
-      <button mat-menu-item [matMenuTriggerFor]="unitHydrantList">
-        Hidrantes
+    <mat-menu #create="matMenu">
+      <button mat-menu-item [matMenuTriggerFor]="createUnits">
+        Unidades de control
       </button>
-      <button mat-menu-item [matMenuTriggerFor]="unitGenericList">
-        Genéricos
+      <button mat-menu-item (click)="openDialogSectorCreate()">Sector</button>
+      <button mat-menu-item (click)="openDialogStationCreate()">
+        Estación
       </button>
-      <button mat-menu-item [matMenuTriggerFor]="unitPondList">Balsas</button>
+      <button mat-menu-item (click)="openDialogSetCreate()">Conjunto</button>
     </mat-menu>
 
-    <mat-menu #unitHydrantList="matMenu">
-      <button mat-menu-item (click)="goUnitsHydrants()">Listar</button>
-      <button mat-menu-item (click)="openDialogUnitHydrantCreate()">
-        Crear
-      </button>
-    </mat-menu>
-
-    <mat-menu #unitGenericList="matMenu">
-      <button mat-menu-item (click)="goUnitsGenerics()">Listar</button>
+    <mat-menu #createUnits="matMenu">
       <button mat-menu-item (click)="openDialogUnitGenericCreate()">
-        Crear
+        Genérico
       </button>
+      <button mat-menu-item (click)="openDialogUnitHydrantCreate()">
+        Hidrante
+      </button>
+      <button mat-menu-item (click)="openDialogUnitPondCreate()">Balsa</button>
     </mat-menu>
 
-    <mat-menu #unitPondList="matMenu">
-      <button mat-menu-item (click)="goUnitsPonds()">Listar</button>
-      <button mat-menu-item (click)="openDialogUnitPondCreate()">Crear</button>
-    </mat-menu>
-    <!-- END Unit Control -->
-
-    <!-- START Station -->
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="stationList">
-      Estaciones
-    </button>
-
-    <mat-menu #stationList="matMenu">
-      <button mat-menu-item (click)="goStations()">Listar</button>
-      <button mat-menu-item (click)="openDialogStationCreate()">Crear</button>
-    </mat-menu>
-    <!-- END Station -->
-
-    <!-- START Sectors -->
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="sectorList">
-      Sectores
-    </button>
-
-    <mat-menu #sectorList="matMenu">
-      <button mat-menu-item (click)="goSectors()">Listar</button>
-      <button mat-menu-item (click)="openDialogSectorCreate()">Crear</button>
-    </mat-menu>
-    <!-- END Sectors -->
-
-    <!-- START Sectors -->
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="setList">
-      Conjuntos
-    </button>
-
-    <mat-menu #setList="matMenu">
-      <button mat-menu-item (click)="goSets()">Listar</button>
-      <button mat-menu-item (click)="openDialogSetCreate()">Crear</button>
-    </mat-menu>
-    <!-- END Sectors -->
-
-    <hr />
-
-    <!-- START Registry -->
+    <!--
     <button class="button-navbar" mat-button [matMenuTriggerFor]="menuHistory">
       Historial
     </button>
@@ -215,9 +188,7 @@
       <button mat-menu-item (click)="openPageAction()">Acciones</button>
       <button mat-menu-item (click)="openPageAlarm()">Alarmas</button>
     </mat-menu>
-    <!-- END Registry -->
 
-    <!-- START Order -->
     <button class="button-navbar" mat-button [matMenuTriggerFor]="menuOrder">
       Ordenes
     </button>
@@ -226,9 +197,7 @@
       <button mat-menu-item (click)="openPageOrder()">Listado</button>
       <button mat-menu-item (click)="openDialogOrderCreate()">Crear</button>
     </mat-menu>
-    <!-- END Order -->
 
-    <!-- START Settings -->
     <button
       class="button-navbar"
       mat-button
@@ -236,8 +205,7 @@
     >
       Ajustes
     </button>
-    <br />
-    <!-- END Settings -->
+    <br /> -->
 
     <!-- START Logout -->
     <button class="button-navbar" mat-button (click)="logout()">
@@ -252,7 +220,7 @@
       class="button-menu"
       mat-button
       (click)="sidenav.open()"
-      [disabled]="!isAuthenticated"
+      [hidden]="hidden"
     >
       <mat-icon>line_weight</mat-icon>
     </button>

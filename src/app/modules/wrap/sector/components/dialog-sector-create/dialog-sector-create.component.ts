@@ -65,7 +65,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
 
     this.sectorForm = this._formBuilder.group({
       id: [this.sector.id],
-      code: [this.sector.code, [Validators.pattern('(ST)([0-9]{6})')]],
+      code: [this.sector.code, [Validators.pattern('[A-Z0-9]{1,5}')]],
       name: [this.sector.name, [Validators.required]],
       description: [this.sector.description],
       active: [this.sector.active, [Validators.required]],
@@ -119,7 +119,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       let html = '<h2>Existen campos incorrectos</h2><ul>';
       if (this.sectorForm.get('code').invalid) {
         html +=
-          '<li>El código es incorrecto. Ejemplo: ST000150. Código + 6 dígitos</li>';
+          '<li>El código debe contener de 1 a 5 caracteres (letras mayúsculas o números)</li>';
       }
       if (this.sectorForm.get('name').invalid) {
         html += '<li>El nombre debe estar entre 3 y 45 caracteres</li>';
@@ -136,19 +136,16 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
   }
 
   private createOrUpdateSector(): void {
-    const newSector: SectorEntity = this._sectorFactory.createSector(
-      this.sectorForm.value
-    );
     if (this.create) {
-      this.createSector(newSector);
+      this.createSector();
     } else {
-      this.updateSector(newSector);
+      this.updateSector();
     }
   }
 
-  createSector(createSector: SectorEntity): void {
+  createSector(): void {
     const sectorCreateDto: SectorCreateDto = this._sectorFactory.getSectorCreateDto(
-      createSector
+      this.sectorForm.value
     );
     this._sectorService.create(sectorCreateDto).subscribe(
       (sectorRO) => {
@@ -156,7 +153,9 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
           sectorRO.sector
         );
         this._sectorService.getSectors().value.push(newSector);
-        this._sectorService.publishCreateOnMQTT(newSector);
+        this._sectorService.publishCreateOnMQTT(
+          this._sectorFactory.getSectorWSDto(newSector)
+        );
         this._sectorService.refresh();
         this.close();
       },
@@ -172,14 +171,16 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     );
   }
 
-  private updateSector(newSector: SectorEntity): void {
+  private updateSector(): void {
     const sectorUpdateDto: SectorUpdateDto = this._sectorFactory.getSectorUpdateDto(
-      newSector
+      this.sectorForm.value
     );
     this._sectorService.update(sectorUpdateDto).subscribe(
       (sectorRO) => {
         this._sectorFactory.updateSector(this.sector, sectorRO.sector);
-        this._sectorService.publishUpdateOnMQTT(this.sector);
+        this._sectorService.publishUpdateOnMQTT(
+          this._sectorFactory.getSectorWSDto(this.sector)
+        );
         this._sectorService.refresh();
         this.close();
       },

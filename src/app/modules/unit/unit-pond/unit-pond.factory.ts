@@ -1,3 +1,5 @@
+import { UnitHydrantWSDto } from './../unit-hydrant/dto/unit-hydrant-ws.dto';
+import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
 import { Injectable } from '@angular/core';
 import { Map, Marker } from 'mapbox-gl';
 import { IMqttMessage } from 'ngx-mqtt';
@@ -11,6 +13,8 @@ import { MapService } from './../../../shared/services/map.service';
 import { UnitPondCreateDto } from './dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
 import { UnitPondEntity } from './unit-pond.entity';
+import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +24,11 @@ export class UnitPondFactory {
   //  VARS
   // ==================================================
   private _map: Map;
+
+  // ==================================================
+  //  VARS SUBJECTS
+  // ==================================================
+  private _markerChange$ = new BehaviorSubject<UnitPondEntity>(null);
 
   // ==================================================
   //  CONSTRUCTOR
@@ -36,16 +45,21 @@ export class UnitPondFactory {
     });
   }
 
+  public getMarkerChange(): BehaviorSubject<UnitPondEntity> {
+    return this._markerChange$;
+  }
+
   // ==================================================
   //  FACTORY FUNCTIONS
   // ==================================================
-  public createUnitPond(unitPond: UnitPondEntity): UnitPondEntity {
+  public createUnitPond(unitPond: any): UnitPondEntity {
     const newUnitPond: UnitPondEntity = new UnitPondEntity();
     if (unitPond) {
       newUnitPond.id = unitPond.id;
       newUnitPond.m3 = unitPond.m3;
       newUnitPond.height = unitPond.height;
       newUnitPond.unit = this._unitFactory.createUnit(unitPond.unit);
+      newUnitPond.unit.unitTypeTable = UnitTypeTableEnum.UNIT_POND;
       this.createMarker(newUnitPond);
       this.subscribeToNode(newUnitPond);
     }
@@ -62,18 +76,18 @@ export class UnitPondFactory {
   }
 
   // ==================================================
-
-  public getUnitPondCreateDto(unitPond: UnitPondEntity): UnitPondCreateDto {
+  //  DTO FUNCTIONS
+  // ==================================================
+  public getUnitPondCreateDto(unitPond: any): UnitPondCreateDto {
     const unitPondCreateDto: UnitPondCreateDto = new UnitPondCreateDto();
     unitPondCreateDto.m3 = unitPond.m3;
     unitPondCreateDto.height = unitPond.height;
     unitPondCreateDto.unit = this._unitFactory.getUnitCreateDto(unitPond.unit);
+    unitPondCreateDto.unit.unitTypeTable = UnitTypeTableEnum.UNIT_POND;
     return unitPondCreateDto;
   }
 
-  // ==================================================
-
-  public getUnitPondUpdateDto(unitPond: UnitPondEntity): UnitPondUpdateDto {
+  public getUnitPondUpdateDto(unitPond: any): UnitPondUpdateDto {
     const unitPondUpdateDto: UnitPondUpdateDto = new UnitPondUpdateDto();
     unitPondUpdateDto.id = unitPond.id;
     unitPondUpdateDto.m3 = unitPond.m3;
@@ -82,7 +96,14 @@ export class UnitPondFactory {
     return unitPondUpdateDto;
   }
 
-  // ==================================================
+  public getUnitPondWSDto(unitPond: any): UnitPondWSDto {
+    const unitPondWSDto: UnitPondWSDto = new UnitPondWSDto();
+    unitPondWSDto.id = unitPond.id;
+    unitPondWSDto.m3 = unitPond.m3;
+    unitPondWSDto.height = unitPond.height;
+    unitPondWSDto.unit = this._unitFactory.getUnitWSDto(unitPond.unit);
+    return unitPondWSDto;
+  }
 
   public clean(unitPond: UnitPondEntity): void {
     if (unitPond.marker) {
@@ -100,12 +121,56 @@ export class UnitPondFactory {
     if (unitPond.marker) {
       unitPond.marker.remove();
     }
-    unitPond.marker = new Marker({
-      color: this.getMarkerColour(unitPond),
-    }).setLngLat([unitPond.unit.longitude, unitPond.unit.latitude]);
+    const divCode = document.createElement('div');
+    divCode.style.display = 'block';
+    divCode.style.padding = '3px';
+    divCode.style.borderRadius = '10px';
+    divCode.style.border = '1px solid black';
+    divCode.style.backgroundColor = 'rgba(255,255,255,0.8)';
+    divCode.style.justifyContent = 'center';
+
+    const title = document.createElement('div');
+    title.innerText = unitPond.unit.sector.code + '-' + unitPond.unit.code;
+    title.style.fontWeight = 'bold';
+    title.style.fontSize = '1em';
+    title.style.padding = '1px';
+    title.style.borderRadius = '5px';
+
+    const point = document.createElement('div');
+    point.style.width = '2.0em';
+    point.style.height = '2.0em';
+    point.style.backgroundColor = this.getMarkerColour(unitPond);
+    point.style.margin = '1px auto';
+    point.style.borderRadius = '50%';
+    point.style.borderBottomRightRadius = '0%';
+    point.style.borderBottomLeftRadius = '50%';
+    point.style.borderTopRightRadius = '50%';
+    point.style.borderTopLeftRadius = '50%';
+
+    divCode.appendChild(title);
+    divCode.appendChild(point);
+
+    unitPond.marker = new Marker(divCode, {}).setLngLat([
+      unitPond.unit.longitude,
+      unitPond.unit.latitude,
+    ]);
+
+    this._markerChange$.next(unitPond);
     if (this._map) {
       unitPond.marker.addTo(this._map);
     }
+  }
+
+  public setMarkerState(unitPond: UnitPondEntity): void {
+    this.setMarkerColourAccourdingState(unitPond);
+  }
+
+  private setMarkerColourAccourdingState(unitPond: UnitPondEntity): void {
+    unitPond.marker
+      .getElement()
+      .getElementsByTagName(
+        'div'
+      )[1].style.backgroundColor = this.getMarkerColour(unitPond);
   }
 
   private getMarkerColour(unitPond: UnitPondEntity): string {
@@ -184,7 +249,7 @@ export class UnitPondFactory {
     }
     if (unitPond.pondState !== bouysState) {
       unitPond.pondState = bouysState;
-      this.createMarker(unitPond);
+      this.setMarkerColourAccourdingState(unitPond);
     }
   }
 }

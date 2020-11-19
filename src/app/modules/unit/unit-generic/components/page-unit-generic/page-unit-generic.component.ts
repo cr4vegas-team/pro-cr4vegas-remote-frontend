@@ -13,10 +13,17 @@ import { DialogUnitGenericComponent } from '../dialog-unit-generic/dialog-unit-g
   templateUrl: './page-unit-generic.component.html',
 })
 export class PageUnitGenericComponent implements OnInit, AfterViewInit {
-
   tableEmptyMSG = TableEmptyMSGEnum;
   unitsGenerics: UnitGenericEntity[];
-  displayedColumns: string[] = ['id', 'code', 'active', 'communication', 'sector', 'station', 'sets'];
+  displayedColumns: string[] = [
+    'id',
+    'code',
+    'active',
+    'communication',
+    'sector',
+    'station',
+    'sets',
+  ];
   dataSource: MatTableDataSource<UnitGenericEntity>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -24,31 +31,37 @@ export class PageUnitGenericComponent implements OnInit, AfterViewInit {
 
   constructor(
     private readonly _unitGenericService: UnitGenericService,
-    private readonly _matDialog: MatDialog,
+    private readonly _matDialog: MatDialog
   ) {
     this.unitsGenerics = [];
     this.dataSource = new MatTableDataSource(this.unitsGenerics);
   }
 
   ngOnInit(): void {
-
-    this._unitGenericService.unitsGenerics.subscribe(
-      res => {
-        this.unitsGenerics = res;
-        this.dataSource = new MatTableDataSource(this.unitsGenerics);
-      },
-      err => {
-        console.log('ERROR - UnitGenericComponent: ' + err.message);
-      }
-    ).unsubscribe();
+    this._unitGenericService
+      .getUnitsGeneric()
+      .subscribe(
+        (res) => {
+          this.unitsGenerics = res;
+          this.dataSource = new MatTableDataSource(this.unitsGenerics);
+        },
+        (err) => {
+          console.log('ERROR - UnitGenericComponent: ' + err.message);
+        }
+      )
+      .unsubscribe();
 
     this.dataSource.filterPredicate = (unitGeneric, filterValue) => {
       let setsString = '';
-      unitGeneric.unit.sets.forEach(set => setsString += set.name);
-      return unitGeneric.unit.code.toLowerCase().includes(filterValue) ||
-             (unitGeneric.unit.sector && unitGeneric.unit.sector.name.toLowerCase().includes(filterValue)) ||
-             (unitGeneric.unit.station && unitGeneric.unit.station.name.toLowerCase().includes(filterValue)) ||
-             (setsString.toLowerCase().includes(filterValue));
+      unitGeneric.unit.sets.forEach((set) => (setsString += set.name));
+      return (
+        String(unitGeneric.unit.code).includes(filterValue) ||
+        (unitGeneric.unit.sector &&
+          unitGeneric.unit.sector.name.toLowerCase().includes(filterValue)) ||
+        (unitGeneric.unit.station &&
+          unitGeneric.unit.station.name.toLowerCase().includes(filterValue)) ||
+        setsString.toLowerCase().includes(filterValue)
+      );
     };
   }
 
@@ -69,5 +82,4 @@ export class PageUnitGenericComponent implements OnInit, AfterViewInit {
   openDialogUnitGeneric(unitGeneric: UnitGenericEntity): void {
     this._matDialog.open(DialogUnitGenericComponent, { data: unitGeneric });
   }
-
 }

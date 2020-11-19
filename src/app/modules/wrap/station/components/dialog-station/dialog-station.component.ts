@@ -1,23 +1,24 @@
-import { DialogImageComponent } from './../../../../../shared/components/dialog-image/dialog-image.component';
-import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/shared/services/auth.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 import { DialogUnitGenericComponent } from 'src/app/modules/unit/unit-generic/components/dialog-unit-generic/dialog-unit-generic.component';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant/dialog-unit-hydrant.component';
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
+import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { UnitEntity } from '../../../../../modules/unit/unit/unit.entity';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { DialogStationCreateComponent } from '../dialog-station-create/dialog-station-create.component';
+import { DialogImageComponent } from './../../../../../shared/components/dialog-image/dialog-image.component';
 import { UnitTypeTableEnum } from './../../../../../shared/constants/unit-type-table.enum';
 import { UploadService } from './../../../../../shared/services/upload.service';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
 
 @Component({
   selector: 'app-dialog-station',
@@ -30,6 +31,7 @@ export class DialogStationComponent implements OnInit, OnDestroy {
   subUnits: Subscription;
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
+  disabled = false;
 
   // ==================================================
 
@@ -40,9 +42,18 @@ export class DialogStationComponent implements OnInit, OnDestroy {
     private readonly _unitPondService: UnitPondService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _authService: AuthService,
     @Inject(MAT_DIALOG_DATA)
     public station: StationEntity
-  ) {}
+  ) {
+    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
+      if (res) {
+        this.disabled = false;
+      } else {
+        this.disabled = true;
+      }
+    });
+  }
 
   // ==================================================
 
@@ -82,9 +93,24 @@ export class DialogStationComponent implements OnInit, OnDestroy {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.units = this.station.units.filter((unit) =>
-      unit.code.includes(filterValue)
+    this.units = this.station.units.filter(
+      (unit) => String(unit.code) === filterValue
     );
+  }
+
+  // ==================================================
+
+  getType(unitType: UnitTypeTableEnum): string {
+    switch (unitType) {
+      case UnitTypeTableEnum.UNIT_GENERIC:
+        return 'Genérico';
+      case UnitTypeTableEnum.UNIT_HYDRANT:
+        return 'Hidrante';
+      case UnitTypeTableEnum.UNIT_POND:
+        return 'Balsa';
+      default:
+        return 'Indefinido';
+    }
   }
 
   // ==================================================
@@ -122,7 +148,7 @@ export class DialogStationComponent implements OnInit, OnDestroy {
   // ==================================================
 
   openDialogImage(): void {
-    this._matDialog.open(DialogImageComponent, { data: this.imageURL});
+    this._matDialog.open(DialogImageComponent, { data: this.imageURL });
   }
 
   // ==================================================

@@ -1,3 +1,4 @@
+import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Map } from 'mapbox-gl';
@@ -108,13 +109,13 @@ export class UnitPondService implements OnDestroy {
     this._subServerCreate = this._mqttEventService
       .observe(TopicDestinationEnum.SERVER_DATA_CREATE, TopicTypeEnum.UNIT_POND)
       .subscribe((data: IMqttMessage) => {
-        const unitPondJSON = JSON.parse(data.payload.toString());
+        const unitPondWSDto = JSON.parse(data.payload.toString());
         const foundedUnitsPonds = this._unitsPonds.value.filter(
-          (unitPond) => unitPond.id === unitPondJSON.id
+          (unitPond) => unitPond.id === unitPondWSDto.id
         );
         if (foundedUnitsPonds.length === 0) {
           const newUnitPond = this._unitPondFactory.createUnitPond(
-            unitPondJSON
+            unitPondWSDto
           );
           this._unitsPonds.value.push(newUnitPond);
           this.refresh();
@@ -181,7 +182,7 @@ export class UnitPondService implements OnDestroy {
 
   public getOneByUnitId(unitId: number): UnitPondEntity {
     return this._unitsPonds.value.filter(
-      (unitPond) => unitPond.id === unitId
+      (unitPond) => unitPond.unit.id === unitId
     )[0];
   }
 
@@ -192,19 +193,19 @@ export class UnitPondService implements OnDestroy {
     this._unitsPonds.value.splice(0);
   }
 
-  public publishCreateOnMQTT(unitPond: UnitPondEntity): void {
+  public publishCreateOnMQTT(unitPondWSDto: UnitPondWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_CREATE,
       TopicTypeEnum.UNIT_POND,
-      JSON.stringify(unitPond)
+      JSON.stringify(unitPondWSDto)
     );
   }
 
-  public publishUpdateOnMQTT(unitPond: UnitPondEntity): void {
+  public publishUpdateOnMQTT(unitPondWSDto: UnitPondWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_UPDATE,
       TopicTypeEnum.STATION,
-      JSON.stringify(unitPond)
+      JSON.stringify(unitPondWSDto)
     );
   }
 }

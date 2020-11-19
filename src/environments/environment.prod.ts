@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   hmr: false,
-  api: 'https://cr4v-api.rubenfgr.com/api/',
+  api: 'http://192.168.1.134:8881/api/',
   mqtt: {
     hostname: 'emqx.rubenfgr.com',
     protocol: 'wss',

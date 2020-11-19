@@ -1,7 +1,7 @@
-
+import { UnitTypeTableEnum } from './../../../../shared/constants/unit-type-table.enum';
 export class UnitCreateDto {
-
-  code: string;
+  code: number;
+  unitTypeTable: UnitTypeTableEnum;
   station?: number;
   sector?: number;
   sets?: number[];
@@ -11,5 +11,4 @@ export class UnitCreateDto {
   description: string;
   image: string;
   active: number;
-
 }

@@ -1,3 +1,4 @@
+import { SetWSDto } from './dto/set-ws.dto';
 import { Injectable } from '@angular/core';
 import { SetCreateDto } from './dto/set-create.dto';
 import { SetUpdateDto } from './dto/set-update.dto';
@@ -43,7 +44,7 @@ export class SetFactory {
   // ==================================================
   //  DTO FUNCTIONS
   // ==================================================
-  public getSetCreateDto(set: SetEntity): SetCreateDto {
+  public getSetCreateDto(set: any): SetCreateDto {
     const setCreateDto: SetCreateDto = new SetCreateDto();
     setCreateDto.code = set.code;
     setCreateDto.name = set.name;
@@ -55,7 +56,7 @@ export class SetFactory {
     return setCreateDto;
   }
 
-  public getSetUpdateDto(set: SetEntity): SetUpdateDto {
+  public getSetUpdateDto(set: any): SetUpdateDto {
     const setUpdateDto: SetUpdateDto = new SetUpdateDto();
     setUpdateDto.id = set.id;
     setUpdateDto.code = set.code;
@@ -66,5 +67,18 @@ export class SetFactory {
     setUpdateDto.active = set.active;
     setUpdateDto.image = set.image;
     return setUpdateDto;
+  }
+
+  public getSetWSDto(set: any): SetWSDto {
+    const setWSDto: SetWSDto = new SetWSDto();
+    setWSDto.id = set.id;
+    setWSDto.code = set.code;
+    setWSDto.name = set.name;
+    setWSDto.description = set.description;
+    setWSDto.setType = set.setType.name;
+    setWSDto.units = set.units ? set.units : [];
+    setWSDto.active = set.active;
+    setWSDto.image = set.image;
+    return setWSDto;
   }
 }

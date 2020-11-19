@@ -63,9 +63,9 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   ngOnInit(): void {
-    this.sectors = this._sectorService.sectors;
-    this.stations = this._stationService.stations;
-    this.sets = this._setService.getSets;
+    this.sectors = this._sectorService.getSectors();
+    this.stations = this._stationService.getStations();
+    this.sets = this._setService.getSets();
 
     if (this.unitHydrant) {
       this.initUnitHydrantUpdate();
@@ -82,12 +82,22 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
         id: [this.unitHydrant.unit.id],
         code: [
           this.unitHydrant.unit.code,
-          [Validators.required, Validators.pattern('^HD[0-9]{6}$')],
+          [Validators.required, Validators.min(0), Validators.max(99999)],
         ],
-        altitude: [this.unitHydrant.unit.altitude, Validators.required],
-        latitude: [this.unitHydrant.unit.latitude, Validators.required],
-        longitude: [this.unitHydrant.unit.longitude, Validators.required],
-        sector: [this.unitHydrant.unit.sector],
+        altitude: [
+          this.unitHydrant.unit.altitude,
+          [Validators.required, Validators.min(0), Validators.max(1000)],
+        ],
+        latitude: [
+          this.unitHydrant.unit.latitude,
+          [Validators.required, Validators.min(-90), Validators.max(90)],
+        ],
+        longitude: [
+          this.unitHydrant.unit.longitude,
+          [Validators.required, Validators.min(-90), Validators.max(90)],
+        ],
+        unitTypeTable: [this.unitHydrant.unit.unitTypeTable],
+        sector: [this.unitHydrant.unit.sector, [Validators.required]],
         station: [this.unitHydrant.unit.station],
         sets: [this.unitHydrant.unit.sets],
         description: [this.unitHydrant.unit.description],
@@ -147,8 +157,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     } else {
       let html = '<h2>Existen campos incorrectos</h2><ul>';
       if (this.unitHydrantForm.get('unit.code').invalid) {
-        html +=
-          '<li>El código es incorrecto. Ejemplo: HD000150. Código + 6 dígitos</li>';
+        html += '<li>El código debe estar entre 0 y 99999</li>';
       }
       if (this.unitHydrantForm.get('unit.altitude').invalid) {
         html += '<li>La altitud debe estar entre 0 y 1000</li>';
@@ -158,6 +167,9 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
       }
       if (this.unitHydrantForm.get('unit.longitude').invalid) {
         html += '<li>La longitud debe estar entre -90 y 90';
+      }
+      if (this.unitHydrantForm.get('unit.sector').invalid) {
+        html += '<li>Debe seleccionar un sector</li>';
       }
       html += '</ul>';
       this._matDialog.open(DialogInfoComponent, {
@@ -173,28 +185,28 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   private createOrUpdateUnitHydrant(): void {
-    const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
-      this.unitHydrantForm.value
-    );
     if (this.create) {
-      this.createUnitHydrant(newUnitHydrant);
+      this.createUnitHydrant();
     } else {
-      this.updateUnitHydrant(newUnitHydrant);
+      this.updateUnitHydrant();
     }
   }
 
   // ==================================================
 
-  createUnitHydrant(createUnitHydrant: UnitHydrantEntity): void {
+  createUnitHydrant(): void {
     const unitHydrantCreateDto: UnitHydrantCreateDto = this._unitHydrantFactory.getUnitHydrantCreateDto(
-      createUnitHydrant
+      this.unitHydrantForm.value
     );
     this._unitHydrantService.create(unitHydrantCreateDto).subscribe(
       (unitGenericRO) => {
         const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
           unitGenericRO.unitHydrant
         );
-        this._unitHydrantService.unitsHydrants.value.push(newUnitHydrant);
+        this._unitHydrantService.getUnitsHydrants().value.push(newUnitHydrant);
+        this._unitHydrantService.publishCreateOnMQTT(
+          this._unitHydrantFactory.getUnitHydrantWSDto(newUnitHydrant)
+        );
         this._unitHydrantService.refresh();
         this.close();
       },
@@ -212,15 +224,18 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  updateUnitHydrant(updateUnitHydrant: UnitHydrantEntity): void {
+  updateUnitHydrant(): void {
     const unitHydrantUpdateDto: UnitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(
-      updateUnitHydrant
+      this.unitHydrantForm.value
     );
     this._unitHydrantService.update(unitHydrantUpdateDto).subscribe(
       (unitHydrantRO) => {
         this._unitHydrantFactory.copyUnitHydrant(
           this.unitHydrant,
           unitHydrantRO.unitHydrant
+        );
+        this._unitHydrantService.publishUpdateOnMQTT(
+          this._unitHydrantFactory.getUnitHydrantWSDto(this.unitHydrant)
         );
         this._unitHydrantService.refresh();
         this.close();

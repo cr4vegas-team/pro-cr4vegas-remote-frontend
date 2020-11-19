@@ -1,9 +1,7 @@
 <!-- ====================================
       TITLE
      ==================================== -->
-<h1 mat-dialog-title>
-  {{ unitHydrant.id }} - {{ unitHydrant.unit.code }}
-</h1>
+<h1 mat-dialog-title>Hidrante {{ unitHydrant.unit.code }}</h1>
 <!-- ====================================
       CONTENT
       ==================================== -->
@@ -106,7 +104,7 @@
         </div>
         <hr />
         <div class="row">
-          <div class="col-4">
+          <div class="col">
             Electroválvula:
             <br />
             Caudal:
@@ -173,7 +171,11 @@
                ==================================== -->
 <div mat-dialog-actions>
   <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button mat-raised-button (click)="openDialogHydrantCreate()">
+  <button
+    mat-raised-button
+    (click)="openDialogHydrantCreate()"
+    [disabled]="disabled"
+  >
     Modificar
   </button>
 </div>
