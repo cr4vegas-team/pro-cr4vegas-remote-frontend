@@ -1,6 +1,9 @@
+import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
+
 export class UnitUpdateDto {
   id: number;
-  code: string;
+  code: number;
+  unitTypeTable: UnitTypeTableEnum;
   station?: number;
   sector?: number;
   sets?: number[];

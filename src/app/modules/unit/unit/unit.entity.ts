@@ -10,7 +10,7 @@ export class UnitEntity {
 
   // API properties
   id: number;
-  code: string;
+  code: number;
   unitTypeTable: UnitTypeTableEnum;
   altitude: number;
   latitude: number;

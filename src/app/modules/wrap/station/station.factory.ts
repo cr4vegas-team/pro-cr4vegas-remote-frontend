@@ -1,9 +1,10 @@
-import { MapService } from './../../../shared/services/map.service';
 import { Injectable } from '@angular/core';
-import { Marker, Map } from 'mapbox-gl';
+import { Map, Marker } from 'mapbox-gl';
 import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
+import { MapService } from './../../../shared/services/map.service';
 import { StationCreateDto } from './dto/station-create.dto';
 import { StationUpdateDto } from './dto/station-update.dto';
+import { StationWSDto } from './dto/station-ws.dto';
 import { StationEntity } from './station.entity';
 
 @Injectable({
@@ -45,27 +46,25 @@ export class StationFactory {
   }
 
   updateStation(target: StationEntity, source: any): void {
-    target.id = source.id ? source.id : target.id;
-    target.code = source.code ? source.code : target.code;
-    target.altitude = source.altitude ? source.altitude : target.altitude;
-    target.longitude = source.longitude ? source.longitude : target.longitude;
-    target.latitude = source.latitude ? source.latitude : target.latitude;
-    target.active = source.active ? source.active : target.active;
-    target.updated = source.updated ? source.updated : target.updated;
-    target.created = source.created ? source.created : target.created;
-    target.description = source.description
-      ? source.description
-      : target.description;
-    target.name = source.name ? source.name : target.name;
-    target.units = source.units ? source.units : target.units;
-    target.image = source.image ? source.image : target.image;
+    target.id = source.id;
+    target.code = source.code;
+    target.altitude = source.altitude;
+    target.longitude = source.longitude;
+    target.latitude = source.latitude;
+    target.active = source.active;
+    target.updated = source.updated;
+    target.created = source.created;
+    target.description = source.description;
+    target.name = source.name;
+    target.units = source.units;
+    target.image = source.image;
     this.createMarker(target);
   }
 
   // ==================================================
   //  DTO FUNCTIONS
   // ==================================================
-  getStationCreateDto(station: StationEntity): StationCreateDto {
+  public getStationCreateDto(station: any): StationCreateDto {
     const stationCreateDto: StationCreateDto = new StationCreateDto();
     stationCreateDto.code = station.code;
     stationCreateDto.name = station.name;
@@ -81,7 +80,7 @@ export class StationFactory {
     return stationCreateDto;
   }
 
-  getStationUpdateDto(station: StationEntity): StationUpdateDto {
+  public getStationUpdateDto(station: any): StationUpdateDto {
     const stationUpdateDto: StationUpdateDto = new StationUpdateDto();
     stationUpdateDto.id = station.id;
     stationUpdateDto.code = station.code;
@@ -98,6 +97,21 @@ export class StationFactory {
     return stationUpdateDto;
   }
 
+  public getStationWSDto(station: any): StationWSDto {
+    const stationWSDto: StationWSDto = new StationWSDto();
+    stationWSDto.id = station.id;
+    stationWSDto.code = station.code;
+    stationWSDto.name = station.name;
+    stationWSDto.description = station.description;
+    stationWSDto.altitude = station.altitude;
+    stationWSDto.longitude = station.longitude;
+    stationWSDto.latitude = station.latitude;
+    stationWSDto.active = station.active;
+    stationWSDto.units = station.units ? station.units : [];
+    stationWSDto.image = station.image;
+    return stationWSDto;
+  }
+
   public clean(station: StationEntity): void {
     if (station.marker) {
       station.marker.remove();
@@ -107,13 +121,55 @@ export class StationFactory {
   // ==================================================
   //  MARKER FUNCTIONS
   // ==================================================
-  public createMarker(station: StationEntity): void {
+  private createMarker(station: StationEntity): void {
     if (station.marker) {
       station.marker.remove();
     }
-    station.marker = new Marker({
-      color: this.getMarkerColour(station),
-    }).setLngLat([station.longitude, station.latitude]);
+    const divCode = document.createElement('div');
+    divCode.style.padding = '3px';
+    divCode.style.borderRadius = '10px';
+    divCode.style.border = '1px solid black';
+    divCode.style.backgroundColor = 'rgba(255,255,255,0.8)';
+    divCode.style.display = 'flex';
+    divCode.style.flexDirection = 'column';
+    divCode.style.justifyContent = 'center';
+    divCode.style.alignItems = 'center';
+    divCode.onmouseover = () => {
+      (divCode.children[0] as HTMLElement).style.display = 'block';
+      divCode.style.width = '100px';
+      divCode.style.height = '100px';
+      divCode.style.zIndex = '2';
+    };
+    divCode.onmouseleave = () => {
+      (divCode.children[0] as HTMLElement).style.display = 'none';
+      divCode.style.width = 'min-content';
+      divCode.style.height = 'min-content';
+      divCode.style.zIndex = '1';
+    };
+
+    const title = document.createElement('div');
+    title.innerHTML = `Estación<br><b>${station.name}</b>`;
+    title.style.fontSize = '1em';
+    title.style.textAlign = 'center';
+    title.style.padding = '1px';
+    title.style.borderRadius = '5px';
+    title.style.display = 'none';
+
+    const point = document.createElement('div');
+    point.style.width = '2.0em';
+    point.style.height = '2.0em';
+    point.style.backgroundColor = this.getMarkerColour(station);
+    point.style.margin = '1px auto';
+    point.style.borderRadius = '2px';
+
+    divCode.appendChild(title);
+    divCode.appendChild(point);
+
+    station.marker = new Marker(divCode, {}).setLngLat([
+      station.longitude,
+      station.latitude,
+    ]);
+
     if (this._map) {
       station.marker.addTo(this._map);
     }

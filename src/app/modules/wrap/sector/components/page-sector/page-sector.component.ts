@@ -14,7 +14,6 @@ import { DialogSectorComponent } from '../dialog-sector/dialog-sector.component'
   templateUrl: './page-sector.component.html',
 })
 export class PageSectorComponent implements OnInit {
-
   tableEmptyMSG = TableEmptyMSGEnum;
 
   sectors: SectorEntity[];
@@ -26,27 +25,32 @@ export class PageSectorComponent implements OnInit {
 
   constructor(
     private readonly _sectorService: SectorService,
-    private readonly _matDialog: MatDialog,
+    private readonly _matDialog: MatDialog
   ) {
     this.sectors = [];
     this.dataSource = new MatTableDataSource(this.sectors);
   }
 
   ngOnInit(): void {
-    this._sectorService.sectors.subscribe(
-      res => {
-        this.sectors = res;
-        this.dataSource.data = this.sectors;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      },
-      error => {
-        this._matDialog.open(DialogInfoComponent, { data: { title: 'Error', html: error } });
-      }
-    ).unsubscribe();
+    this._sectorService
+      .getSectors()
+      .subscribe(
+        (res) => {
+          this.sectors = res;
+          this.dataSource.data = this.sectors;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        },
+        (error) => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: { title: 'Error', html: error },
+          });
+        }
+      )
+      .unsubscribe();
   }
 
-  applyFilter(event: Event) {
+  public applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -55,8 +59,7 @@ export class PageSectorComponent implements OnInit {
     }
   }
 
-  openDialogSector(sector: SectorEntity) {
+  public openDialogSector(sector: SectorEntity): void {
     this._matDialog.open(DialogSectorComponent, { data: sector });
   }
-
 }

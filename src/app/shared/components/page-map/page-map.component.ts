@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as mapboxgl from 'mapbox-gl';
-import { Map } from 'mapbox-gl';
+import { Map, Marker } from 'mapbox-gl';
 import { MapService } from '../../services/map.service';
 
 @Component({
@@ -26,9 +26,8 @@ export class MapComponent implements OnInit, OnDestroy {
       this._map = new Map({
         container: divMap,
         style: 'mapbox://styles/mapbox/satellite-v9',
-        center: [-2.508389, 36.963916],
-        zoom: 15.8,
-        scrollZoom: true,
+        center: [-2.363406, 36.897705],
+        zoom: 11.66,
         attributionControl: false,
       });
       this._mapService.map.next(this._map);

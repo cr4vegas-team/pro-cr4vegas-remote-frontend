@@ -1,4 +1,3 @@
-import { SetTypeEntity } from './../../set-type.entity';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -7,7 +6,7 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Subscription, Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { UnitService } from 'src/app/modules/unit/unit/unit.service';
 import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
@@ -20,6 +19,7 @@ import { SetUpdateDto } from '../../dto/set-update.dto';
 import { SetEntity } from '../../set.entity';
 import { SetFactory } from '../../set.factory';
 import { SetService } from '../../set.service';
+import { SetTypeEntity } from './../../set-type.entity';
 
 @Component({
   selector: 'app-dialog-set-create',
@@ -72,7 +72,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
 
     this.setForm = this._formBuilder.group({
       id: [this.set.id],
-      code: [this.set.code, [Validators.pattern('(CJ)([0-9]{6})')]],
+      code: [this.set.code, [Validators.pattern('[A-Z0-9]{1,5}')]],
       name: [this.set.name, [Validators.required]],
       description: [this.set.description],
       active: [this.set.active, [Validators.required]],
@@ -137,7 +137,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       let html = '<h2>Existen campos incorrectos</h2><ul>';
       if (this.setForm.get('code').invalid) {
         html +=
-          '<li>El código es incorrecto. Ejemplo: CJ000150. Código + 6 dígitos</li>';
+          '<li>El código debe contener de 1 a 5 caracteres (letras mayúsculas o números)</li>';
       }
       if (this.setForm.get('name').invalid) {
         html += '<li>El nombre debe estar entre 3 y 45 caracteres</li>';
@@ -156,25 +156,26 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   private createOrUpdateSet(): void {
-    const newSet: SetEntity = this._setFactory.createSet(this.setForm.value);
     if (this.create) {
-      this.createSet(newSet);
+      this.createSet();
     } else {
-      this.updateSet(newSet);
+      this.updateSet();
     }
   }
 
   // ==================================================
 
-  createSet(createSet: SetEntity): void {
+  private createSet(): void {
     const setCreateDto: SetCreateDto = this._setFactory.getSetCreateDto(
-      createSet
+      this.setForm.value
     );
     this._setService.create(setCreateDto).subscribe(
       (setRO) => {
         const newSet: SetEntity = this._setFactory.createSet(setRO.set);
         this._setService.getSets().value.push(newSet);
-        this._setService.publishCreateOnMQTT(newSet);
+        this._setService.publishCreateOnMQTT(
+          this._setFactory.getSetWSDto(newSet)
+        );
         this._setService.refresh();
         this.close();
       },
@@ -192,12 +193,16 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  private updateSet(newSet: SetEntity): void {
-    const setUpdateDto: SetUpdateDto = this._setFactory.getSetUpdateDto(newSet);
+  private updateSet(): void {
+    const setUpdateDto: SetUpdateDto = this._setFactory.getSetUpdateDto(
+      this.setForm.value
+    );
     this._setService.update(setUpdateDto).subscribe(
       (setRO) => {
         this._setFactory.updateSet(this.set, setRO.set);
-        this._setService.publishUpdateOnMQTT(this.set);
+        this._setService.publishUpdateOnMQTT(
+          this._setFactory.getSetWSDto(this.set)
+        );
         this._setService.refresh();
         this.close();
       },

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DialogUnitPondComponent } from './dialog-unit-pond.component';
 
@@ -6,7 +6,7 @@ describe('DialogUnitPondComponent', () => {
   let component: DialogUnitPondComponent;
   let fixture: ComponentFixture<DialogUnitPondComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DialogUnitPondComponent ]
     })

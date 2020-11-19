@@ -1,70 +1,76 @@
-
-  <!-- ====================================
+<!-- ====================================
       TITLE
      ==================================== -->
-     <h1 mat-dialog-title *ngIf="sector.active === 1" class="ok">
-      {{ sector.id }} - {{ sector.code }} - {{ sector.name }}
-    </h1>
-    <h1 mat-dialog-title *ngIf="sector.active === 0" class="error">
-      {{ sector.id }} - {{ sector.code }} - {{ sector.name }}
-    </h1>
-    <!-- ====================================
+<h1 mat-dialog-title>{{ sector.name }} - {{ sector.code }}</h1>
+
+<!-- ====================================
             CONTENT
            ==================================== -->
-    <div mat-dialog-content>
-      <div class="row">
-        <!-- ====================================
+<div mat-dialog-content>
+  <div class="row">
+    <div class="col-sm mr-3">
+      <mat-checkbox class="example-margin" [checked]="sector.active" disabled
+        >Activo</mat-checkbox
+      >
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- ====================================
                 LEFT COLUMN
                ==================================== -->
-        <div class="col dialog-col-mw" >
-          <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
-          <br /><br />
+    <div class="col-sm dialog-col-mw">
+      <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
+      <br /><br />
 
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-3">
-                Descripción:
-              </div>
-              <div class="col">
-                {{ sector.description }}
-              </div>
-            </div>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-3">Descripción:</div>
+          <div class="col">
+            {{ sector.description }}
           </div>
-        </div>
-        <!-- ====================================
-                RIGTH COLUMN
-               ==================================== -->
-        <div class="col dialog-col-mw">
-          <mat-form-field>
-            <mat-label>Filter</mat-label>
-            <input
-              matInput
-              (keyup)="applyFilter($event)"
-              placeholder="Ex. ium"
-              #input
-            />
-          </mat-form-field>
-
-          <mat-selection-list [multiple]="false">
-            <mat-list-option
-              *ngFor="let unit of units"
-              role="listitem"
-              (click)="openDialogUnit(unit)"
-              >{{ unit.code }}</mat-list-option
-            >
-          </mat-selection-list>
         </div>
       </div>
     </div>
-
-    <hr />
-
     <!-- ====================================
+                RIGTH COLUMN
+               ==================================== -->
+    <div class="col-sm dialog-col-mw">
+      <h3>Unidades de control</h3>
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Ex. ium"
+          #input
+        />
+      </mat-form-field>
+
+      <mat-selection-list [multiple]="false">
+        <mat-list-option
+          *ngFor="let unit of units"
+          role="listitem"
+          (click)="openDialogUnit(unit)"
+          >{{ getType(unit.unitTypeTable) }} - {{ unit.code }}</mat-list-option
+        >
+      </mat-selection-list>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<!-- ====================================
             BOOTOM CONTENT
            ==================================== -->
-    <div mat-dialog-actions>
-      <button mat-raised-button mat-dialog-close>Cerrar</button>
-      <button mat-raised-button (click)="openDialogSectorCreate()">
-        Modificar
-      </button>
-    </div>
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cerrar</button>
+  <button
+    mat-raised-button
+    (click)="openDialogSectorCreate()"
+    [disabled]="disabled"
+  >
+    Modificar
+  </button>
+</div>

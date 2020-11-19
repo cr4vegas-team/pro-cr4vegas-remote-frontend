@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   hmr: false,
-  api: 'http://172.26.200.236:8881/api/',
+  api: 'http://172.19.198.119:8881/api/',
   mqtt: {
     hostname: 'emqx.rubenfgr.com',
     protocol: 'wss',

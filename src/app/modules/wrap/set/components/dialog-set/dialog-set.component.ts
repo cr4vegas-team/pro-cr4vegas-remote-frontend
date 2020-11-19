@@ -1,3 +1,4 @@
+import { AuthService } from 'src/app/shared/services/auth.service';
 import { SetEntity } from './../../set.entity';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -30,6 +31,7 @@ export class DialogSetComponent implements OnInit, OnDestroy {
   subUnits: Subscription;
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
+  disabled = false;
 
   // ==================================================
 
@@ -40,9 +42,18 @@ export class DialogSetComponent implements OnInit, OnDestroy {
     private readonly _unitPondService: UnitPondService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _authService: AuthService,
     @Inject(MAT_DIALOG_DATA)
     public set: SetEntity
-  ) {}
+  ) {
+    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
+      if (res) {
+        this.disabled = false;
+      } else {
+        this.disabled = true;
+      }
+    });
+  }
 
   // ==================================================
 
@@ -80,8 +91,8 @@ export class DialogSetComponent implements OnInit, OnDestroy {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.units = this.set.units.filter((unit) =>
-      unit.code.includes(filterValue)
+    this.units = this.set.units.filter(
+      (unit) => String(unit.code) === filterValue
     );
   }
 

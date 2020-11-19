@@ -1,3 +1,4 @@
+import { AuthService } from 'src/app/shared/services/auth.service';
 import { DialogSectorCreateComponent } from './../dialog-sector-create/dialog-sector-create.component';
 import { SectorEntity } from './../../sector.entity';
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
@@ -30,6 +31,7 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
   subUnits: Subscription;
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
+  disabled = false;
 
   // ==================================================
 
@@ -40,9 +42,18 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
     private readonly _unitPondService: UnitPondService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _authService: AuthService,
     @Inject(MAT_DIALOG_DATA)
     public sector: SectorEntity
-  ) {}
+  ) {
+    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
+      if (res) {
+        this.disabled = false;
+      } else {
+        this.disabled = true;
+      }
+    });
+  }
 
   // ==================================================
 
@@ -80,15 +91,44 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.units = this.sector.units.filter((unit) =>
-      unit.code.includes(filterValue)
-    );
+    if (
+      filterValue !== undefined &&
+      filterValue !== null &&
+      filterValue !== ''
+    ) {
+      this.units = this.sector.units.filter(
+        (unit) => String(unit.code) === filterValue
+      );
+    } else {
+      this.units = this.sector.units;
+    }
+  }
+
+  // ==================================================
+
+  getType(unitType: UnitTypeTableEnum): string {
+    switch (unitType) {
+      case UnitTypeTableEnum.UNIT_GENERIC:
+        return 'Genérico';
+      case UnitTypeTableEnum.UNIT_HYDRANT:
+        return 'Hidrante';
+      case UnitTypeTableEnum.UNIT_POND:
+        return 'Balsa';
+      default:
+        return 'Indefinido';
+    }
   }
 
   // ==================================================
 
   openDialogSectorCreate(): void {
-    this._matDialog.open(DialogSectorCreateComponent, { data: this.sector });
+    const refDialogSectorCreate = this._matDialog.open(
+      DialogSectorCreateComponent,
+      { data: this.sector }
+    );
+    refDialogSectorCreate.afterClosed().subscribe(() => {
+      this.units = this.sector.units;
+    });
   }
 
   // ==================================================

@@ -46,7 +46,9 @@ export class MqttEventsService {
     ) {
       while (true) {
         try {
-          await this._mqttService.unsafePublish(topic, message);
+          await this._mqttService.unsafePublish(topic, message, {
+            qos: 2,
+          });
           break;
         } catch (error) {
           console.log(error);

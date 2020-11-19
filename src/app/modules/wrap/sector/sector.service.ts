@@ -1,3 +1,4 @@
+import { SectorWSDto } from './dto/sector-ws.dto';
 import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
@@ -137,19 +138,19 @@ export class SectorService implements OnDestroy {
     this._sectors.value.slice(0);
   }
 
-  public publishCreateOnMQTT(sector: SectorEntity): void {
+  public publishCreateOnMQTT(sectorWSDto: SectorWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_CREATE,
       TopicTypeEnum.SECTOR,
-      JSON.stringify(sector)
+      JSON.stringify(sectorWSDto)
     );
   }
 
-  public publishUpdateOnMQTT(sector: SectorEntity): void {
+  public publishUpdateOnMQTT(sectorWSDto: SectorWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_UPDATE,
       TopicTypeEnum.SECTOR,
-      JSON.stringify(sector)
+      JSON.stringify(sectorWSDto)
     );
   }
 }

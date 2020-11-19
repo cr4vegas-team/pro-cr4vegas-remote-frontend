@@ -13,11 +13,18 @@ import { DialogStationComponent } from '../dialog-station/dialog-station.compone
   templateUrl: './page-station.component.html',
 })
 export class PageStationComponent implements OnInit {
-
   tableEmptyMSG = TableEmptyMSGEnum;
 
   stations: StationEntity[];
-  displayedColumns: string[] = ['id', 'active', 'code', 'name', 'altitude', 'latitude', 'longitude'];
+  displayedColumns: string[] = [
+    'id',
+    'active',
+    'code',
+    'name',
+    'altitude',
+    'latitude',
+    'longitude',
+  ];
   dataSource: MatTableDataSource<StationEntity>;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
@@ -25,27 +32,30 @@ export class PageStationComponent implements OnInit {
 
   constructor(
     private readonly _stationService: StationService,
-    private readonly _matDialog: MatDialog,
+    private readonly _matDialog: MatDialog
   ) {
     this.stations = [];
     this.dataSource = new MatTableDataSource(this.stations);
   }
 
   ngOnInit(): void {
-    this._stationService.stations.subscribe(
-      res => {
-        this.stations = res;
-        this.dataSource.data = this.stations;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      },
-      err => {
-        console.log('ERROR - UnitGenericComponent: ' + err.message);
-      }
-    ).unsubscribe();
+    this._stationService
+      .getStations()
+      .subscribe(
+        (res) => {
+          this.stations = res;
+          this.dataSource.data = this.stations;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        },
+        (err) => {
+          console.log('ERROR - UnitGenericComponent: ' + err.message);
+        }
+      )
+      .unsubscribe();
   }
 
-  applyFilter(event: Event) {
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -54,8 +64,7 @@ export class PageStationComponent implements OnInit {
     }
   }
 
-  openDialogStation(station: StationEntity) {
+  openDialogStation(station: StationEntity): void {
     this._matDialog.open(DialogStationComponent, { data: station });
   }
-
 }

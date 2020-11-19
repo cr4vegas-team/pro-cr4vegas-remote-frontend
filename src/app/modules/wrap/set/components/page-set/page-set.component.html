@@ -1,52 +1,68 @@
 <div class="container mt-4">
-    <h1>Conjuntos</h1>
-    <mat-form-field>
-        <mat-label>Filtrar</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Introduzca datos a filtrar..." #input>
-    </mat-form-field>
+  <h1>Conjuntos</h1>
+  <mat-form-field>
+    <mat-label>Filtrar</mat-label>
+    <input
+      matInput
+      (keyup)="applyFilter($event)"
+      placeholder="Introduzca datos a filtrar..."
+      #input
+    />
+  </mat-form-field>
 
-    <div class="mat-elevation-z8">
-        <table mat-table [dataSource]="dataSource" matSort>
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <!-- Unit Id Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+        <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+      </ng-container>
 
-            <!-- Unit Id Column -->
-            <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
-                <td mat-cell *matCellDef="let row"> {{row.id}} </td>
-            </ng-container>
+      <!-- Unit active Column -->
+      <ng-container matColumnDef="active">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Activo</th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox [checked]="row.active ? 1 : 0" disabled></mat-checkbox>
+        </td>
+      </ng-container>
 
-            <!-- Unit active Column -->
-            <ng-container matColumnDef="active">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Activo </th>
-                <td mat-cell *matCellDef="let row"> {{row.active === 0? 'Si' : 'No'}} </td>
-            </ng-container>
+      <!-- UnitHydrant code Column -->
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+        <td
+          mat-cell
+          *matCellDef="let row"
+          [style.color]="row.active ? 'green' : 'red'"
+        >
+          {{ row.code }}
+        </td>
+      </ng-container>
 
-            <!-- UnitHydrant code Column -->
-            <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Code </th>
-                <td mat-cell *matCellDef="let row" [style.color]="row.active? 'green' : 'red'"> {{row.code}}</td>
-            </ng-container>
+      <!-- Unit name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+        <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+      </ng-container>
 
-            <!-- Unit name Column -->
-            <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
-                <td mat-cell *matCellDef="let row">{{row.name}}</td>
-            </ng-container>
+      <!-- Set name Column -->
+      <ng-container matColumnDef="setType">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+        <td mat-cell *matCellDef="let row">{{ row.setType.name }}</td>
+      </ng-container>
 
-            <!-- Set name Column -->
-            <ng-container matColumnDef="setType">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo </th>
-              <td mat-cell *matCellDef="let row">{{row.setType.name}}</td>
-          </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        (click)="openDialogSet(row)"
+      ></tr>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openDialogSet(row)"></tr>
+      <!-- Row shown when there is no matching data. -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="4">{{ tableEmptyMSG.SET }}</td>
+      </tr>
+    </table>
 
-            <!-- Row shown when there is no matching data. -->
-            <tr class="mat-row" *matNoDataRow>
-                <td class="mat-cell" colspan="4">{{tableEmptyMSG.SET}}</td>
-            </tr>
-        </table>
-
-        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-    </div>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+  </div>
 </div>

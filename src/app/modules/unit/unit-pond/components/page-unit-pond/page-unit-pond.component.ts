@@ -13,11 +13,20 @@ import { DialogUnitPondComponent } from '../dialog-unit-pond/dialog-unit-pond.co
   templateUrl: './page-unit-pond.component.html',
 })
 export class PageUnitPondComponent implements OnInit {
-
   tableEmptyMSG = TableEmptyMSGEnum;
 
   unitsPonds: UnitPondEntity[];
-  displayedColumns: string[] = ['id', 'code', 'active', 'communication', 'm3', 'height', 'sector', 'station', 'sets'];
+  displayedColumns: string[] = [
+    'id',
+    'code',
+    'active',
+    'communication',
+    'm3',
+    'height',
+    'sector',
+    'station',
+    'sets',
+  ];
   dataSource: MatTableDataSource<UnitPondEntity>;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
@@ -36,25 +45,32 @@ export class PageUnitPondComponent implements OnInit {
   // ==================================================
 
   ngOnInit(): void {
-    this._unitPondService.unitsPonds.subscribe(
-      res => {
-        this.unitsPonds = res;
-        this.dataSource.data = this.unitsPonds;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      },
-      err => {
-        console.log('ERROR - UnitPondComponent: ' + err.message);
-      }
-    ).unsubscribe();
+    this._unitPondService
+      .getUnitsPonds()
+      .subscribe(
+        (res) => {
+          this.unitsPonds = res;
+          this.dataSource.data = this.unitsPonds;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        },
+        (err) => {
+          console.log('ERROR - UnitPondComponent: ' + err.message);
+        }
+      )
+      .unsubscribe();
 
     this.dataSource.filterPredicate = (unitPond, filterValue) => {
       let setsString = '';
-      unitPond.unit.sets.forEach(set => setsString += set.name);
-      return unitPond.unit.code.toLowerCase().includes(filterValue) ||
-        (unitPond.unit.sector && unitPond.unit.sector.name.toLowerCase().includes(filterValue)) ||
-        (unitPond.unit.station && unitPond.unit.station.name.toLowerCase().includes(filterValue)) ||
-        (setsString.toLowerCase().includes(filterValue));
+      unitPond.unit.sets.forEach((set) => (setsString += set.name));
+      return (
+        String(unitPond.unit.code).includes(filterValue) ||
+        (unitPond.unit.sector &&
+          unitPond.unit.sector.name.toLowerCase().includes(filterValue)) ||
+        (unitPond.unit.station &&
+          unitPond.unit.station.name.toLowerCase().includes(filterValue)) ||
+        setsString.toLowerCase().includes(filterValue)
+      );
     };
   }
 
@@ -74,5 +90,4 @@ export class PageUnitPondComponent implements OnInit {
   openDialogUnitPond(unitPond: UnitPondEntity): void {
     this._matDialog.open(DialogUnitPondComponent, { data: unitPond });
   }
-
 }

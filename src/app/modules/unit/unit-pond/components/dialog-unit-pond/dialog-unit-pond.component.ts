@@ -1,3 +1,4 @@
+import { AuthService } from 'src/app/shared/services/auth.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -46,6 +47,7 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
 
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
+  disabled = false;
 
   // ==================================================
 
@@ -53,9 +55,18 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
     private readonly _matDialog: MatDialog,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _authService: AuthService,
     @Inject(MAT_DIALOG_DATA)
     public unitPond: UnitPondEntity
-  ) {}
+  ) {
+    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
+      if (res) {
+        this.disabled = false;
+      } else {
+        this.disabled = true;
+      }
+    });
+  }
 
   // ==================================================
 

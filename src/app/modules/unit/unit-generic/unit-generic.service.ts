@@ -1,13 +1,16 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Map } from 'mapbox-gl';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
+import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
+import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
-import { UnitGenericFactory } from '../unit-generic/unit-generic.factory';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitGenericCreateDto } from './dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from './dto/unit-generic-update.dto';
+import { UnitGenericWSDto } from './dto/unit-generic-ws.dto';
 import { UnitGenericEntity } from './unit-generic.entity';
 import { UnitGenericRO, UnitsGenericsRO } from './unit-generic.interfaces';
 
@@ -15,58 +18,76 @@ import { UnitGenericRO, UnitsGenericsRO } from './unit-generic.interfaces';
   providedIn: 'root',
   deps: [AuthService],
 })
-export class UnitGenericService {
+export class UnitGenericService implements OnDestroy {
+  // ==================================================
+  //  VARS CONSTANT
+  // ==================================================
   private _url: string = GLOBAL.API + 'unit-generic';
+  // ==================================================
+  //  VARS
+  // ==================================================
   private _map: Map;
+  // ==================================================
+  //  VARS SUBJECTS
+  // ==================================================
   private _unitsGenerics: BehaviorSubject<UnitGenericEntity[]>;
   private _hiddenMarker = new BehaviorSubject<boolean>(false);
+  // ==================================================
+  //  VARS SUBSCRIPTIONS
+  // ==================================================
+  private _subMap: Subscription;
+  private _subHiddenMarker: Subscription;
 
   // ==================================================
-
+  //  CONSTRUCTOR
+  // ==================================================
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _mapService: MapService,
-    private readonly _unitGenericFactory: UnitGenericFactory
+    private readonly _mqttEventService: MqttEventsService
   ) {
     this._unitsGenerics = new BehaviorSubject<UnitGenericEntity[]>(
       Array<UnitGenericEntity>()
     );
-    this._mapService.map.subscribe((map) => {
-      if (map) {
+    this.subscribeToMap();
+    this.subscribeToHiddenMarker();
+  }
+
+  // ==================================================
+  //  LIFE CYCLE FUNCTIONS
+  // ==================================================
+  ngOnDestroy(): void {
+    if (this._subMap) {
+      this._subMap.unsubscribe();
+    }
+    if (this._subHiddenMarker) {
+      this._subHiddenMarker.unsubscribe();
+    }
+  }
+
+  // ==================================================
+  //  SUBSCRIPTIONS FUNCTIONS
+  // ==================================================
+  private subscribeToMap(): void {
+    this._subMap = this._mapService.map.subscribe((map) => {
+      if (map !== null) {
         this._map = map;
-        this.addAllMarkersToMap();
+        this._unitsGenerics.value.forEach((unitGeneric) => {
+          if (unitGeneric.marker) {
+            unitGeneric.marker.addTo(map);
+          }
+        });
       }
     });
-    this._hiddenMarker.subscribe((hidden) => {
+  }
+
+  private subscribeToHiddenMarker(): void {
+    this._subHiddenMarker = this._hiddenMarker.subscribe((hidden) => {
       this._unitsGenerics.value.forEach((unitGeneric) => {
         unitGeneric.marker.getElement().hidden = hidden;
       });
     });
-  }
-
-  // ==================================================
-
-  public get unitsGenerics(): BehaviorSubject<UnitGenericEntity[]> {
-    return this._unitsGenerics;
-  }
-
-  // ==================================================
-
-  public refresh(): void {
-    this._unitsGenerics.next(this._unitsGenerics.value);
-  }
-
-  // ==================================================
-
-  public get factory(): UnitGenericFactory {
-    return this._unitGenericFactory;
-  }
-
-  // ==================================================
-
-  public get hiddenMarker(): BehaviorSubject<boolean> {
-    return this._hiddenMarker;
   }
 
   // ==================================================
@@ -76,8 +97,6 @@ export class UnitGenericService {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.get<UnitsGenericsRO>(this._url, httpOptions);
   }
-
-  // ==================================================
 
   create(
     unitGenericCreateDto: UnitGenericCreateDto
@@ -90,15 +109,11 @@ export class UnitGenericService {
     );
   }
 
-  // ==================================================
-
-  update(
-    unitGenericUpdateDto: UnitGenericUpdateDto
-  ): Observable<UnitGenericRO> {
+  update(unitGenericDto: UnitGenericUpdateDto): Observable<UnitGenericRO> {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.put<UnitGenericRO>(
       this._url,
-      unitGenericUpdateDto,
+      unitGenericDto,
       httpOptions
     );
   }
@@ -106,14 +121,19 @@ export class UnitGenericService {
   // ==================================================
   // FRONTEND FUNCTIONS
   // ==================================================
-  public addOne(unitGeneric: UnitGenericEntity): void {
-    this._unitsGenerics.value.push(unitGeneric);
-    this.addMarkerToMap(unitGeneric);
+  public getUnitsGeneric(): BehaviorSubject<UnitGenericEntity[]> {
+    return this._unitsGenerics;
   }
 
-  // ==================================================
+  public refresh(): void {
+    this._unitsGenerics.next(this._unitsGenerics.value);
+  }
 
-  getOneByUnitId(unitId: number): UnitGenericEntity {
+  public getHiddenMarker(): BehaviorSubject<boolean> {
+    return this._hiddenMarker;
+  }
+
+  public getOneByUnitId(unitId: number): UnitGenericEntity {
     return this._unitsGenerics.value.filter(
       (unitGeneric) => unitGeneric.unit.id === unitId
     )[0];
@@ -121,30 +141,33 @@ export class UnitGenericService {
 
   public cleanAll(): void {
     this._unitsGenerics.value.forEach((unitGeneric) => {
-      this._unitGenericFactory.clean(unitGeneric);
+      this.clean(unitGeneric);
     });
     this._unitsGenerics.value.splice(0);
   }
 
-  // ===========================================================
-  //  MAP
-  // ===========================================================
-  private addMarkerToMap(unitGeneric: UnitGenericEntity): void {
-    if (this._map && unitGeneric.marker) {
-      unitGeneric.marker.addTo(this._map);
-      if (this._hiddenMarker.value) {
-        unitGeneric.marker.getElement().hidden = false;
-      } else {
-        unitGeneric.marker.getElement().hidden = true;
-      }
+  public clean(unitGeneric: UnitGenericEntity): void {
+    if (unitGeneric.marker) {
+      unitGeneric.marker.remove();
+    }
+    if (unitGeneric.nodeSubscription) {
+      unitGeneric.nodeSubscription.unsubscribe();
     }
   }
 
-  // ==================================================
+  public publishCreateOnMQTT(unitGenericWSDto: UnitGenericWSDto): void {
+    this._mqttEventService.publish(
+      TopicDestinationEnum.SERVER_DATA_CREATE,
+      TopicTypeEnum.UNIT_GENERIC,
+      JSON.stringify(unitGenericWSDto)
+    );
+  }
 
-  private addAllMarkersToMap(): void {
-    this._unitsGenerics.value.forEach((unitGeneric) => {
-      unitGeneric.marker.addTo(this._map);
-    });
+  public publishUpdateOnMQTT(unitGenericWSDto: UnitGenericWSDto): void {
+    this._mqttEventService.publish(
+      TopicDestinationEnum.SERVER_DATA_UPDATE,
+      TopicTypeEnum.UNIT_GENERIC,
+      JSON.stringify(unitGenericWSDto)
+    );
   }
 }

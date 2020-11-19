@@ -63,9 +63,9 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   ngOnInit(): void {
-    this.sectors = this._sectorService.sectors;
-    this.stations = this._stationService.stations;
-    this.sets = this._setService.getSets;
+    this.sectors = this._sectorService.getSectors();
+    this.stations = this._stationService.getStations();
+    this.sets = this._setService.getSets();
 
     if (this.unitGeneric) {
       this.initUnitGenericUpdate();
@@ -85,12 +85,22 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
         id: [this.unitGeneric.unit.id],
         code: [
           this.unitGeneric.unit.code,
-          [Validators.pattern('(GN)([0-9]{6})')],
+          [Validators.required, Validators.min(0), Validators.max(99999)],
         ],
-        altitude: [this.unitGeneric.unit.altitude, [Validators.required]],
-        latitude: [this.unitGeneric.unit.latitude, [Validators.required]],
-        longitude: [this.unitGeneric.unit.longitude, [Validators.required]],
-        sector: [this.unitGeneric.unit.sector],
+        altitude: [
+          this.unitGeneric.unit.altitude,
+          [Validators.required, Validators.min(0), Validators.max(1000)],
+        ],
+        latitude: [
+          this.unitGeneric.unit.latitude,
+          [Validators.required, Validators.min(-90), Validators.max(90)],
+        ],
+        longitude: [
+          this.unitGeneric.unit.longitude,
+          [Validators.required, Validators.min(-90), Validators.max(90)],
+        ],
+        unitTypeTable: [this.unitGeneric.unit.unitTypeTable],
+        sector: [this.unitGeneric.unit.sector, [Validators.required]],
         station: [this.unitGeneric.unit.station],
         sets: [this.unitGeneric.unit.sets],
         description: [this.unitGeneric.unit.description],
@@ -149,8 +159,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     } else {
       let html = '<h2>Existen campos incorrectos</h2><ul>';
       if (this.unitGenericForm.get('unit.code').invalid) {
-        html +=
-          '<li>Código incorrecto. Ejemplo: GN000150. Código + 6 dígitos</li>';
+        html += '<li>El código debe estar entre 0 y 99999</li>';
       }
       if (this.unitGenericForm.get('unit.altitude').invalid) {
         html += '<li>La altitud debe estar entre 0 y 1000</li>';
@@ -160,6 +169,9 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
       }
       if (this.unitGenericForm.get('unit.longitude').invalid) {
         html += '<li>La longitud debe estar entre -90 y 90';
+      }
+      if (this.unitGenericForm.get('unit.sector').invalid) {
+        html += '<li>Debe seleccionar un sector</li>';
       }
       html += '</ul>';
       this._matDialog.open(DialogInfoComponent, {
@@ -175,28 +187,28 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   private createOrUpdateUnitGeneric(): void {
-    const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(
-      this.unitGenericForm.value
-    );
     if (this.create) {
-      this.createUnitGeneric(newUnitGeneric);
+      this.createUnitGeneric();
     } else {
-      this.updateUnitGeneric(newUnitGeneric);
+      this.updateUnitGeneric();
     }
   }
 
   // ==================================================
 
-  createUnitGeneric(createUnitGeneric: UnitGenericEntity): void {
+  createUnitGeneric(): void {
     const unitGenericCreateDto: UnitGenericCreateDto = this._unitGenericFactory.getUnitGenericCreateDto(
-      createUnitGeneric
+      this.unitGenericForm.value
     );
     this._unitGenericService.create(unitGenericCreateDto).subscribe(
       (unitGenericRO) => {
         const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(
           unitGenericRO.unitGeneric
         );
-        this._unitGenericService.addOne(newUnitGeneric);
+        this._unitGenericService.getUnitsGeneric().value.push(newUnitGeneric);
+        this._unitGenericService.publishCreateOnMQTT(
+          this._unitGenericFactory.getUnitGenericWSDto(newUnitGeneric)
+        );
         this._unitGenericService.refresh();
         this.close();
       },
@@ -214,15 +226,18 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  updateUnitGeneric(updateUnitGeneric: UnitGenericEntity): void {
+  updateUnitGeneric(): void {
     const unitGenericUpdateDto: UnitGenericUpdateDto = this._unitGenericFactory.getUnitGenericUpdateDto(
-      updateUnitGeneric
+      this.unitGenericForm.value
     );
     this._unitGenericService.update(unitGenericUpdateDto).subscribe(
       (unitGenericRO) => {
         this._unitGenericFactory.updateUnitGeneric(
           this.unitGeneric,
           unitGenericRO.unitGeneric
+        );
+        this._unitGenericService.publishUpdateOnMQTT(
+          this._unitGenericFactory.getUnitGenericWSDto(this.unitGeneric)
         );
         this._unitGenericService.refresh();
         this.close();

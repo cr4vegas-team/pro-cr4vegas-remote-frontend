@@ -1,43 +1,53 @@
-<!-- ====================================
+<div class="container">
+  <!-- ====================================
       TITLE
      ==================================== -->
-<h1 mat-dialog-title>
-  {{ unitGeneric.id }} - {{ unitGeneric.unit.code }}
-</h1>
-<!-- ====================================
+  <h1 mat-dialog-title>Genérico {{ unitGeneric.unit.code }}</h1>
+
+  <!-- ====================================
             CONTENT
            ==================================== -->
-<div mat-dialog-content>
-  <div class="row">
-    <div class="col-sm mr-3">
-      <mat-checkbox class="example-margin" [checked]="unitGeneric.unit.active" disabled>Activo</mat-checkbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <mat-checkbox class="example-margin" [checked]="unitGeneric.unit.communication" disabled>Comunicación</mat-checkbox>
+  <div mat-dialog-content>
+    <div class="row">
+      <div class="col-sm mr-3">
+        <mat-checkbox
+          class="example-margin"
+          [checked]="unitGeneric.unit.active"
+          disabled
+          >Activo</mat-checkbox
+        >
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <mat-checkbox
+          class="example-margin"
+          [checked]="unitGeneric.unit.communication"
+          disabled
+          >Comunicación</mat-checkbox
+        >
+      </div>
     </div>
-  </div>
 
-  <div class="row">
-    <!-- ====================================
+    <div class="row">
+      <!-- ====================================
                 LEFT COLUMN
                ==================================== -->
-    <div class="col dialog-col-mw">
-      <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
-      <br /><br />
-
-      <div class="container-fluid">
+      <div class="col">
+        <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
+        <br /><br />
         <div class="row">
-          <div class="col-3">
-            Sector:
-            <br />
-            Estación:
-            <br />
-            Conjuntos:
-          </div>
-          <div class="col">
+          <div class="col-md-6">Sector:</div>
+          <div class="col-md-6">
             {{ unitGeneric.unit.sector ? unitGeneric.unit.sector.name : "" }}
-            <br />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Estación:</div>
+          <div class="col-md-6">
             {{ unitGeneric.unit.station ? unitGeneric.unit.station.name : "" }}
-            <br />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Conjuntos:</div>
+          <div class="col-md-6">
             <span *ngFor="let set of unitGeneric.unit.sets; let i = index"
               ><span *ngIf="i > 0">, </span>{{ set.name }}</span
             >
@@ -47,92 +57,125 @@
         <hr />
 
         <div class="row">
-          <div class="col-3">
-            Altitud:
-            <br />
-            Latitud:
-            <br />
-            Longitud:
-          </div>
-          <div class="col">
+          <div class="col-md-6">Altitud:</div>
+          <div class="col-md-6">
             {{ unitGeneric.unit.altitude }}
-            <br />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Latitud:</div>
+          <div class="col-md-6">
             {{ unitGeneric.unit.latitude }}
-            <br />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Longitud:</div>
+          <div class="col-md-6">
             {{ unitGeneric.unit.longitude }}
           </div>
         </div>
+
+        <hr />
       </div>
-    </div>
-    <!-- ====================================
-                RIGTH COLUMN
-               ==================================== -->
-    <div class="col dialog-col-mw">
-      <div class="container-fluid">
+
+      <!--  -->
+      <div class="col">
         <div class="row">
-          <div class="col-4">
-            Sensor 1:
-            <br />
-            Sensor 2:
-            <br />
-            Sensor 3:
-            <br />
-            Sensor 4:
-            <br />
-            Sensor 5:
+          <div class="col-md-6">Lectura:</div>
+          <div class="col-md-6">
+            <b style="font-size: 1.5em"
+              >{{ unitGeneric.property1$ | async | number }}&nbsp;m3</b
+            >
           </div>
-          <div class="col">
-            {{ unitGeneric.property1 }}
-            <br />
-            {{ unitGeneric.property2 }}
-            <br />
-            {{ unitGeneric.property3 }}
-            <br />
-            {{ unitGeneric.property4 }}
-            <br />
-            {{ unitGeneric.property5 }}
+        </div>
+        <div class="row">
+          <div class="col-md-6">Inicio tanda:</div>
+          <div class="col-md-6">
+            <b style="font-size: 1.5em"
+              >{{ unitGeneric.data1 | number }}&nbsp;m3</b
+            >
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Tanda:</div>
+          <div class="col-md-6">
+            <b style="font-size: 1.5em">{{ tanda | number }}&nbsp;m3</b>
+          </div>
+        </div>
+        <div class="row">
+          <button mat-raised-button color="warn" (click)="batchReset()">
+            Reiniciar tanda
+          </button>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-md-6">Sensor 2:</div>
+          <div class="col-md-6">
+            {{ unitGeneric.property2$ | async }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Sensor 3:</div>
+          <div class="col-md-6">
+            {{ unitGeneric.property3$ | async }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Sensor 4:</div>
+          <div class="col-md-6">
+            {{ unitGeneric.property4$ | async }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">Sensor 5:</div>
+          <div class="col-md-6">
+            {{ unitGeneric.property5$ | async }}
           </div>
         </div>
 
         <hr />
 
+        <!--       <div class="row">
+        <div class="col-4">Dato 1:</div>
+        <div class="col">
+          {{ unitGeneric.data1 }}
+        </div>
+      </div> -->
         <div class="row">
-          <div class="col-3">
-            Dato 1:
-            <br />
-            Dato 2:
-            <br />
-            Dato 3:
-            <br />
-            Dato 4:
-            <br />
-            Dato 5:
-          </div>
-          <div class="col">
-            {{ unitGeneric.data1 }}
-            <br />
-            {{ unitGeneric.data2 }}
-            <br />
+          <div class="col-sm-6">Dato 3:</div>
+          <div class="col-sm-6">
             {{ unitGeneric.data3 }}
-            <br />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6">Dato 4:</div>
+          <div class="col-sm-6">
             {{ unitGeneric.data4 }}
-            <br />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-6">Dato 5:</div>
+          <div class="col-sm-6">
             {{ unitGeneric.data5 }}
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<hr />
+  <hr />
 
-<!-- ====================================
+  <!-- ====================================
             BOOTOM CONTENT
            ==================================== -->
-<div mat-dialog-actions>
-  <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button mat-raised-button (click)="openDialogUnitGenericCreate()">
-    Modificar
-  </button>
+  <div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button
+      mat-raised-button
+      (click)="openDialogUnitGenericCreate()"
+      [disabled]="disabled"
+    >
+      Modificar
+    </button>
+  </div>
 </div>

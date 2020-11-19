@@ -1,3 +1,4 @@
+import { SetWSDto } from './dto/set-ws.dto';
 import { IMqttMessage } from 'ngx-mqtt';
 import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { HttpClient } from '@angular/common/http';
@@ -169,19 +170,19 @@ export class SetService implements OnDestroy {
     this._sets.value.splice(0);
   }
 
-  public publishCreateOnMQTT(set: SetEntity): void {
+  public publishCreateOnMQTT(setWSDto: SetWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_CREATE,
       TopicTypeEnum.SET,
-      JSON.stringify(set)
+      JSON.stringify(setWSDto)
     );
   }
 
-  public publishUpdateOnMQTT(set: SetEntity): void {
+  public publishUpdateOnMQTT(setWSDto: SetWSDto): void {
     this._mqttEventService.publish(
       TopicDestinationEnum.SERVER_DATA_UPDATE,
       TopicTypeEnum.SET,
-      JSON.stringify(set)
+      JSON.stringify(setWSDto)
     );
   }
 }

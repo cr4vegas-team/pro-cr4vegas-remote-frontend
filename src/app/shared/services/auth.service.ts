@@ -1,3 +1,4 @@
+import { UserRoleEnum } from './../constants/user-role.enum';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -10,18 +11,34 @@ import { UserEntity } from '../models/user.entity';
 export class AuthService {
   private _url: string;
 
-  private authenticated: BehaviorSubject<boolean>;
+  private userRole$: BehaviorSubject<UserRoleEnum>;
+  private adminOrModerator$: BehaviorSubject<boolean>;
 
   constructor(private _http: HttpClient) {
     this._url = GLOBAL.API;
-    this.authenticated = new BehaviorSubject(false);
+    this.userRole$ = new BehaviorSubject(null);
+    this.adminOrModerator$ = new BehaviorSubject(false);
+    this.userRole$.subscribe((role) => {
+      if (role === UserRoleEnum.ADMIN || role === UserRoleEnum.MODERATOR) {
+        this.adminOrModerator$.next(true);
+      } else {
+        this.adminOrModerator$.next(false);
+      }
+    });
   }
 
-  isAuthenticated(): BehaviorSubject<boolean> {
-    return this.authenticated;
+  public getSubjectUserRole(): BehaviorSubject<UserRoleEnum> {
+    return this.userRole$;
   }
 
-  getHttpOptions(params: {}): { headers: HttpHeaders; params?: HttpParams } {
+  public getSubjectAdminOrModerator(): BehaviorSubject<boolean> {
+    return this.adminOrModerator$;
+  }
+
+  public getHttpOptions(params: {}): {
+    headers: HttpHeaders;
+    params?: HttpParams;
+  } {
     return {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
@@ -40,20 +57,21 @@ export class AuthService {
           const access_token = (res as any).access_token;
 
           localStorage.setItem('access_token', access_token);
-          this.authenticated.next(true);
+          this.userRole$.next((res as any).role);
         },
         (error) => {
-          throw new Error(error);
+          this.userRole$.next(null);
+          console.log('Usuario o contraseña incorrectos');
         }
-      );
+    );
   }
 
-  logout() {
+  public logout(): void {
     localStorage.removeItem('access_token');
-    this.authenticated.next(false);
+    this.userRole$.next(null);
   }
 
-  signin(user: UserEntity): Observable<any> {
+  public signin(user: UserEntity): Observable<any> {
     return this._http.post(
       this._url + 'auth/signin',
       user,

@@ -1,16 +1,19 @@
 export enum MarkerColourEnum {
-  INACTIVE = '#CCC',
-  WITHOUT_COMMUNICATION = '#000',
-  STATION = '#f7acef',
-  SET = '#bff4e9',
-  SECTOR = '#faddb0',
-  UNIT_GENERIC = '#6699CC',
-  UNIT_HYDRANT_LOW = '#c2f5b6',
-  UNIT_HYDRANT_MEDIUM = '#71c15f',
-  UNIT_HYDRANT_HIGTH = '#3c9128',
-  UNIT_POND_LOW = '#c9b6f5',
-  UNIT_POND_MEDIUM = '#7f5fc1',
-  UNIT_POND_HIGTH = '#502891',
-  ALARM = '#ff0000',
-  WARNING = '#fffc00',
+  INACTIVE = 'rgba(120, 120, 120, 1)',
+  WITHOUT_COMMUNICATION = 'rgba(0, 0, 0, 1)',
+
+  STATION = 'rgba(50, 0, 120, 1)',
+
+  SET = 'rgba(0, 120, 120, 1)',
+
+  SECTOR = 'rgba(120, 50, 0, 1)',
+
+  UNIT = 'rgba(0, 0, 100, 1)',
+
+  UNIT_POND_LOW = 'rgba(255, 255, 0, 1)',
+  UNIT_POND_MEDIUM = 'rgba(0, 55, 255, 1)',
+  UNIT_POND_HIGTH = 'rgba(0, 100, 0, 1)',
+
+  ALARM = 'rgba(255, 0, 0, 1)',
+  WARNING = 'rgba(255, 150, 0, 1)',
 }

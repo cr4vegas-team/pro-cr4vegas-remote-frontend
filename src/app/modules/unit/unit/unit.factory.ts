@@ -1,3 +1,4 @@
+import { UnitWSDto } from './dto/unit-ws.dto';
 import { Injectable } from '@angular/core';
 import { UnitCreateDto } from './dto/unit-create.dto';
 import { UnitUpdateDto } from './dto/unit-update.dto';
@@ -7,6 +8,9 @@ import { UnitEntity } from './unit.entity';
   providedIn: 'root',
 })
 export class UnitFactory {
+  // ==================================================
+  //  FACTORY FUNCTIONS
+  // ==================================================
   createUnit(source: UnitEntity): UnitEntity {
     const unitEntity: UnitEntity = new UnitEntity();
     if (source) {
@@ -24,14 +28,13 @@ export class UnitFactory {
       unitEntity.updated = source.updated;
       unitEntity.description = source.description;
       unitEntity.image = source.image;
+      unitEntity.communication = 0;
+      unitEntity.received = 0;
     }
     return unitEntity;
   }
 
-  // ==================================================
-
   updateUnit(target: UnitEntity, source: any): UnitEntity {
-    const unitEntity: UnitEntity = new UnitEntity();
     if (source) {
       target.id = source.id;
       target.code = source.code;
@@ -48,14 +51,16 @@ export class UnitFactory {
       target.description = source.description;
       target.image = source.image;
     }
-    return unitEntity;
+    return target;
   }
 
   // ==================================================
-
-  getUnitCreateDto(source: UnitEntity): UnitCreateDto {
+  //  DTO FUNCTIONS
+  // ==================================================
+  getUnitCreateDto(source: any): UnitCreateDto {
     const unitCreateDto: UnitCreateDto = new UnitCreateDto();
     unitCreateDto.code = source.code;
+    unitCreateDto.unitTypeTable = source.unitTypeTable;
     unitCreateDto.altitude = source.altitude;
     unitCreateDto.longitude = source.longitude;
     unitCreateDto.latitude = source.latitude;
@@ -68,12 +73,11 @@ export class UnitFactory {
     return unitCreateDto;
   }
 
-  // ==================================================
-
-  getUnitUpdateDto(source: UnitEntity): UnitUpdateDto {
+  getUnitUpdateDto(source: any): UnitUpdateDto {
     const unitUpdateDto: UnitUpdateDto = new UnitUpdateDto();
     unitUpdateDto.id = source.id;
     unitUpdateDto.code = source.code;
+    unitUpdateDto.unitTypeTable = source.unitTypeTable;
     unitUpdateDto.altitude = source.altitude;
     unitUpdateDto.longitude = source.longitude;
     unitUpdateDto.latitude = source.latitude;
@@ -84,5 +88,22 @@ export class UnitFactory {
     unitUpdateDto.image = source.image;
     unitUpdateDto.active = source.active;
     return unitUpdateDto;
+  }
+
+  getUnitWSDto(source: UnitEntity): UnitWSDto {
+    const unitWSDto: UnitWSDto = new UnitWSDto();
+    unitWSDto.id = source.id;
+    unitWSDto.code = source.code;
+    unitWSDto.unitTypeTable = source.unitTypeTable;
+    unitWSDto.altitude = source.altitude;
+    unitWSDto.longitude = source.longitude;
+    unitWSDto.latitude = source.latitude;
+    unitWSDto.description = source.description;
+    unitWSDto.sector = source.sector ? source.sector : null;
+    unitWSDto.station = source.station ? source.station : null;
+    unitWSDto.sets = source.sets ? source.sets.map((set) => set) : [];
+    unitWSDto.image = source.image;
+    unitWSDto.active = source.active;
+    return unitWSDto;
   }
 }
