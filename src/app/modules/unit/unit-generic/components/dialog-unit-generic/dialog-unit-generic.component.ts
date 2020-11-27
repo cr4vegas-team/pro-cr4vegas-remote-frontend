@@ -88,12 +88,14 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
   }
 
   calculateBatch(): void {
-    const reading = parseInt(this.unitGeneric.property1$.value, 10);
-    const initBatch = parseInt(this.unitGeneric.data1, 10);
-    if (!isNaN(reading) && !isNaN(initBatch)) {
-      this.tanda = reading - initBatch;
-    } else {
-      this.tanda = 0;
+    if (this.unitGeneric.property1$.value) {
+      const reading = parseInt(this.unitGeneric.property1$.value, 10);
+      const initBatch = parseInt(this.unitGeneric.data1, 10);
+      if (!isNaN(reading) && !isNaN(initBatch)) {
+        this.tanda = reading - initBatch;
+      } else {
+        this.tanda = 0;
+      }
     }
   }
 
