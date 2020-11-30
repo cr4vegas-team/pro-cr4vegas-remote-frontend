@@ -27,7 +27,8 @@ export class UnitHydrantService implements OnDestroy {
   // ==================================================
   //  VARS
   // ==================================================
-  private _map: Map;
+  private _createSended = false;
+  private _updateSended = false;
   // ==================================================
   //  VARS SUBJECTS
   // ==================================================
@@ -84,7 +85,6 @@ export class UnitHydrantService implements OnDestroy {
   private subscribeToMap(): void {
     this._subMap = this._mapService.map.subscribe((map) => {
       if (map !== null) {
-        this._map = map;
         this._unitsHydrants.value.forEach((unitHydrant) => {
           if (unitHydrant.marker) {
             unitHydrant.marker.addTo(map);
@@ -109,16 +109,20 @@ export class UnitHydrantService implements OnDestroy {
         TopicTypeEnum.UNIT_HYDRANT
       )
       .subscribe((data: IMqttMessage) => {
-        const unitHydrantWSDto = JSON.parse(data.payload.toString());
-        const foundedUnitsHydrants = this._unitsHydrants.value.filter(
-          (unitHydrant) => unitHydrant.id === unitHydrantWSDto.id
-        );
-        if (foundedUnitsHydrants.length === 0) {
-          const newUnitHydrant = this._unitHydrantFactory.createUnitHydrant(
-            unitHydrantWSDto
+        if (this._createSended) {
+          this._createSended = false;
+        } else {
+          const unitHydrantWSDto = JSON.parse(data.payload.toString());
+          const foundedUnitsHydrants = this._unitsHydrants.value.filter(
+            (unitHydrant) => unitHydrant.id === unitHydrantWSDto.id
           );
-          this._unitsHydrants.value.push(newUnitHydrant);
-          this.refresh();
+          if (foundedUnitsHydrants.length === 0) {
+            const newUnitHydrant = this._unitHydrantFactory.createUnitHydrant(
+              unitHydrantWSDto
+            );
+            this._unitsHydrants.value.push(newUnitHydrant);
+            this.refresh();
+          }
         }
       });
   }
@@ -130,17 +134,21 @@ export class UnitHydrantService implements OnDestroy {
         TopicTypeEnum.UNIT_HYDRANT
       )
       .subscribe((data: IMqttMessage) => {
-        const unitHydrantWSDto = JSON.parse(data.payload.toString());
-        const foundedUnitsHydrants = this._unitsHydrants.value.filter(
-          (unitHydrant) => unitHydrant.id === unitHydrantWSDto.id
-        );
-        if (foundedUnitsHydrants.length > 0) {
-          const foundedUnitHydrant = foundedUnitsHydrants[0];
-          this._unitHydrantFactory.copyUnitHydrant(
-            foundedUnitHydrant,
-            unitHydrantWSDto
+        if (this._updateSended) {
+          this._updateSended = false;
+        } else {
+          const unitHydrantWSDto = JSON.parse(data.payload.toString());
+          const foundedUnitsHydrants = this._unitsHydrants.value.filter(
+            (unitHydrant) => unitHydrant.id === unitHydrantWSDto.id
           );
-          this.refresh();
+          if (foundedUnitsHydrants.length > 0) {
+            const foundedUnitHydrant = foundedUnitsHydrants[0];
+            this._unitHydrantFactory.copyUnitHydrant(
+              foundedUnitHydrant,
+              unitHydrantWSDto
+            );
+            this.refresh();
+          }
         }
       });
   }
@@ -208,6 +216,7 @@ export class UnitHydrantService implements OnDestroy {
       TopicTypeEnum.UNIT_HYDRANT,
       JSON.stringify(unitHydrantWSDto)
     );
+    this._createSended = true;
   }
 
   public publishUpdateOnMQTT(unitHydrantWSDto: UnitHydrantWSDto): void {
@@ -216,5 +225,6 @@ export class UnitHydrantService implements OnDestroy {
       TopicTypeEnum.UNIT_HYDRANT,
       JSON.stringify(unitHydrantWSDto)
     );
+    this._updateSended = true;
   }
 }

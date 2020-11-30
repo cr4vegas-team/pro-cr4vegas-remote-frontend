@@ -232,7 +232,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     );
     this._unitGenericService.update(unitGenericUpdateDto).subscribe(
       (unitGenericRO) => {
-        this._unitGenericFactory.updateUnitGeneric(
+        this._unitGenericFactory.copyUnitGeneric(
           this.unitGeneric,
           unitGenericRO.unitGeneric
         );

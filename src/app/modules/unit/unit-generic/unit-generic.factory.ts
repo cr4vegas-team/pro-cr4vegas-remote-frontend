@@ -18,7 +18,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class UnitGenericFactory implements OnDestroy {
+export class UnitGenericFactory {
   // ==================================================
   //  VARS
   // ==================================================
@@ -29,22 +29,16 @@ export class UnitGenericFactory implements OnDestroy {
   // ==================================================
   private _markerChange$ = new BehaviorSubject<UnitGenericEntity>(null);
 
-  private _subServerUpdate: Subscription;
-  private _subServerCreate: Subscription;
-
   constructor(
     private readonly _unitFactory: UnitFactory,
     private readonly _mqttEventService: MqttEventsService,
-    private readonly _mapService: MapService,
-    private readonly _unitGenericService: UnitGenericService
+    private readonly _mapService: MapService
   ) {
     this._mapService.map.subscribe((map) => {
       if (map) {
         this._map = map;
       }
     });
-    this.subscribeToServerCreate();
-    this.subscribeToServerUpdate();
   }
 
   public getMarkerChange(): BehaviorSubject<UnitGenericEntity> {
@@ -71,7 +65,7 @@ export class UnitGenericFactory implements OnDestroy {
     return newUnitGeneric;
   }
 
-  public updateUnitGeneric(target: UnitGenericEntity, source: any): void {
+  public copyUnitGeneric(target: UnitGenericEntity, source: any): void {
     target.data1 = source.data1;
     target.data2 = source.data2;
     target.data3 = source.data3;
@@ -246,59 +240,15 @@ export class UnitGenericFactory implements OnDestroy {
           if (dataSplit[5]) {
             unitGeneric.property5$.next(dataSplit[5]);
           }
+          if (dataSplit[6]) {
+            unitGeneric.temperature$.next(dataSplit[6]);
+          }
+          if (dataSplit[7]) {
+            unitGeneric.humidity$.next(dataSplit[7]);
+          }
         }
         this.setMarkerColourAccourdingState(unitGeneric);
       }
     );
-  }
-  private subscribeToServerCreate(): void {
-    this._subServerCreate = this._mqttEventService
-      .observe(
-        TopicDestinationEnum.SERVER_DATA_CREATE,
-        TopicTypeEnum.UNIT_GENERIC
-      )
-      .subscribe((data: IMqttMessage) => {
-        const unitGenericWSDto = JSON.parse(data.payload.toString());
-        const foundedUnitsGenerics = this._unitGenericService
-          .getUnitsGeneric()
-          .value.filter(
-            (unitGeneric) => unitGeneric.id === unitGenericWSDto.id
-          );
-        if (foundedUnitsGenerics.length === 0) {
-          const newUnitGeneric = this.createUnitGeneric(unitGenericWSDto);
-          this._unitGenericService.getUnitsGeneric().value.push(newUnitGeneric);
-          this._unitGenericService.refresh();
-        }
-      });
-  }
-
-  private subscribeToServerUpdate(): void {
-    this._subServerUpdate = this._mqttEventService
-      .observe(
-        TopicDestinationEnum.SERVER_DATA_UPDATE,
-        TopicTypeEnum.UNIT_GENERIC
-      )
-      .subscribe((data: IMqttMessage) => {
-        const unitGenericWSDto = JSON.parse(data.payload.toString());
-        const foundedUnitsGenerics = this._unitGenericService
-          .getUnitsGeneric()
-          .value.filter(
-            (unitGeneric) => unitGeneric.id === unitGenericWSDto.id
-          );
-        if (foundedUnitsGenerics.length > 0) {
-          const foundedUnitGeneric = foundedUnitsGenerics[0];
-          this.updateUnitGeneric(foundedUnitGeneric, unitGenericWSDto);
-          this._unitGenericService.refresh();
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    if (this._subServerCreate) {
-      this._subServerCreate.unsubscribe();
-    }
-    if (this._subServerUpdate) {
-      this._subServerUpdate.unsubscribe();
-    }
   }
 }

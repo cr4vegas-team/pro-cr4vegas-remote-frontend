@@ -28,7 +28,8 @@ export class UnitPondService implements OnDestroy {
   // ==================================================
   //  VARS
   // ==================================================
-  private _map: Map;
+  private _createSended = false;
+  private _updateSended = false;
 
   // ==================================================
   //  VARS SUBSJECTS
@@ -87,7 +88,6 @@ export class UnitPondService implements OnDestroy {
   private subscribeToMap(): void {
     this._subMap = this._mapService.map.subscribe((map) => {
       if (map !== null) {
-        this._map = map;
         this._unitsPonds.value.forEach((unitPond) => {
           if (unitPond.marker) {
             unitPond.marker.addTo(map);
@@ -109,16 +109,20 @@ export class UnitPondService implements OnDestroy {
     this._subServerCreate = this._mqttEventService
       .observe(TopicDestinationEnum.SERVER_DATA_CREATE, TopicTypeEnum.UNIT_POND)
       .subscribe((data: IMqttMessage) => {
-        const unitPondWSDto = JSON.parse(data.payload.toString());
-        const foundedUnitsPonds = this._unitsPonds.value.filter(
-          (unitPond) => unitPond.id === unitPondWSDto.id
-        );
-        if (foundedUnitsPonds.length === 0) {
-          const newUnitPond = this._unitPondFactory.createUnitPond(
-            unitPondWSDto
+        if (this._createSended) {
+          this._createSended = false;
+        } else {
+          const unitPondWSDto = JSON.parse(data.payload.toString());
+          const foundedUnitsPonds = this._unitsPonds.value.filter(
+            (unitPond) => unitPond.id === unitPondWSDto.id
           );
-          this._unitsPonds.value.push(newUnitPond);
-          this.refresh();
+          if (foundedUnitsPonds.length === 0) {
+            const newUnitPond = this._unitPondFactory.createUnitPond(
+              unitPondWSDto
+            );
+            this._unitsPonds.value.push(newUnitPond);
+            this.refresh();
+          }
         }
       });
   }
@@ -127,14 +131,18 @@ export class UnitPondService implements OnDestroy {
     this._subServerUpdate = this._mqttEventService
       .observe(TopicDestinationEnum.SERVER_DATA_UPDATE, TopicTypeEnum.UNIT_POND)
       .subscribe((data: IMqttMessage) => {
-        const unitPondJSON = JSON.parse(data.payload.toString());
-        const foundedUnitsPonds = this._unitsPonds.value.filter(
-          (unitPond) => unitPond.id === unitPondJSON.id
-        );
-        if (foundedUnitsPonds.length > 0) {
-          const foundedUnitPond = foundedUnitsPonds[0];
-          this._unitPondFactory.updateUnitPond(foundedUnitPond, unitPondJSON);
-          this.refresh();
+        if (this._updateSended) {
+          this._updateSended = false;
+        } else {
+          const unitPondJSON = JSON.parse(data.payload.toString());
+          const foundedUnitsPonds = this._unitsPonds.value.filter(
+            (unitPond) => unitPond.id === unitPondJSON.id
+          );
+          if (foundedUnitsPonds.length > 0) {
+            const foundedUnitPond = foundedUnitsPonds[0];
+            this._unitPondFactory.updateUnitPond(foundedUnitPond, unitPondJSON);
+            this.refresh();
+          }
         }
       });
   }
@@ -199,6 +207,7 @@ export class UnitPondService implements OnDestroy {
       TopicTypeEnum.UNIT_POND,
       JSON.stringify(unitPondWSDto)
     );
+    this._createSended = true;
   }
 
   public publishUpdateOnMQTT(unitPondWSDto: UnitPondWSDto): void {
@@ -207,5 +216,6 @@ export class UnitPondService implements OnDestroy {
       TopicTypeEnum.STATION,
       JSON.stringify(unitPondWSDto)
     );
+    this._updateSended = true;
   }
 }
