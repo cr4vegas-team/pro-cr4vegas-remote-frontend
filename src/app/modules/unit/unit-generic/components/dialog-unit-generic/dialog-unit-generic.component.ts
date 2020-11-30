@@ -22,6 +22,8 @@ import { DialogUnitGenericCreateComponent } from '../dialog-unit-generic-create/
 export class DialogUnitGenericComponent implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
 
+  private _subProperty1: Subscription;
+
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
   counterInterval: NodeJS.Timeout;
@@ -82,7 +84,7 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
         );
     }
 
-    this.unitGeneric.property1$.subscribe((p1) => {
+    this._subProperty1 = this.unitGeneric.property1$.subscribe((p1) => {
       this.calculateBatch();
     });
   }
@@ -122,6 +124,9 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
     }
     if (this.counterInterval) {
       clearInterval(this.counterInterval);
+    }
+    if (this._subProperty1) {
+      this._subProperty1.unsubscribe();
     }
   }
 

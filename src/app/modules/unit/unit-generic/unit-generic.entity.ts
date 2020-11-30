@@ -22,6 +22,8 @@ export class UnitGenericEntity {
   property3$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   property4$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   property5$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  temperature$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  humidity$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
 
   // ==================================================
   // FRONTEND PROPERTIES
