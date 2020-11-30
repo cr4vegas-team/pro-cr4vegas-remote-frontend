@@ -4,10 +4,11 @@ import { registerLocaleData } from '@angular/common';
 // ==================================================
 import { HttpClientModule } from '@angular/common/http';
 import localeEs from '@angular/common/locales/es';
-import { LOCALE_ID, NgModule } from '@angular/core';
+import {
+  LOCALE_ID,
+  NgModule
+} from '@angular/core';
 import { JwtModule } from '@auth0/angular-jwt';
-import { SocketIoModule } from 'ngx-socket-io';
-import { environment } from 'src/environments/environment';
 // ==================================================
 // COMPONENTS
 // ==================================================
@@ -16,6 +17,7 @@ import { GeneralModule } from './modules/general/general.module';
 import { SessionModule } from './modules/session/session.module';
 import { UnitModule } from './modules/unit/unit.module';
 import { WrapModule } from './modules/wrap/wrap.module';
+import { WebsocketService } from './shared/services/websocket.service';
 import { SharedModule } from './shared/shared.module';
 
 export function tokenGetter(): string {
@@ -32,11 +34,6 @@ registerLocaleData(localeEs, 'es');
   //  IMPORTS
   // ===========================================================
   imports: [
-    SocketIoModule.forRoot({
-      url: environment.ws.url,
-      options: {}
-    }),
-
     HttpClientModule,
     JwtModule.forRoot({
       config: {
@@ -56,4 +53,6 @@ registerLocaleData(localeEs, 'es');
 
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly _webSocketService: WebsocketService) {}
+}
