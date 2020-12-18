@@ -1,17 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
-import { Map } from 'mapbox-gl';
-import { IMqttMessage } from 'ngx-mqtt';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
+import { MQTTPacket } from './../../../shared/models/mqtt-packet.model';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitHydrantCreateDto } from './dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from './dto/unit-hydrant-update.dto';
-import { UnitHydrantWSDto } from './dto/unit-hydrant-ws.dto';
 import { UnitHydrantEntity } from './unit-hydrant.entity';
 import { UnitHydrantFactory } from './unit-hydrant.factory';
 import { UnitHydrantRO, UnitsHydrantsRO } from './unit-hydrant.interfaces';
@@ -25,11 +20,6 @@ export class UnitHydrantService implements OnDestroy {
   // ==================================================
   private _url: string = GLOBAL.API + 'unit-hydrant';
   // ==================================================
-  //  VARS
-  // ==================================================
-  private _createSended = false;
-  private _updateSended = false;
-  // ==================================================
   //  VARS SUBJECTS
   // ==================================================
   private _unitsHydrants: BehaviorSubject<UnitHydrantEntity[]>;
@@ -39,8 +29,6 @@ export class UnitHydrantService implements OnDestroy {
   // ==================================================
   private _subMap: Subscription;
   private _subHiddenMarker: Subscription;
-  private _subServerUpdate: Subscription;
-  private _subServerCreate: Subscription;
 
   // ==================================================
   //  CONSTRUCTOR
@@ -50,27 +38,18 @@ export class UnitHydrantService implements OnDestroy {
     private readonly _authService: AuthService,
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _mapService: MapService,
-    private readonly _mqttEventService: MqttEventsService
   ) {
     this._unitsHydrants = new BehaviorSubject<UnitHydrantEntity[]>(
       Array<UnitHydrantEntity>()
     );
     this.subscribeToMap();
     this.subscribeToHiddenMarker();
-    this.subscribeToServerCreate();
-    this.subscribeToServerUpdate();
   }
 
   // ==================================================
   //  LIFE CYCLE FUNCTIONS
   // ==================================================
   ngOnDestroy(): void {
-    if (this._subServerCreate) {
-      this._subServerCreate.unsubscribe();
-    }
-    if (this._subServerUpdate) {
-      this._subServerUpdate.unsubscribe();
-    }
     if (this._subMap) {
       this._subMap.unsubscribe();
     }
@@ -100,57 +79,6 @@ export class UnitHydrantService implements OnDestroy {
         unitHydrant.marker.getElement().hidden = hidden;
       });
     });
-  }
-
-  private subscribeToServerCreate(): void {
-    this._subServerCreate = this._mqttEventService
-      .observe(
-        TopicDestinationEnum.SERVER_DATA_CREATE,
-        TopicTypeEnum.UNIT_HYDRANT
-      )
-      .subscribe((data: IMqttMessage) => {
-        if (this._createSended) {
-          this._createSended = false;
-        } else {
-          const unitHydrantWSDto = JSON.parse(data.payload.toString());
-          const foundedUnitsHydrants = this._unitsHydrants.value.filter(
-            (unitHydrant) => unitHydrant.id === unitHydrantWSDto.id
-          );
-          if (foundedUnitsHydrants.length === 0) {
-            const newUnitHydrant = this._unitHydrantFactory.createUnitHydrant(
-              unitHydrantWSDto
-            );
-            this._unitsHydrants.value.push(newUnitHydrant);
-            this.refresh();
-          }
-        }
-      });
-  }
-
-  private subscribeToServerUpdate(): void {
-    this._subServerUpdate = this._mqttEventService
-      .observe(
-        TopicDestinationEnum.SERVER_DATA_UPDATE,
-        TopicTypeEnum.UNIT_HYDRANT
-      )
-      .subscribe((data: IMqttMessage) => {
-        if (this._updateSended) {
-          this._updateSended = false;
-        } else {
-          const unitHydrantWSDto = JSON.parse(data.payload.toString());
-          const foundedUnitsHydrants = this._unitsHydrants.value.filter(
-            (unitHydrant) => unitHydrant.id === unitHydrantWSDto.id
-          );
-          if (foundedUnitsHydrants.length > 0) {
-            const foundedUnitHydrant = foundedUnitsHydrants[0];
-            this._unitHydrantFactory.copyUnitHydrant(
-              foundedUnitHydrant,
-              unitHydrantWSDto
-            );
-            this.refresh();
-          }
-        }
-      });
   }
 
   // ==================================================
@@ -210,21 +138,42 @@ export class UnitHydrantService implements OnDestroy {
     });
   }
 
-  public publishCreateOnMQTT(unitHydrantWSDto: UnitHydrantWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_CREATE,
-      TopicTypeEnum.UNIT_HYDRANT,
-      JSON.stringify(unitHydrantWSDto)
+  // ==================================================
+  //  WS FUNCTIONS
+  // ==================================================
+  public createWS(unitHydrantWSString: string): void {
+    const unitHydrantWS = this._unitHydrantFactory.createUnitHydrant(
+      unitHydrantWSString
     );
-    this._createSended = true;
+    this._unitsHydrants.value.push(unitHydrantWS);
+    this.refresh();
   }
 
-  public publishUpdateOnMQTT(unitHydrantWSDto: UnitHydrantWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_UPDATE,
-      TopicTypeEnum.UNIT_HYDRANT,
-      JSON.stringify(unitHydrantWSDto)
+  public updateWS(unitHydrantWSString: string): void {
+    const unitHydrantWS = this._unitHydrantFactory.createUnitHydrant(
+      unitHydrantWSString
     );
-    this._updateSended = true;
+    const unitHydrantFound = this._unitsHydrants.value.filter(
+      (unitHydrant) => (unitHydrant.id = unitHydrantWS.id)
+    )[0];
+    if (unitHydrantFound) {
+      this._unitHydrantFactory.copyUnitHydrant(unitHydrantFound, unitHydrantWS);
+    }
+  }
+
+  public extractMQTTPacketAndAct(mqttPacket: MQTTPacket): void {
+    const topicSplit = mqttPacket.topic.split('/');
+    const topicSplitLengh = topicSplit.length;
+    const unitHydrantID = Number.parseInt(topicSplit[topicSplitLengh - 1]);
+    const unitHydrantFound = this._unitsHydrants.value.filter(
+      (unitHydrant) => (unitHydrant.id == unitHydrantID)
+    )[0];
+    if (unitHydrantFound) {
+      this._unitHydrantFactory.updateProperties(
+        unitHydrantFound,
+        mqttPacket.message
+      );
+    }
+    this.refresh();
   }
 }

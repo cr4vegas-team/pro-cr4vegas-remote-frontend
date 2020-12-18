@@ -1,17 +1,13 @@
-import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
-import { IMqttMessage } from 'ngx-mqtt';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
+import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
+import { MQTTPacket } from 'src/app/shared/models/mqtt-packet.model';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitGenericCreateDto } from './dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from './dto/unit-generic-update.dto';
-import { UnitGenericWSDto } from './dto/unit-generic-ws.dto';
 import { UnitGenericEntity } from './unit-generic.entity';
 import { UnitGenericRO, UnitsGenericsRO } from './unit-generic.interfaces';
 
@@ -34,13 +30,6 @@ export class UnitGenericService implements OnDestroy {
   // ==================================================
   private _subMap: Subscription;
   private _subHiddenMarker: Subscription;
-  private _subServerUpdate: Subscription;
-  private _subServerCreate: Subscription;
-  // ==================================================
-  //  VARS
-  // ==================================================
-  private _updateSended = false;
-  private _createSended = false;
 
   // ==================================================
   //  CONSTRUCTOR
@@ -49,7 +38,6 @@ export class UnitGenericService implements OnDestroy {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _mapService: MapService,
-    private readonly _mqttEventService: MqttEventsService,
     private readonly _unitGenericFactory: UnitGenericFactory
   ) {
     this._unitsGenerics = new BehaviorSubject<UnitGenericEntity[]>(
@@ -57,8 +45,6 @@ export class UnitGenericService implements OnDestroy {
     );
     this.subscribeToMap();
     this.subscribeToHiddenMarker();
-    this.subscribeToServerCreate();
-    this.subscribeToServerUpdate();
   }
 
   // ==================================================
@@ -70,12 +56,6 @@ export class UnitGenericService implements OnDestroy {
     }
     if (this._subHiddenMarker) {
       this._subHiddenMarker.unsubscribe();
-    }
-    if (this._subServerCreate) {
-      this._subServerCreate.unsubscribe();
-    }
-    if (this._subServerUpdate) {
-      this._subServerUpdate.unsubscribe();
     }
   }
 
@@ -100,57 +80,6 @@ export class UnitGenericService implements OnDestroy {
         unitGeneric.marker.getElement().hidden = hidden;
       });
     });
-  }
-
-  private subscribeToServerCreate(): void {
-    this._subServerCreate = this._mqttEventService
-      .observe(
-        TopicDestinationEnum.SERVER_DATA_CREATE,
-        TopicTypeEnum.UNIT_GENERIC
-      )
-      .subscribe((data: IMqttMessage) => {
-        if (this._createSended) {
-          this._createSended = false;
-        } else {
-          const unitGenericWSDto = JSON.parse(data.payload.toString());
-          const foundedUnitsGenerics = this._unitsGenerics.value.filter(
-            (unitGeneric) => unitGeneric.id === unitGenericWSDto.id
-          );
-          if (foundedUnitsGenerics.length === 0) {
-            const newUnitGeneric = this._unitGenericFactory.createUnitGeneric(
-              unitGenericWSDto
-            );
-            this._unitsGenerics.value.push(newUnitGeneric);
-            this.refresh();
-          }
-        }
-      });
-  }
-
-  private subscribeToServerUpdate(): void {
-    this._subServerUpdate = this._mqttEventService
-      .observe(
-        TopicDestinationEnum.SERVER_DATA_UPDATE,
-        TopicTypeEnum.UNIT_GENERIC
-      )
-      .subscribe((data: IMqttMessage) => {
-        if (this._updateSended) {
-          this._updateSended = false;
-        } else {
-          const unitGenericWSDTo = JSON.parse(data.payload.toString());
-          const foundedUnitsGenerics = this._unitsGenerics.value.filter(
-            (unitGeneric) => unitGeneric.id === unitGenericWSDTo.id
-          );
-          if (foundedUnitsGenerics.length > 0) {
-            const foundedUnitGeneric = foundedUnitsGenerics[0];
-            this._unitGenericFactory.copyUnitGeneric(
-              foundedUnitGeneric,
-              unitGenericWSDTo
-            );
-            this.refresh();
-          }
-        }
-      });
   }
 
   // ==================================================
@@ -218,21 +147,41 @@ export class UnitGenericService implements OnDestroy {
     }
   }
 
-  public publishCreateOnMQTT(unitGenericWSDto: UnitGenericWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_CREATE,
-      TopicTypeEnum.UNIT_GENERIC,
-      JSON.stringify(unitGenericWSDto)
+  // ==================================================
+  //  WS FUNCTIONS
+  // ==================================================
+  public createWS(unitGenericWSString: string): void {
+    const unitGenericWS = this._unitGenericFactory.createUnitGeneric(
+      unitGenericWSString
     );
-    this._createSended = true;
+    this._unitsGenerics.value.push(unitGenericWS);
+    this.refresh();
   }
 
-  public publishUpdateOnMQTT(unitGenericWSDto: UnitGenericWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_UPDATE,
-      TopicTypeEnum.UNIT_GENERIC,
-      JSON.stringify(unitGenericWSDto)
+  public updateWS(unitGenericWSString: string): void {
+    const unitGenericWS = this._unitGenericFactory.createUnitGeneric(
+      unitGenericWSString
     );
-    this._updateSended = true;
+    const unitGenericFound = this._unitsGenerics.value.filter(
+      (unitGeneric) => (unitGeneric.id = unitGenericWS.id)
+    )[0];
+    if (unitGenericFound) {
+      this._unitGenericFactory.copyUnitGeneric(unitGenericFound, unitGenericWS);
+    }
+  }
+
+  public extractMQTTPacketAndAct(mqttPacket: MQTTPacket): void {
+    const topicSplit = mqttPacket.topic.split('/');
+    const topicSplitLengh = topicSplit.length;
+    const unitGenericID = Number.parseInt(topicSplitLengh[topicSplitLengh - 1]);
+    const unitGenericFound = this._unitsGenerics.value.filter(
+      (unitGeneric) => (unitGeneric.id = unitGenericID)
+    )[0];
+    if (unitGenericFound) {
+      this._unitGenericFactory.updateProperties(
+        unitGenericFound,
+        mqttPacket.message
+      );
+    }
   }
 }

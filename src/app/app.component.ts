@@ -6,4 +6,5 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'C.R. 4 Vegas Remoto';
+
 }

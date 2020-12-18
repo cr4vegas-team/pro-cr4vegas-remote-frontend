@@ -2,15 +2,15 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+export const host = 'http://172.23.86.117:8881';
+
 export const environment = {
   production: false,
   hmr: false,
-  api: 'http://172.19.198.119:8881/api/',
-  mqtt: {
-    hostname: 'emqx.rubenfgr.com',
-    protocol: 'wss',
-    port: 8084,
-    path: '/mqtt',
+  api: host + '/api/',
+  ws: {
+    url: 'ws://172.23.86.117:8881',
+    options: {},
   },
 };
 

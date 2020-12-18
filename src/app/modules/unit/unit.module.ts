@@ -1,3 +1,4 @@
+import { UnitHydrantSocketService } from './unit-hydrant/unit-hydrant-socket.service';
 // ===========================================================
 //  MODULES
 // ===========================================================
@@ -49,6 +50,7 @@ import { UnitService } from './unit/unit.service';
   // ==================================================
   providers: [
     UnitHydrantService,
+    UnitHydrantSocketService,
     UnitPondService,
     UnitGenericService,
     UnitService,

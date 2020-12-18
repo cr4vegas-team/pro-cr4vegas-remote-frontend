@@ -1,15 +1,13 @@
-import { DomSanitizer } from '@angular/platform-browser';
-import { UploadService } from 'src/app/shared/services/upload.service';
-import { DialogInfoTitleEnum } from './../../../../../shared/components/dialog-info/dialog-info-title.enum';
-import { ErrorTypeEnum } from './../../../../../shared/constants/error-type.enum';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
+import { UploadService } from 'src/app/shared/services/upload.service';
 import { SectorEntity } from '../../../../../modules/wrap/sector/sector.entity';
 import { SectorService } from '../../../../../modules/wrap/sector/sector.service';
 import { SetEntity } from '../../../../../modules/wrap/set/set.entity';
@@ -24,6 +22,9 @@ import { UnitGenericUpdateDto } from '../../dto/unit-generic-update.dto';
 import { UnitGenericEntity } from '../../unit-generic.entity';
 import { UnitGenericFactory } from '../../unit-generic.factory';
 import { UnitGenericService } from '../../unit-generic.service';
+import { DialogInfoTitleEnum } from './../../../../../shared/components/dialog-info/dialog-info-title.enum';
+import { ErrorTypeEnum } from './../../../../../shared/constants/error-type.enum';
+import { UnitGenericSocketService } from './../../unit-generic-socket.service';
 
 @Component({
   selector: 'app-dialog-unit-generic-create',
@@ -56,6 +57,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     private readonly _dialogRef: MatDialogRef<DialogUnitGenericCreateComponent>,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _unitGenericSockerService: UnitGenericSocketService,
     @Inject(MAT_DIALOG_DATA)
     public unitGeneric: UnitGenericEntity
   ) {}
@@ -206,10 +208,8 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
           unitGenericRO.unitGeneric
         );
         this._unitGenericService.getUnitsGeneric().value.push(newUnitGeneric);
-        this._unitGenericService.publishCreateOnMQTT(
-          this._unitGenericFactory.getUnitGenericWSDto(newUnitGeneric)
-        );
         this._unitGenericService.refresh();
+        this._unitGenericSockerService.sendCreate(newUnitGeneric);
         this.close();
       },
       (error) => {
@@ -236,10 +236,8 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
           this.unitGeneric,
           unitGenericRO.unitGeneric
         );
-        this._unitGenericService.publishUpdateOnMQTT(
-          this._unitGenericFactory.getUnitGenericWSDto(this.unitGeneric)
-        );
         this._unitGenericService.refresh();
+        this._unitGenericSockerService.sendUpdate(this.unitGeneric);
         this.close();
       },
       (error) => {

@@ -1,12 +1,14 @@
-import { ErrorTypeEnum } from './../../../../../shared/constants/error-type.enum';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
+import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
+import { UploadService } from 'src/app/shared/services/upload.service';
 import { UnitPondEntity } from '../../../../../modules/unit/unit-pond/unit-pond.entity';
 import { UnitPondFactory } from '../../../../../modules/unit/unit-pond/unit-pond.factory';
 import { UnitPondService } from '../../../../../modules/unit/unit-pond/unit-pond.service';
@@ -21,9 +23,8 @@ import { DialogInfoComponent } from '../../../../../shared/components/dialog-inf
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitPondCreateDto } from '../../dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from '../../dto/unit-pond-update.dto';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { DomSanitizer } from '@angular/platform-browser';
-import { UploadService } from 'src/app/shared/services/upload.service';
+import { UnitPondSocketService } from '../../unit-pond-socket.service';
+import { ErrorTypeEnum } from './../../../../../shared/constants/error-type.enum';
 
 @Component({
   selector: 'app-dialog-unit-pond-create',
@@ -56,6 +57,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
     private readonly _dialogRef: MatDialogRef<DialogUnitPondCreateComponent>,
+    private readonly _unitPondSocketService: UnitPondSocketService,
     @Inject(MAT_DIALOG_DATA)
     public unitPond: UnitPondEntity
   ) {}
@@ -209,10 +211,8 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
           unitPondRO.unitPond
         );
         this._unitPondService.getUnitsPonds().value.push(newUnitPond);
-        this._unitPondService.publishCreateOnMQTT(
-          this._unitPondFactory.getUnitPondWSDto(newUnitPond)
-        );
         this._unitPondService.refresh();
+        this._unitPondSocketService.sendCreate(newUnitPond);
         this.close();
       },
       (error) => {
@@ -235,14 +235,12 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     );
     this._unitPondService.update(unitPondUpdateDto).subscribe(
       (unitGenericRO) => {
-        this._unitPondFactory.updateUnitPond(
+        this._unitPondFactory.copyUnitPond(
           this.unitPond,
           unitGenericRO.unitPond
         );
-        this._unitPondService.publishUpdateOnMQTT(
-          this._unitPondFactory.getUnitPondWSDto(this.unitPond)
-        );
         this._unitPondService.refresh();
+        this._unitPondSocketService.sendUpdate(this.unitPond);
         this.close();
       },
       (error) => {

@@ -1,26 +1,28 @@
-import { MaterialModule } from './shared/material.module';
-import { GeneralModule } from './modules/general/general.module';
-import { SessionModule } from './modules/session/session.module';
-import { environment as env } from '../environments/environment';
+import { registerLocaleData } from '@angular/common';
 // ==================================================
 // MODULES
 // ==================================================
 import { HttpClientModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import localeEs from '@angular/common/locales/es';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { JwtModule } from '@auth0/angular-jwt';
-import { MqttModule } from 'ngx-mqtt';
-import { UnitModule } from './modules/unit/unit.module';
-import { WrapModule } from './modules/wrap/wrap.module';
-import { SharedModule } from './shared/shared.module';
+import { SocketIoModule } from 'ngx-socket-io';
+import { environment } from 'src/environments/environment';
 // ==================================================
 // COMPONENTS
 // ==================================================
 import { AppComponent } from './app.component';
+import { GeneralModule } from './modules/general/general.module';
+import { SessionModule } from './modules/session/session.module';
+import { UnitModule } from './modules/unit/unit.module';
+import { WrapModule } from './modules/wrap/wrap.module';
+import { SharedModule } from './shared/shared.module';
 
 export function tokenGetter(): string {
   return localStorage.getItem('access_token');
 }
 
+registerLocaleData(localeEs, 'es');
 @NgModule({
   // ===========================================================
   //  DECLARATIONS
@@ -30,11 +32,9 @@ export function tokenGetter(): string {
   //  IMPORTS
   // ===========================================================
   imports: [
-    MqttModule.forRoot({
-      hostname: env.mqtt.hostname,
-      protocol: env.mqtt.protocol === 'wss' ? 'wss' : 'ws',
-      path: env.mqtt.path,
-      port: 8084,
+    SocketIoModule.forRoot({
+      url: environment.ws.url,
+      options: {}
     }),
 
     HttpClientModule,
@@ -51,6 +51,8 @@ export function tokenGetter(): string {
     SessionModule,
     GeneralModule,
   ],
+
+  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
 
   bootstrap: [AppComponent],
 })

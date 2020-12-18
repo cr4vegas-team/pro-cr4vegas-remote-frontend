@@ -1,5 +1,5 @@
 import { Marker } from 'mapbox-gl';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { UnitEntity } from '../unit/unit.entity';
 
 export class UnitGenericEntity {
@@ -17,11 +17,11 @@ export class UnitGenericEntity {
   // ==================================================
   // MQTT PROPERTIES
   // ==================================================
-  property1$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  property2$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  property3$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  property4$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  property5$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
+  property1$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  property2$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  property3$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  property4$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  property5$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   temperature$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
   humidity$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
 

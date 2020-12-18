@@ -1,9 +1,10 @@
+import { SetSocketService } from './../../set-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -53,6 +54,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
     private readonly _unitService: UnitService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _setSocketService: SetSocketService,
     @Inject(MAT_DIALOG_DATA)
     public set: SetEntity
   ) {}
@@ -173,10 +175,8 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       (setRO) => {
         const newSet: SetEntity = this._setFactory.createSet(setRO.set);
         this._setService.getSets().value.push(newSet);
-        this._setService.publishCreateOnMQTT(
-          this._setFactory.getSetWSDto(newSet)
-        );
         this._setService.refresh();
+        this._setSocketService.sendCreate(newSet);
         this.close();
       },
       (error) => {
@@ -199,11 +199,9 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
     );
     this._setService.update(setUpdateDto).subscribe(
       (setRO) => {
-        this._setFactory.updateSet(this.set, setRO.set);
-        this._setService.publishUpdateOnMQTT(
-          this._setFactory.getSetWSDto(this.set)
-        );
+        this._setFactory.copySet(this.set, setRO.set);
         this._setService.refresh();
+        this._setSocketService.sendUpdate(this.set);
         this.close();
       },
       (error) => {

@@ -1,4 +1,5 @@
-import { AuthService } from 'src/app/shared/services/auth.service';
+import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
+import { UnitHydrantFactory } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.factory';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -6,12 +7,10 @@ import { Subscription } from 'rxjs';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
 import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
+import { AuthService } from 'src/app/shared/services/auth.service';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
-import { TopicTypeEnum } from '../../../../../shared/constants/topic-type.enum';
-import { MqttEventsService } from '../../../../../shared/services/mqtt-events.service';
 import { UnitHydrantEntity } from '../../unit-hydrant.entity';
 import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
 @Component({
@@ -24,15 +23,21 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
   disabled = false;
+  batch = 0;
+  valve = 0;
 
   // ==================================================
+  //  SUBSCRIPTIONS
+  // ==================================================
+  private _subReading: Subscription;
 
   constructor(
-    private readonly _mqttEventService: MqttEventsService,
     private readonly _matDialog: MatDialog,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
     private readonly _authService: AuthService,
+    private readonly _unitHydrantFactory: UnitHydrantFactory,
+    private readonly _unitHydrantService: UnitHydrantService,
     @Inject(MAT_DIALOG_DATA)
     public unitHydrant: UnitHydrantEntity
   ) {
@@ -76,28 +81,12 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
           }
         );
     }
-  }
 
-  // ==================================================
-
-  openValve(): void {
-    this._mqttEventService.publishWithID(
-      TopicDestinationEnum.NODE_SERVER,
-      TopicTypeEnum.UNIT_HYDRANT,
-      this.unitHydrant.id,
-      '1'
-    );
-  }
-
-  // ==================================================
-
-  closeValve(): void {
-    this._mqttEventService.publishWithID(
-      TopicDestinationEnum.NODE_SERVER,
-      TopicTypeEnum.UNIT_HYDRANT,
-      this.unitHydrant.id,
-      '0'
-    );
+    this._subReading = this.unitHydrant.reading$.subscribe((reading) => {
+      if (!isNaN(reading)) {
+        this.batch = reading - this.unitHydrant.initBatch;
+      }
+    });
   }
 
   // ==================================================
@@ -117,7 +106,17 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   // ==================================================
 
   resetBatch(): void {
-    this.unitHydrant.batch = this.unitHydrant.reading;
+    const unitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(
+      this.unitHydrant
+    );
+    unitHydrantUpdateDto.initBatch = this.unitHydrant.reading$.value;
+    this._unitHydrantService
+      .update(unitHydrantUpdateDto)
+      .subscribe((unitHydrantRO) => {
+        this.unitHydrant.initBatch = unitHydrantRO.unitHydrant.initBatch;
+        this.batch =
+          this.unitHydrant.reading$.value - this.unitHydrant.initBatch;
+      });
   }
 
   // ==================================================
@@ -127,5 +126,12 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
     if (this.subImage) {
       this.subImage.unsubscribe();
     }
+    if (this._subReading) {
+      this._subReading.unsubscribe();
+    }
   }
+
+  public openValve(): void {}
+
+  public closeValve(): void {}
 }

@@ -26,7 +26,6 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
 
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
-  counterInterval: NodeJS.Timeout;
   disabled = false;
 
   tanda = 0;
@@ -84,21 +83,18 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
         );
     }
 
-    this._subProperty1 = this.unitGeneric.property1$.subscribe((p1) => {
-      this.calculateBatch();
+    this._subProperty1 = this.unitGeneric.property1$.subscribe((reading) => {
+        this.calculateBatch(reading);
     });
   }
 
-  calculateBatch(): void {
-    if (this.unitGeneric.property1$.value) {
-      const reading = parseInt(this.unitGeneric.property1$.value, 10);
+  calculateBatch(reading: number): void {
       const initBatch = parseInt(this.unitGeneric.data1, 10);
       if (!isNaN(reading) && !isNaN(initBatch)) {
         this.tanda = reading - initBatch;
       } else {
         this.tanda = 0;
       }
-    }
   }
 
   // ==================================================
@@ -122,9 +118,6 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
     if (this.subImage) {
       this.subImage.unsubscribe();
     }
-    if (this.counterInterval) {
-      clearInterval(this.counterInterval);
-    }
     if (this._subProperty1) {
       this._subProperty1.unsubscribe();
     }
@@ -136,12 +129,12 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
     const unitGenericUpdateDto = this._unitGenericFactory.getUnitGenericUpdateDto(
       this.unitGeneric
     );
-    unitGenericUpdateDto.data1 = this.unitGeneric.property1$.value;
+    unitGenericUpdateDto.data1 = this.unitGeneric.property1$.value.toString();
     this._unitGenericService
       .update(unitGenericUpdateDto)
       .subscribe((unitGenericRO) => {
         this.unitGeneric.data1 = unitGenericRO.unitGeneric.data1;
-        this.calculateBatch();
+        this.calculateBatch(null);
       });
   }
 }

@@ -1,9 +1,7 @@
 import { UnitEntity } from '../../unit/unit/unit.entity';
 
 export class SectorEntity {
-  constructor() {
-    this.active = 1;
-  }
+  constructor() {}
   // ==================================================
   //  API PROPERTIES
   // ==================================================

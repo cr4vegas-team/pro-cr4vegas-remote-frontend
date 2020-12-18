@@ -1,37 +1,33 @@
 import { Marker } from 'mapbox-gl';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { PondStateEnum } from '../../../shared/constants/pond-state.enum';
 import { UnitEntity } from '../unit/unit.entity';
 
 export class UnitHydrantEntity {
-  constructor() {
-    this.flow = 0;
-    this.reading = 0;
-    this.batch = 0;
-    this.pressure = 0;
-  }
+  constructor() {}
   // ==================================================
   // API properties
   // ==================================================
   id: number;
   unit: UnitEntity;
+  initBatch: number;
   diameter: number;
   filter: number;
 
   // ==================================================
   //  MQTT PROPERTIES
   // ==================================================
-  valve: number;
-  flow: number;
-  reading: number;
-  batch: number;
-  readingBatch: number;
-  pressure: number;
-  bouyLow: boolean;
-  bouyMedium: boolean;
-  bouyHight: boolean;
-  pondState: PondStateEnum;
-  bouyWarning: string;
+  valve$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  flow$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  reading$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  pressure$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  bouyLow$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  bouyMedium$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  bouyHight$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  pondState$: BehaviorSubject<PondStateEnum> = new BehaviorSubject<PondStateEnum>(
+    PondStateEnum.NA
+  );
+  bouyWarning$: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   // ==================================================
   // FRONTEND PROPERTIES

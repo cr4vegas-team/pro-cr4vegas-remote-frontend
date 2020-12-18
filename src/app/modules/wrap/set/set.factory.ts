@@ -1,7 +1,7 @@
-import { SetWSDto } from './dto/set-ws.dto';
 import { Injectable } from '@angular/core';
 import { SetCreateDto } from './dto/set-create.dto';
 import { SetUpdateDto } from './dto/set-update.dto';
+import { SetWSDto } from './dto/set-ws.dto';
 import { SetEntity } from './set.entity';
 
 @Injectable({
@@ -28,7 +28,7 @@ export class SetFactory {
     return set;
   }
 
-  public updateSet(target: SetEntity, source: SetEntity): void {
+  public copySet(target: SetEntity, source: SetEntity): void {
     target.id = source.id;
     target.code = source.code;
     target.name = source.name;

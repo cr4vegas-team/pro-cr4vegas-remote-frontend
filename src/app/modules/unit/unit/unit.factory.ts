@@ -1,7 +1,7 @@
-import { UnitWSDto } from './dto/unit-ws.dto';
 import { Injectable } from '@angular/core';
 import { UnitCreateDto } from './dto/unit-create.dto';
 import { UnitUpdateDto } from './dto/unit-update.dto';
+import { UnitWSDto } from './dto/unit-ws.dto';
 import { UnitEntity } from './unit.entity';
 
 @Injectable({
@@ -29,7 +29,6 @@ export class UnitFactory {
       unitEntity.description = source.description;
       unitEntity.image = source.image;
       unitEntity.communication = 0;
-      unitEntity.received = 0;
     }
     return unitEntity;
   }
