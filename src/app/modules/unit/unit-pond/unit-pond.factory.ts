@@ -1,20 +1,15 @@
-import { UnitHydrantWSDto } from './../unit-hydrant/dto/unit-hydrant-ws.dto';
-import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
 import { Injectable } from '@angular/core';
 import { Map, Marker } from 'mapbox-gl';
-import { IMqttMessage } from 'ngx-mqtt';
+import { BehaviorSubject } from 'rxjs';
 import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
 import { PondStateEnum } from 'src/app/shared/constants/pond-state.enum';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
+import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { UnitFactory } from '../unit/unit.factory';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitPondCreateDto } from './dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
+import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
 import { UnitPondEntity } from './unit-pond.entity';
-import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
-import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -35,8 +30,7 @@ export class UnitPondFactory {
   // ==================================================
   constructor(
     private readonly _unitFactory: UnitFactory,
-    private readonly _mqttEventService: MqttEventsService,
-    private readonly _mapService: MapService
+    private readonly _mapService: MapService,
   ) {
     this._mapService.map.subscribe((map) => {
       if (map) {
@@ -61,18 +55,55 @@ export class UnitPondFactory {
       newUnitPond.unit = this._unitFactory.createUnit(unitPond.unit);
       newUnitPond.unit.unitTypeTable = UnitTypeTableEnum.UNIT_POND;
       this.createMarker(newUnitPond);
-      this.subscribeToNode(newUnitPond);
     }
     return newUnitPond;
   }
 
-  public updateUnitPond(target: UnitPondEntity, source: UnitPondEntity): void {
+  public copyUnitPond(target: UnitPondEntity, source: UnitPondEntity): void {
     target.m3 = source.m3;
     target.height = source.height;
     target.unit = this._unitFactory.createUnit(source.unit);
     target.marker.setLngLat([target.unit.longitude, target.unit.latitude]);
     this.createMarker(target);
-    this.subscribeToNode(target);
+  }
+
+  public updateProperties(
+    unitPond: UnitPondEntity,
+    topicMessage: string
+  ): void {
+    if (unitPond.nodeSubscription) {
+      unitPond.nodeSubscription.unsubscribe();
+    }
+    const dataSplit: string[] = topicMessage.split(',');
+    if (dataSplit.length > 0) {
+      switch (dataSplit[0]) {
+        case '0':
+          unitPond.unit.communication = 0;
+          break;
+        case '1':
+          unitPond.unit.communication = 1;
+          break;
+        case '2':
+          if (dataSplit[1]) {
+            unitPond.level$.next(Number.parseInt(dataSplit[1]));
+            this.checkBouysState(unitPond);
+          }
+          break;
+        case '3':
+          if (dataSplit[1]) {
+            unitPond.unit.operator = dataSplit[1];
+          }
+          if (dataSplit[2]) {
+            unitPond.unit.signal = Number.parseFloat(dataSplit[1]);
+          }
+          if (dataSplit[3]) {
+            unitPond.unit.ip = dataSplit[1];
+          }
+          break;
+        default:
+      }
+    }
+    this.checkStatus(unitPond);
   }
 
   // ==================================================
@@ -161,8 +192,37 @@ export class UnitPondFactory {
     }
   }
 
-  public setMarkerState(unitPond: UnitPondEntity): void {
+  // ==================================================
+  //  MQTT
+  // ==================================================
+  private checkStatus(unitPond: UnitPondEntity): void {
+    this.checkBouysState(unitPond);
     this.setMarkerColourAccourdingState(unitPond);
+  }
+
+  private checkBouysState(unitPond: UnitPondEntity): void {
+    let bouysState: PondStateEnum = null;
+    if (unitPond.level$.value < unitPond.level$.value / 3) {
+      bouysState = PondStateEnum.LOW;
+    }
+    if (
+      unitPond.level$.value >= unitPond.level$.value / 3 &&
+      unitPond.level$.value < unitPond.level$.value / 2
+    ) {
+      bouysState = PondStateEnum.MEDIUM;
+    }
+    if (
+      unitPond.level$.value >= unitPond.level$.value / 2 &&
+      unitPond.level$.value < unitPond.level$.value - 0.2
+    ) {
+      bouysState = PondStateEnum.HIGTH;
+    }
+    if (unitPond.level$.value >= unitPond.level$.value - 0.2) {
+      bouysState = PondStateEnum.ALARM;
+    }
+    if (unitPond.pondState !== bouysState) {
+      unitPond.pondState = bouysState;
+    }
   }
 
   private setMarkerColourAccourdingState(unitPond: UnitPondEntity): void {
@@ -196,60 +256,6 @@ export class UnitPondFactory {
       }
     } else {
       return MarkerColourEnum.UNIT_POND_LOW;
-    }
-  }
-
-  // ==================================================
-  //  MQTT
-  // ==================================================
-
-  // ----------------------------
-  //  NODE SUBSCRIPTION
-  // ----------------------------
-  private subscribeToNode(unitPond: UnitPondEntity): void {
-    if (unitPond.nodeSubscription) {
-      unitPond.nodeSubscription.unsubscribe();
-    }
-    const observable = this._mqttEventService.observerWithID(
-      TopicDestinationEnum.NODE,
-      TopicTypeEnum.UNIT_POND,
-      unitPond.id
-    );
-    unitPond.nodeSubscription = observable.subscribe((data: IMqttMessage) => {
-      const dataSplit: string[] = data.payload.toString().split(',');
-      if (dataSplit[0]) {
-        unitPond.level$.next(dataSplit[0] === '0' ? 0 : 1);
-        unitPond.level$.next(Number.parseFloat(dataSplit[0]));
-      }
-      this.checkBouysState(unitPond);
-    });
-  }
-
-  // ==================================================
-
-  private checkBouysState(unitPond: UnitPondEntity): void {
-    let bouysState: PondStateEnum = null;
-    if (unitPond.level$.value < unitPond.level$.value / 3) {
-      bouysState = PondStateEnum.LOW;
-    }
-    if (
-      unitPond.level$.value >= unitPond.level$.value / 3 &&
-      unitPond.level$.value < unitPond.level$.value / 2
-    ) {
-      bouysState = PondStateEnum.MEDIUM;
-    }
-    if (
-      unitPond.level$.value >= unitPond.level$.value / 2 &&
-      unitPond.level$.value < unitPond.level$.value - 0.2
-    ) {
-      bouysState = PondStateEnum.HIGTH;
-    }
-    if (unitPond.level$.value >= unitPond.level$.value - 0.2) {
-      bouysState = PondStateEnum.ALARM;
-    }
-    if (unitPond.pondState !== bouysState) {
-      unitPond.pondState = bouysState;
-      this.setMarkerColourAccourdingState(unitPond);
     }
   }
 }

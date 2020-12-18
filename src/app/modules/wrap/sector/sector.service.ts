@@ -1,8 +1,6 @@
-import { SectorWSDto } from './dto/sector-ws.dto';
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { SectorFactory } from '../../../modules/wrap/sector/sector.factory';
 import { GLOBAL } from '../../../shared/constants/global.constant';
@@ -10,14 +8,11 @@ import { SectorEntity } from '../sector/sector.entity';
 import { SectorCreateDto } from './dto/sector-create.dto';
 import { SectorUpdateDto } from './dto/sector-update.dto';
 import { SectorRO, SectorsRO } from './sector.interfaces';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
-import { IMqttMessage } from 'ngx-mqtt';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SectorService implements OnDestroy {
+export class SectorService {
   // ==================================================
   //  VARS CONSTANT
   // ==================================================
@@ -26,11 +21,6 @@ export class SectorService implements OnDestroy {
   //  VARS SUBJECTS
   // ==================================================
   private _sectors: BehaviorSubject<SectorEntity[]>;
-  // ==================================================
-  //  VARS SUBSCRIPTIONS
-  // ==================================================
-  private _subServerUpdate: Subscription;
-  private _subServerCreate: Subscription;
 
   // ==================================================
   //  CONSTRUCTOR
@@ -38,59 +28,9 @@ export class SectorService implements OnDestroy {
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _sectorFactory: SectorFactory,
-    private readonly _authService: AuthService,
-    private readonly _mqttEventService: MqttEventsService
+    private readonly _authService: AuthService
   ) {
     this._sectors = new BehaviorSubject<SectorEntity[]>(Array<SectorEntity>());
-    this.subscribeToServerCreate();
-    this.subscribeToServerUpdate();
-  }
-
-  // ==================================================
-  //  LIFE CYCLE FUNCTIONS
-  // ==================================================
-  ngOnDestroy(): void {
-    if (this._subServerCreate) {
-      this._subServerCreate.unsubscribe();
-    }
-    if (this._subServerUpdate) {
-      this._subServerUpdate.unsubscribe();
-    }
-  }
-
-  // ==================================================
-  //  SUBSCRIPTIONS FUNCTIONS
-  // ==================================================
-  private subscribeToServerCreate(): void {
-    this._subServerCreate = this._mqttEventService
-      .observe(TopicDestinationEnum.SERVER_DATA_CREATE, TopicTypeEnum.SECTOR)
-      .subscribe((data: IMqttMessage) => {
-        const sectorJSON = JSON.parse(data.payload.toString());
-        const foundedSectors = this._sectors.value.filter(
-          (set) => set.id === sectorJSON.id
-        );
-        if (foundedSectors.length === 0) {
-          const newSector = this._sectorFactory.createSector(sectorJSON);
-          this._sectors.value.push(newSector);
-          this.refresh();
-        }
-      });
-  }
-
-  private subscribeToServerUpdate(): void {
-    this._subServerUpdate = this._mqttEventService
-      .observe(TopicDestinationEnum.SERVER_DATA_UPDATE, TopicTypeEnum.SECTOR)
-      .subscribe((data: IMqttMessage) => {
-        const sectorJSON = JSON.parse(data.payload.toString());
-        const foundedSectors = this._sectors.value.filter(
-          (set) => set.id === sectorJSON.id
-        );
-        if (foundedSectors.length > 0) {
-          const foundedSector = foundedSectors[0];
-          this._sectorFactory.updateSector(foundedSector, sectorJSON);
-          this.refresh();
-        }
-      });
   }
 
   // ==================================================
@@ -138,19 +78,22 @@ export class SectorService implements OnDestroy {
     this._sectors.value.slice(0);
   }
 
-  public publishCreateOnMQTT(sectorWSDto: SectorWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_CREATE,
-      TopicTypeEnum.SECTOR,
-      JSON.stringify(sectorWSDto)
-    );
+  // ==================================================
+  //  WS FUNCTIONS
+  // ==================================================
+  public createWS(sectorWSString: string): void {
+    const sectorWS = this._sectorFactory.createSector(sectorWSString);
+    this._sectors.value.push(sectorWS);
+    this.refresh();
   }
 
-  public publishUpdateOnMQTT(sectorWSDto: SectorWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_UPDATE,
-      TopicTypeEnum.SECTOR,
-      JSON.stringify(sectorWSDto)
-    );
+  public updateWS(sectorWSString: string): void {
+    const sectorWS = this._sectorFactory.createSector(sectorWSString);
+    const sectorFound = this._sectors.value.filter(
+      (sector) => (sector.id = sectorWS.id)
+    )[0];
+    if (sectorFound) {
+      this._sectorFactory.copySector(sectorFound, sectorWS);
+    }
   }
 }

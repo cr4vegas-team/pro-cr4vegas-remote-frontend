@@ -8,7 +8,9 @@ export class UnitEntity {
     this.active = 1;
   }
 
-  // API properties
+  // ==================================================
+  //  API PROPERTIES
+  // ==================================================
   id: number;
   code: number;
   unitTypeTable: UnitTypeTableEnum;
@@ -24,7 +26,11 @@ export class UnitEntity {
   updated: Date;
   image: string;
 
-  // MQTT Properties
+  // ==================================================
+  //  MQTT PROPERTIES
+  // ==================================================
   communication: number;
-  received: number;
+  operator: string;
+  signal: number;
+  ip: string;
 }

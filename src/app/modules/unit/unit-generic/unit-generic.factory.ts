@@ -1,19 +1,14 @@
-import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
-import { UnitTypeTableEnum } from './../../../shared/constants/unit-type-table.enum';
-import { UnitGenericWSDto } from './dto/unit-generic-ws.dto';
-import { MapService } from './../../../shared/services/map.service';
-import { Injectable, OnDestroy } from '@angular/core';
-import { Marker, Map } from 'mapbox-gl';
-import { IMqttMessage } from 'ngx-mqtt';
+import { Injectable } from '@angular/core';
+import { Map, Marker } from 'mapbox-gl';
+import { BehaviorSubject } from 'rxjs';
 import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { UnitFactory } from '../unit/unit.factory';
+import { UnitTypeTableEnum } from './../../../shared/constants/unit-type-table.enum';
+import { MapService } from './../../../shared/services/map.service';
 import { UnitGenericCreateDto } from './dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from './dto/unit-generic-update.dto';
+import { UnitGenericWSDto } from './dto/unit-generic-ws.dto';
 import { UnitGenericEntity } from './unit-generic.entity';
-import { BehaviorSubject, Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +26,6 @@ export class UnitGenericFactory {
 
   constructor(
     private readonly _unitFactory: UnitFactory,
-    private readonly _mqttEventService: MqttEventsService,
     private readonly _mapService: MapService
   ) {
     this._mapService.map.subscribe((map) => {
@@ -60,7 +54,6 @@ export class UnitGenericFactory {
       newUnitGeneric.unit = this._unitFactory.createUnit(unitGeneric.unit);
       newUnitGeneric.unit.unitTypeTable = UnitTypeTableEnum.UNIT_GENERIC;
       this.createMarker(newUnitGeneric);
-      this.subscribeToNode(newUnitGeneric);
     }
     return newUnitGeneric;
   }
@@ -73,7 +66,56 @@ export class UnitGenericFactory {
     target.data5 = source.data5;
     target.unit = this._unitFactory.updateUnit(target.unit, source.unit);
     this.createMarker(target);
-    this.subscribeToNode(target);
+  }
+
+  public updateProperties(
+    unitGeneric: UnitGenericEntity,
+    topicMessage: string
+  ): void {
+    if (unitGeneric.nodeSubscription) {
+      unitGeneric.nodeSubscription.unsubscribe();
+    }
+    const dataSplit: string[] = topicMessage.split(',');
+    if (dataSplit.length > 0) {
+      switch (dataSplit[0]) {
+        case '0':
+          unitGeneric.unit.communication = 0;
+          break;
+        case '1':
+          unitGeneric.unit.communication = 1;
+          break;
+        case '2':
+          if (dataSplit[1]) {
+            unitGeneric.property1$.next(Number.parseFloat(dataSplit[1]));
+          }
+          if (dataSplit[2]) {
+            unitGeneric.property1$.next(Number.parseFloat(dataSplit[2]));
+          }
+          if (dataSplit[3]) {
+            unitGeneric.property1$.next(Number.parseFloat(dataSplit[3]));
+          }
+          if (dataSplit[4]) {
+            unitGeneric.property1$.next(Number.parseFloat(dataSplit[4]));
+          }
+          if (dataSplit[5]) {
+            unitGeneric.property1$.next(Number.parseFloat(dataSplit[5]));
+          }
+          break;
+        case '3':
+          if (dataSplit[1]) {
+            unitGeneric.unit.operator = dataSplit[1];
+          }
+          if (dataSplit[2]) {
+            unitGeneric.unit.signal = Number.parseFloat(dataSplit[1]);
+          }
+          if (dataSplit[3]) {
+            unitGeneric.unit.ip = dataSplit[1];
+          }
+          break;
+        default:
+      }
+    }
+    this.setMarkerColourAccourdingState(unitGeneric);
   }
 
   // ==================================================
@@ -177,10 +219,6 @@ export class UnitGenericFactory {
     }
   }
 
-  public setMarkerState(unitGeneric: UnitGenericEntity): void {
-    this.setMarkerColourAccourdingState(unitGeneric);
-  }
-
   private setMarkerColourAccourdingState(unitGeneric: UnitGenericEntity): void {
     unitGeneric.marker
       .getElement()
@@ -199,56 +237,5 @@ export class UnitGenericFactory {
     } else {
       return MarkerColourEnum.INACTIVE;
     }
-  }
-
-  // ==================================================
-  //  MQTT
-  // ==================================================
-
-  // ----------------------------
-  //  NODE SUBSCRIPTION
-  // ----------------------------
-  private subscribeToNode(unitGeneric: UnitGenericEntity): void {
-    if (unitGeneric.nodeSubscription) {
-      unitGeneric.nodeSubscription.unsubscribe();
-    }
-    const observable = this._mqttEventService.observerWithID(
-      TopicDestinationEnum.NODE,
-      TopicTypeEnum.UNIT_GENERIC,
-      unitGeneric.id
-    );
-    unitGeneric.nodeSubscription = observable.subscribe(
-      (data: IMqttMessage) => {
-        const dataSplit: string[] = data.payload.toString().split(',');
-        if (dataSplit.length > 0) {
-          if (dataSplit[0].match(/[0123456789]/)) {
-            unitGeneric.unit.communication = 1;
-            unitGeneric.unit.received = 1;
-          }
-          if (dataSplit[1]) {
-            unitGeneric.property1$.next(dataSplit[1]);
-          }
-          if (dataSplit[2]) {
-            unitGeneric.property2$.next(dataSplit[2]);
-          }
-          if (dataSplit[3]) {
-            unitGeneric.property3$.next(dataSplit[3]);
-          }
-          if (dataSplit[4]) {
-            unitGeneric.property4$.next(dataSplit[4]);
-          }
-          if (dataSplit[5]) {
-            unitGeneric.property5$.next(dataSplit[5]);
-          }
-          if (dataSplit[6]) {
-            unitGeneric.temperature$.next(dataSplit[6]);
-          }
-          if (dataSplit[7]) {
-            unitGeneric.humidity$.next(dataSplit[7]);
-          }
-        }
-        this.setMarkerColourAccourdingState(unitGeneric);
-      }
-    );
   }
 }

@@ -1,11 +1,7 @@
-import { SectorWSDto } from './dto/sector-ws.dto';
 import { Injectable } from '@angular/core';
-import { IMqttMessage } from 'ngx-mqtt';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { SectorCreateDto } from './dto/sector-create.dto';
 import { SectorUpdateDto } from './dto/sector-update.dto';
+import { SectorWSDto } from './dto/sector-ws.dto';
 import { SectorEntity } from './sector.entity';
 
 @Injectable({
@@ -31,7 +27,7 @@ export class SectorFactory {
     return sector;
   }
 
-  public updateSector(target: SectorEntity, source: SectorEntity): void {
+  public copySector(target: SectorEntity, source: SectorEntity): void {
     target.id = source.id;
     target.code = source.code;
     target.name = source.name;

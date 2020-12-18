@@ -1,14 +1,9 @@
-import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
-import { Map } from 'mapbox-gl';
-import { IMqttMessage } from 'ngx-mqtt';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
+import { MQTTPacket } from 'src/app/shared/models/mqtt-packet.model';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../../shared/services/auth.service';
-import { MqttEventsService } from '../../../shared/services/mqtt-events.service';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitPondCreateDto } from './dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
@@ -26,12 +21,6 @@ export class UnitPondService implements OnDestroy {
   private _url: string = GLOBAL.API + 'unit-pond';
 
   // ==================================================
-  //  VARS
-  // ==================================================
-  private _createSended = false;
-  private _updateSended = false;
-
-  // ==================================================
   //  VARS SUBSJECTS
   // ==================================================
   private _unitsPonds: BehaviorSubject<UnitPondEntity[]>;
@@ -42,8 +31,6 @@ export class UnitPondService implements OnDestroy {
   // ==================================================
   private _subMap: Subscription;
   private _subHiddenMarker: Subscription;
-  private _subServerUpdate: Subscription;
-  private _subServerCreate: Subscription;
 
   // ==================================================
   //  CONSTRUCTOR
@@ -52,28 +39,19 @@ export class UnitPondService implements OnDestroy {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitPondFactory: UnitPondFactory,
-    private readonly _mqttEventService: MqttEventsService,
-    private readonly _mapService: MapService
+    private readonly _mapService: MapService,
   ) {
     this._unitsPonds = new BehaviorSubject<UnitPondEntity[]>(
       Array<UnitPondEntity>()
     );
     this.subscribeToMap();
     this.subscribeToHiddenMarker();
-    this.subscribeToServerCreate();
-    this.subscribeToServerUpdate();
   }
 
   // ==================================================
   //  LIFE CYCLE FUNCTIONS
   // ==================================================
   ngOnDestroy(): void {
-    if (this._subServerCreate) {
-      this._subServerCreate.unsubscribe();
-    }
-    if (this._subServerUpdate) {
-      this._subServerUpdate.unsubscribe();
-    }
     if (this._subMap) {
       this._subMap.unsubscribe();
     }
@@ -103,48 +81,6 @@ export class UnitPondService implements OnDestroy {
         unitPond.marker.getElement().hidden = hidden;
       });
     });
-  }
-
-  private subscribeToServerCreate(): void {
-    this._subServerCreate = this._mqttEventService
-      .observe(TopicDestinationEnum.SERVER_DATA_CREATE, TopicTypeEnum.UNIT_POND)
-      .subscribe((data: IMqttMessage) => {
-        if (this._createSended) {
-          this._createSended = false;
-        } else {
-          const unitPondWSDto = JSON.parse(data.payload.toString());
-          const foundedUnitsPonds = this._unitsPonds.value.filter(
-            (unitPond) => unitPond.id === unitPondWSDto.id
-          );
-          if (foundedUnitsPonds.length === 0) {
-            const newUnitPond = this._unitPondFactory.createUnitPond(
-              unitPondWSDto
-            );
-            this._unitsPonds.value.push(newUnitPond);
-            this.refresh();
-          }
-        }
-      });
-  }
-
-  private subscribeToServerUpdate(): void {
-    this._subServerUpdate = this._mqttEventService
-      .observe(TopicDestinationEnum.SERVER_DATA_UPDATE, TopicTypeEnum.UNIT_POND)
-      .subscribe((data: IMqttMessage) => {
-        if (this._updateSended) {
-          this._updateSended = false;
-        } else {
-          const unitPondJSON = JSON.parse(data.payload.toString());
-          const foundedUnitsPonds = this._unitsPonds.value.filter(
-            (unitPond) => unitPond.id === unitPondJSON.id
-          );
-          if (foundedUnitsPonds.length > 0) {
-            const foundedUnitPond = foundedUnitsPonds[0];
-            this._unitPondFactory.updateUnitPond(foundedUnitPond, unitPondJSON);
-            this.refresh();
-          }
-        }
-      });
   }
 
   // ==================================================
@@ -201,21 +137,34 @@ export class UnitPondService implements OnDestroy {
     this._unitsPonds.value.splice(0);
   }
 
-  public publishCreateOnMQTT(unitPondWSDto: UnitPondWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_CREATE,
-      TopicTypeEnum.UNIT_POND,
-      JSON.stringify(unitPondWSDto)
-    );
-    this._createSended = true;
+  // ==================================================
+  //  WS FUNCTIONS
+  // ==================================================
+  public createWS(unitPondWSString: string): void {
+    const unitPondWS = this._unitPondFactory.createUnitPond(unitPondWSString);
+    this._unitsPonds.value.push(unitPondWS);
+    this.refresh();
   }
 
-  public publishUpdateOnMQTT(unitPondWSDto: UnitPondWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_UPDATE,
-      TopicTypeEnum.STATION,
-      JSON.stringify(unitPondWSDto)
-    );
-    this._updateSended = true;
+  public updateWS(unitPondWSString: string): void {
+    const unitPondWS = this._unitPondFactory.createUnitPond(unitPondWSString);
+    const unitPondFound = this._unitsPonds.value.filter(
+      (unitPond) => (unitPond.id = unitPondWS.id)
+    )[0];
+    if (unitPondFound) {
+      this._unitPondFactory.copyUnitPond(unitPondFound, unitPondWS);
+    }
+  }
+
+  public extractMQTTPacketAndAct(mqttPacket: MQTTPacket): void {
+    const topicSplit = mqttPacket.topic.split('/');
+    const topicSplitLengh = topicSplit.length;
+    const unitPondID = Number.parseInt(topicSplitLengh[topicSplitLengh - 1]);
+    const unitPondFound = this._unitsPonds.value.filter(
+      (unitPond) => (unitPond.id = unitPondID)
+    )[0];
+    if (unitPondFound) {
+      this._unitPondFactory.updateProperties(unitPondFound, mqttPacket.message);
+    }
   }
 }

@@ -45,7 +45,7 @@ export class StationFactory {
     return null;
   }
 
-  updateStation(target: StationEntity, source: any): void {
+  copyStation(target: StationEntity, source: any): void {
     target.id = source.id;
     target.code = source.code;
     target.altitude = source.altitude;

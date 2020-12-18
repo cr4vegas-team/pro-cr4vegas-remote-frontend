@@ -1,7 +1,7 @@
 <!-- ====================================
       TITLE
      ==================================== -->
-<h1 mat-dialog-title>Hidrante {{ unitHydrant.unit.code }}</h1>
+<h1 mat-dialog-title> Hidrante {{ unitHydrant.unit.code }}</h1>
 <!-- ====================================
       CONTENT
       ==================================== -->
@@ -34,7 +34,7 @@
 
       <div class="container-fluid">
         <div class="row">
-          <div class="col-3">
+          <div class="col">
             Sector:
             <br />
             Estación:
@@ -59,7 +59,7 @@
         <hr />
 
         <div class="row">
-          <div class="col-3">
+          <div class="col">
             Altitud:
             <br />
             Latitud:
@@ -84,8 +84,8 @@
         <div class="row">
           <div class="col">
             <button
-              mat-raised-button
-              [disabled]="unitHydrant.valve === 1"
+              mat-raised-button color="primary"
+              [disabled]="(unitHydrant.valve$ | async) == 1"
               (click)="openValve()"
             >
               Abrir
@@ -94,8 +94,8 @@
 
           <div class="col">
             <button
-              mat-raised-button
-              [disabled]="unitHydrant.valve !== 1"
+              mat-raised-button color="warn"
+              [disabled]="(unitHydrant.valve$ | async) != 1"
               (click)="closeValve()"
             >
               Cerrar
@@ -113,30 +113,34 @@
             <br />
             Lectura:
             <br />
+            Lectura inicial:
+            <br />
             Tanda:
             <br /><br />
-            <button mat-raised-button (click)="resetBatch()">
+            <button mat-raised-button color="warn" (click)="resetBatch()">
               Reiniciar tanda
             </button>
           </div>
           <div class="col">
-            <b *ngIf="unitHydrant.valve" style="color: green"> Abierta </b>
-            <b *ngIf="!unitHydrant.valve" style="color: red"> Cerrada</b>
+            <b *ngIf="(unitHydrant.valve$ | async) == 1" style="color: green"> Abierta </b>
+            <b *ngIf="(unitHydrant.valve$ | async) == 0" style="color: red"> Cerrada</b>
             <br />
-            <b>{{ unitHydrant.flow }} l/s</b>
+            <b>{{ unitHydrant.flow$ | async }} l/s</b>
             <br />
-            <b>{{ unitHydrant.pressure }} bar</b>
+            <b>{{ unitHydrant.pressure$ | async }} bar</b>
             <br />
-            <b>{{ unitHydrant.reading }} m3</b>
+            <b>{{ unitHydrant.reading$ | async }} m3</b>
             <br />
-            <b>{{ unitHydrant.reading - unitHydrant.batch }} m3</b>
+            <b>{{ unitHydrant.initBatch }} m3</b>
+            <br />
+            <b>{{ batch }} m3</b>
           </div>
         </div>
 
         <hr />
 
         <div class="row">
-          <div class="col-4">
+          <div class="col">
             Boya alta:
             <br />
             Boya media:
@@ -148,15 +152,15 @@
             Anomalías:
           </div>
           <div class="col">
-            <b>{{ unitHydrant.bouyHight }}</b>
+            <b>{{ unitHydrant.bouyHight$ | async }}</b>
             <br />
-            <b>{{ unitHydrant.bouyMedium }}</b>
+            <b>{{ unitHydrant.bouyMedium$ | async }}</b>
             <br />
-            <b>{{ unitHydrant.bouyLow }}</b>
+            <b>{{ unitHydrant.bouyLow$ | async }}</b>
             <br />
-            <b>{{ unitHydrant.pondState }}</b>
+            <b>{{ unitHydrant.pondState$ | async }}</b>
             <br />
-            <b>{{ unitHydrant.bouyWarning }}</b>
+            <b>{{ unitHydrant.bouyWarning$ | async }}</b>
           </div>
         </div>
       </div>

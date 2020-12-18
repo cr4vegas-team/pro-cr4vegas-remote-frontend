@@ -1,9 +1,6 @@
-import { SetWSDto } from './dto/set-ws.dto';
-import { IMqttMessage } from 'ngx-mqtt';
-import { MqttEventsService } from 'src/app/shared/services/mqtt-events.service';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { SetEntity } from '../../../modules/wrap/set/set.entity';
 import { SetFactory } from '../../../modules/wrap/set/set.factory';
 import { GLOBAL } from '../../../shared/constants/global.constant';
@@ -12,13 +9,11 @@ import { SetCreateDto } from './dto/set-create.dto';
 import { SetTypeUpdateDto, SetUpdateDto } from './dto/set-update.dto';
 import { SetTypeEntity } from './set-type.entity';
 import { SetRO, SetsRO } from './set.interfaces';
-import { TopicDestinationEnum } from 'src/app/shared/constants/topic-destination.enum';
-import { TopicTypeEnum } from 'src/app/shared/constants/topic-type.enum';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SetService implements OnDestroy {
+export class SetService {
   // ==================================================
   //  VARS CONSTANTS
   // ==================================================
@@ -27,11 +22,6 @@ export class SetService implements OnDestroy {
   //  VARS SUBJETS
   // ==================================================
   private _sets: BehaviorSubject<SetEntity[]>;
-  // ==================================================
-  //  VARS SUBSCRIPTIONS
-  // ==================================================
-  private _subServerUpdate: Subscription;
-  private _subServerCreate: Subscription;
 
   // ==================================================
   //  CONSTRUCTOR
@@ -39,59 +29,9 @@ export class SetService implements OnDestroy {
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
-    private readonly _setFactory: SetFactory,
-    private readonly _mqttEventService: MqttEventsService
+    private readonly _setFactory: SetFactory
   ) {
     this._sets = new BehaviorSubject<SetEntity[]>(Array<SetEntity>());
-    this.subscribeToServerCreate();
-    this.subscribeToServerUpdate();
-  }
-
-  // ==================================================
-  //  LIFE CYCLE FUNCTIONS
-  // ==================================================
-  ngOnDestroy(): void {
-    if (this._subServerCreate) {
-      this._subServerCreate.unsubscribe();
-    }
-    if (this._subServerUpdate) {
-      this._subServerUpdate.unsubscribe();
-    }
-  }
-
-  // ==================================================
-  //  SUBSCRIPTIONS FUNCTIONS
-  // ==================================================
-  private subscribeToServerCreate(): void {
-    this._subServerCreate = this._mqttEventService
-      .observe(TopicDestinationEnum.SERVER_DATA_CREATE, TopicTypeEnum.SET)
-      .subscribe((data: IMqttMessage) => {
-        const setJSON = JSON.parse(data.payload.toString());
-        const foundedSets = this._sets.value.filter(
-          (set) => set.id === setJSON.id
-        );
-        if (foundedSets.length === 0) {
-          const newSet = this._setFactory.createSet(setJSON);
-          this._sets.value.push(newSet);
-          this.refresh();
-        }
-      });
-  }
-
-  private subscribeToServerUpdate(): void {
-    this._subServerUpdate = this._mqttEventService
-      .observe(TopicDestinationEnum.SERVER_DATA_UPDATE, TopicTypeEnum.SET)
-      .subscribe((data: IMqttMessage) => {
-        const setJSON = JSON.parse(data.payload.toString());
-        const foundedSets = this._sets.value.filter(
-          (set) => set.id === setJSON.id
-        );
-        if (foundedSets.length > 0) {
-          const foundedSet = foundedSets[0];
-          this._setFactory.updateSet(foundedSet, setJSON);
-          this.refresh();
-        }
-      });
   }
 
   // ==================================================
@@ -170,19 +110,22 @@ export class SetService implements OnDestroy {
     this._sets.value.splice(0);
   }
 
-  public publishCreateOnMQTT(setWSDto: SetWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_CREATE,
-      TopicTypeEnum.SET,
-      JSON.stringify(setWSDto)
-    );
+  // ==================================================
+  //  WS FUNCTIONS
+  // ==================================================
+  public createWS(setWSString: string): void {
+    const setWS = this._setFactory.createSet(setWSString);
+    this._sets.value.push(setWS);
+    this.refresh();
   }
 
-  public publishUpdateOnMQTT(setWSDto: SetWSDto): void {
-    this._mqttEventService.publish(
-      TopicDestinationEnum.SERVER_DATA_UPDATE,
-      TopicTypeEnum.SET,
-      JSON.stringify(setWSDto)
-    );
+  public updateWS(setWSString: string): void {
+    const setWS = this._setFactory.createSet(setWSString);
+    const setFound = this._sets.value.filter(
+      (set) => (set.id = setWS.id)
+    )[0];
+    if (setFound) {
+      this._setFactory.copySet(setFound, setWS);
+    }
   }
 }

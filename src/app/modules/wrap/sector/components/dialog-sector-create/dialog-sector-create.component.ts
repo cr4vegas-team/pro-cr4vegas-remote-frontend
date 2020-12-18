@@ -1,9 +1,10 @@
+import { SectorSocketService } from './../../sector-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -48,6 +49,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     private readonly _unitService: UnitService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _sectorSocketService: SectorSocketService,
     @Inject(MAT_DIALOG_DATA)
     public sector: SectorEntity
   ) {}
@@ -153,10 +155,8 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
           sectorRO.sector
         );
         this._sectorService.getSectors().value.push(newSector);
-        this._sectorService.publishCreateOnMQTT(
-          this._sectorFactory.getSectorWSDto(newSector)
-        );
         this._sectorService.refresh();
+        this._sectorSocketService.sendCreate(newSector);
         this.close();
       },
       (error) => {
@@ -177,11 +177,9 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     );
     this._sectorService.update(sectorUpdateDto).subscribe(
       (sectorRO) => {
-        this._sectorFactory.updateSector(this.sector, sectorRO.sector);
-        this._sectorService.publishUpdateOnMQTT(
-          this._sectorFactory.getSectorWSDto(this.sector)
-        );
+        this._sectorFactory.copySector(this.sector, sectorRO.sector);
         this._sectorService.refresh();
+        this._sectorSocketService.sendUpdate(this.sector);
         this.close();
       },
       (error) => {

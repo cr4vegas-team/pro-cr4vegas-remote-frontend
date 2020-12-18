@@ -1,3 +1,4 @@
+import { StationSocketService } from './../../station-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -50,6 +51,7 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
     private readonly _unitService: UnitService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _stationSocketService: StationSocketService,
     @Inject(MAT_DIALOG_DATA)
     public station: StationEntity
   ) {}
@@ -188,10 +190,8 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
           stationRO.station
         );
         this._stationService.getStations().value.push(newStation);
-        this._stationService.publishCreateOnMQTT(
-          this._stationFactory.getStationWSDto(newStation)
-        );
         this._stationService.refresh();
+        this._stationSocketService.sendCreate(newStation);
         this.close();
       },
       (error) => {
@@ -214,11 +214,9 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
     );
     this._stationService.update(stationUpdateDto).subscribe(
       (stationRO) => {
-        this._stationFactory.updateStation(this.station, stationRO.station);
-        this._stationService.publishUpdateOnMQTT(
-          this._stationFactory.getStationWSDto(this.station)
-        );
+        this._stationFactory.copyStation(this.station, stationRO.station);
         this._stationService.refresh();
+        this._stationSocketService.sendUpdate(this.station);
         this.close();
       },
       (error) => {

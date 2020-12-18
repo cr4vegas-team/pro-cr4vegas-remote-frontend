@@ -1,3 +1,4 @@
+import { UnitHydrantSocketService } from './../../unit-hydrant-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -5,8 +6,11 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
-import { GLOBAL } from '../../../../../shared/constants/global.constant';
+import { DomSanitizer } from '@angular/platform-browser';
+import { Observable } from 'rxjs';
+import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
+import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
+import { UploadService } from 'src/app/shared/services/upload.service';
 import { UnitHydrantEntity } from '../../../../../modules/unit/unit-hydrant/unit-hydrant.entity';
 import { UnitHydrantFactory } from '../../../../../modules/unit/unit-hydrant/unit-hydrant.factory';
 import { UnitHydrantService } from '../../../../../modules/unit/unit-hydrant/unit-hydrant.service';
@@ -17,13 +21,10 @@ import { SetEntity } from '../../../../../modules/wrap/set/set.entity';
 import { SetService } from '../../../../../modules/wrap/set/set.service';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { StationService } from '../../../../../modules/wrap/station/station.service';
+import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
+import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitHydrantCreateDto } from '../../dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from '../../dto/unit-hydrant-update.dto';
-import { Observable } from 'rxjs';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { UploadService } from 'src/app/shared/services/upload.service';
-import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-dialog-unit-hydrant-create',
@@ -56,6 +57,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     private readonly _dialogRef: MatDialogRef<DialogUnitHydrantCreateComponent>,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
+    private readonly _unitHydrantSockerService: UnitHydrantSocketService,
     @Inject(MAT_DIALOG_DATA)
     public unitHydrant: UnitHydrantEntity
   ) {}
@@ -204,10 +206,10 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
           unitGenericRO.unitHydrant
         );
         this._unitHydrantService.getUnitsHydrants().value.push(newUnitHydrant);
-        this._unitHydrantService.publishCreateOnMQTT(
+        this._unitHydrantService.refresh();
+        this._unitHydrantSockerService.sendCreate(
           this._unitHydrantFactory.getUnitHydrantWSDto(newUnitHydrant)
         );
-        this._unitHydrantService.refresh();
         this.close();
       },
       (error) => {
@@ -234,10 +236,8 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
           this.unitHydrant,
           unitHydrantRO.unitHydrant
         );
-        this._unitHydrantService.publishUpdateOnMQTT(
-          this._unitHydrantFactory.getUnitHydrantWSDto(this.unitHydrant)
-        );
         this._unitHydrantService.refresh();
+        this._unitHydrantSockerService.sendUpdate(this._unitHydrantFactory.getUnitHydrantWSDto(this.unitHydrant));
         this.close();
       },
       (error) => {

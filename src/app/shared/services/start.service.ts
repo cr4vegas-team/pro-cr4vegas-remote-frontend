@@ -1,3 +1,4 @@
+import { UnitHydrantSocketService } from './../../modules/unit/unit-hydrant/unit-hydrant-socket.service';
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
@@ -24,7 +25,6 @@ import { StationEntity } from 'src/app/modules/wrap/station/station.entity';
 import { StationFactory } from 'src/app/modules/wrap/station/station.factory';
 import { StationService } from 'src/app/modules/wrap/station/station.service';
 import { AuthService } from 'src/app/shared/services/auth.service';
-import { TestCommunicationService } from './test-communication.service';
 
 @Injectable({
   providedIn: 'root',
@@ -49,6 +49,7 @@ export class StartService implements OnDestroy {
     private readonly _matDialog: MatDialog,
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _unitHydrantSocketService: UnitHydrantSocketService,
     private readonly _unitPondService: UnitPondService,
     private readonly _stationService: StationService,
     private readonly _sectorService: SectorService,
@@ -58,8 +59,7 @@ export class StartService implements OnDestroy {
     private readonly _stationFactory: StationFactory,
     private readonly _sectorFactory: SectorFactory,
     private readonly _setFactory: SetFactory,
-    private readonly _setService: SetService,
-    private readonly _testCommunicationService: TestCommunicationService
+    private readonly _setService: SetService
   ) {
     this._authService.getSubjectUserRole().subscribe((res) => {
       if (res !== null) {
@@ -69,7 +69,6 @@ export class StartService implements OnDestroy {
         this.initUnitsGenerics();
         this.initUnitsHydrants();
         this.initUnitsPonds();
-        this._testCommunicationService.startTest();
       }
     });
   }
