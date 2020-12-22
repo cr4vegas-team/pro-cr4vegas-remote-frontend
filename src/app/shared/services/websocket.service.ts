@@ -6,30 +6,36 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class WebsocketService implements OnDestroy {
-  private _websocket$: BehaviorSubject<WebSocket>;
+  private _webSocket: WebSocket;
+  private _received$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   constructor() {
-    this._websocket$ = new BehaviorSubject(new WebSocket(environment.ws.url));
-    if (this._websocket$.value.readyState == WebSocket.OPEN) {
-      console.log('CONECTADO!');
-      this._websocket$.value.send(
-        JSON.stringify({
-          event: 'test',
-          data: 'msg',
-        })
-      );
-    } else {
-      console.log('NO CONECTADO!');
-    }
+    this._webSocket = new WebSocket(environment.ws.url);
+    this._webSocket.onopen = () => {
+      console.log('Websocket connected!');
+      this._webSocket.onmessage = (message) => {
+        const dataJSON = JSON.parse(message.data);
+        this._received$.next(dataJSON);
+      };
+    };
   }
 
-  websocket(): BehaviorSubject<WebSocket> {
-    return this._websocket$;
+  subscribeReceived(): BehaviorSubject<any> {
+    return this._received$;
+  }
+
+  send(data: string) {
+    this._webSocket.onopen = () => {
+      this._webSocket.send(data);
+    };
   }
 
   ngOnDestroy(): void {
-    if (this._websocket$) {
-      this._websocket$.unsubscribe();
+    if (this._received$) {
+      this._received$.unsubscribe();
+    }
+    if (this._webSocket) {
+      this._webSocket.close();
     }
   }
 }

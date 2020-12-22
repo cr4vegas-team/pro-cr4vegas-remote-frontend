@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { WSEndPoints } from './../../../shared/constants/ws-endpoints.enum';
 import { WebsocketService } from './../../../shared/services/websocket.service';
 import { StationEntity } from './station.entity';
 import { StationService } from './station.service';
@@ -11,33 +12,35 @@ export class StationSocketService {
     private readonly _stationService: StationService,
     private readonly _webSocketService: WebsocketService
   ) {
-    this._webSocketService.websocket().subscribe((websocket) => {
-      if (websocket && websocket.readyState === WebSocket.OPEN) {
-        websocket.send(
-          JSON.stringify({
-            event: 'test',
-            data: 'data test...',
-          })
-        );
+    this._webSocketService.subscribeReceived().subscribe((received) => {
+      if (received) {
+        const event = received.event;
+        const data = JSON.parse(received.data);
+        if (event == WSEndPoints.RECEIVE_CREATE_STATION) {
+          this._stationService.createWS(data);
+        }
+        if (event == WSEndPoints.RECEIVE_UPDATE_STATION) {
+          this._stationService.updateWS(data);
+        }
       }
     });
-    /* this._socket
-      .fromEvent(WSEndPoints.RECEIVE_CREATE_STATION)
-      .subscribe((station: string) => {
-        this._stationService.createWS(station);
-      });
-    this._socket
-      .fromEvent(WSEndPoints.RECEIVE_UPDATE_STATION)
-      .subscribe((station: string) => {
-        this._stationService.updateWS(station);
-      }); */
   }
 
   public sendCreate(station: StationEntity): void {
-    // this._socket.emit(WSEndPoints.SEND_CREATE_STATION, station);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_CREATE_STATION,
+        data: JSON.stringify(station),
+      })
+    );
   }
 
   public sendUpdate(station: StationEntity): void {
-    // this._socket.emit(WSEndPoints.SEND_UPDATE_STATION, station);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_UPDATE_STATION,
+        data: JSON.stringify(station),
+      })
+    );
   }
 }

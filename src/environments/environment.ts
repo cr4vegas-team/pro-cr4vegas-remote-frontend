@@ -9,7 +9,7 @@ export const environment = {
   hmr: false,
   api: host + '/api/',
   ws: {
-    url: 'http://172.19.10.217:8881',
+    url: 'ws://172.19.10.217:8882',
     options: {},
   },
 };

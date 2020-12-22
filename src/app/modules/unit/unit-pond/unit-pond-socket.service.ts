@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { WSEndPoints } from 'src/app/shared/constants/ws-endpoints.enum';
+import { MQTTPacket } from 'src/app/shared/models/mqtt-packet.model';
 import { MQTTTopics } from './../../../shared/constants/mqtt-topics.enum';
+import { WebsocketService } from './../../../shared/services/websocket.service';
 import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
 import { UnitPondEntity } from './unit-pond.entity';
 @Injectable({
@@ -8,27 +11,27 @@ import { UnitPondEntity } from './unit-pond.entity';
 })
 export class UnitPondSocketService {
   constructor(
-    private readonly _unitPondService: UnitPondService
+    private readonly _unitPondService: UnitPondService,
+    private readonly _webSocketService: WebsocketService
   ) {
-    /* this._socket
-      .fromEvent(WSEndPoints.RECEIVE_UNIT_POND)
-      .subscribe((packet: string) => {
-        const packetJSON = JSON.parse(packet);
-        const mqttPacket = new MQTTPacket();
-        mqttPacket.topic = packetJSON.topic;
-        mqttPacket.message = packetJSON.message;
-        this._unitPondService.extractMQTTPacketAndAct(mqttPacket);
-      });
-    this._socket
-      .fromEvent(WSEndPoints.RECEIVE_CREATE_UNIT_POND)
-      .subscribe((unitPond: string) => {
-        this._unitPondService.createWS(unitPond);
-      });
-    this._socket
-      .fromEvent(WSEndPoints.RECEIVE_UPDATE_UNIT_POND)
-      .subscribe((unitPond: string) => {
-        this._unitPondService.updateWS(unitPond);
-      }); */
+    this._webSocketService.subscribeReceived().subscribe((received) => {
+      if (received) {
+        const event = received.event;
+        const data = JSON.parse(received.data);
+        if (event == WSEndPoints.RECEIVE_CREATE_UNIT_POND) {
+          this._unitPondService.createWS(data);
+        }
+        if (event == WSEndPoints.RECEIVE_UPDATE_UNIT_POND) {
+          this._unitPondService.updateWS(data);
+        }
+        if (event == WSEndPoints.RECEIVE_UNIT_POND) {
+          const mqttPacket = new MQTTPacket();
+          mqttPacket.topic = data.topic;
+          mqttPacket.message = data.message;
+          this._unitPondService.extractMQTTPacketAndAct(mqttPacket);
+        }
+      }
+    });
   }
 
   public sendPacketMQTT(unitPond: UnitPondEntity, message: string): void {
@@ -37,14 +40,29 @@ export class UnitPondSocketService {
       topic,
       message,
     });
-    // this._socket.emit(WSEndPoints.SEND_UNIT_POND, packet);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_UNIT_POND,
+        data: packet,
+      })
+    );
   }
 
   public sendCreate(unitPondWSDto: UnitPondWSDto): void {
-    // this._socket.emit(WSEndPoints.SEND_CREATE_UNIT_POND, unitPondWSDto);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_CREATE_UNIT_POND,
+        data: JSON.stringify(unitPondWSDto),
+      })
+    );
   }
 
   public sendUpdate(unitPondWSDto: UnitPondWSDto): void {
-    // this._socket.emit(WSEndPoints.SEND_UPDATE_UNIT_POND, unitPondWSDto);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_UPDATE_UNIT_POND,
+        data: JSON.stringify(unitPondWSDto),
+      })
+    );
   }
 }

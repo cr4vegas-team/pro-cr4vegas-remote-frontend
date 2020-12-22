@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
+import { WSEndPoints } from 'src/app/shared/constants/ws-endpoints.enum';
+import { MQTTPacket } from 'src/app/shared/models/mqtt-packet.model';
+import { WebsocketService } from 'src/app/shared/services/websocket.service';
 import { MQTTTopics } from './../../../shared/constants/mqtt-topics.enum';
 import { UnitHydrantWSDto } from './dto/unit-hydrant-ws.dto';
 import { UnitHydrantEntity } from './unit-hydrant.entity';
@@ -9,45 +12,59 @@ import { UnitHydrantEntity } from './unit-hydrant.entity';
 })
 export class UnitHydrantSocketService {
   constructor(
-    private readonly _unitHydrantService: UnitHydrantService
+    private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _webSocketService: WebsocketService
   ) {
-    /* this._socket
-      .fromEvent(WSEndPoints.RECEIVE_UNIT_HYDRANT)
-      .subscribe((packet: string) => {
-        const packetJSON = JSON.parse(packet);
-        const mqttPacket = new MQTTPacket();
-        mqttPacket.topic = packetJSON.topic;
-        mqttPacket.message = packetJSON.message;
-        this._unitHydrantService.extractMQTTPacketAndAct(mqttPacket);
-      });
-    this._socket.on(
-      WSEndPoints.RECEIVE_CREATE_UNIT_HYDRANT,
-      (unitHydrant: string) => {
-        this._unitHydrantService.createWS(unitHydrant);
+    this._webSocketService.subscribeReceived().subscribe((received) => {
+      if (received) {
+        console.log(received);
+        const event = received.event;
+        const data = JSON.parse(received.data);
+        if (event == WSEndPoints.RECEIVE_CREATE_UNIT_HYDRANT) {
+          this._unitHydrantService.createWS(data);
+        }
+        if (event == WSEndPoints.RECEIVE_UPDATE_UNIT_HYDRANT) {
+          this._unitHydrantService.updateWS(data);
+        }
+        if (event == WSEndPoints.RECEIVE_UNIT_HYDRANT) {
+          const mqttPacket = new MQTTPacket();
+          mqttPacket.topic = data.topic;
+          mqttPacket.message = data.message;
+          this._unitHydrantService.extractMQTTPacketAndAct(mqttPacket);
+        }
       }
-    );
-    this._socket.on(
-      WSEndPoints.RECEIVE_UPDATE_UNIT_HYDRANT,
-      (unitHydrant: string) => {
-        this._unitHydrantService.updateWS(unitHydrant);
-      }
-    ); */
+    });
   }
 
   public sendPacketMQTT(unitHydrant: UnitHydrantEntity, message: string): void {
-    const topic = MQTTTopics.UNIT_HYDRANT + unitHydrant.id;
+    const topic = MQTTTopics.UNIT_POND + unitHydrant.id;
     const packet = JSON.stringify({
       topic,
       message,
     });
-    // this._socket.emit(WSEndPoints.SEND_UNIT_HYDRANT, packet);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_UNIT_HYDRANT,
+        data: packet,
+      })
+    );
   }
 
   public sendCreate(unitHydrant: UnitHydrantWSDto): void {
-    // this._socket.emit(WSEndPoints.SEND_CREATE_UNIT_HYDRANT, unitHydrant);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_CREATE_UNIT_HYDRANT,
+        data: JSON.stringify(unitHydrant),
+      })
+    );
   }
 
   public sendUpdate(unitHydrant: UnitHydrantWSDto): void {
-    // this._socket.emit(WSEndPoints.SEND_UPDATE_UNIT_HYDRANT, unitHydrant);
+    this._webSocketService.send(
+      JSON.stringify({
+        event: WSEndPoints.SEND_UPDATE_UNIT_HYDRANT,
+        data: JSON.stringify(unitHydrant),
+      })
+    );
   }
 }
