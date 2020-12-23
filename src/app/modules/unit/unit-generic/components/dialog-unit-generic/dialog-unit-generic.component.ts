@@ -5,9 +5,6 @@ import { Subscription } from 'rxjs';
 import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { UploadService } from 'src/app/shared/services/upload.service';
@@ -71,14 +68,8 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
             };
             reader.readAsDataURL(next);
           },
-          (error: any) => {
-            this._matDialog.open(DialogInfoComponent, {
-              data: {
-                errorType: ErrorTypeEnum.FRONT_ERROR,
-                title: DialogInfoTitleEnum.WARNING,
-                error,
-              },
-            });
+          (error) => {
+            console.log(error);
           }
         );
     }

@@ -129,13 +129,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
           reader.readAsDataURL(next);
         },
         (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.FRONT_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              error,
-            },
-          });
+          console.log(error);
         }
       );
     }

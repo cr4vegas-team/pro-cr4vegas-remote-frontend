@@ -73,7 +73,7 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
           (error: any) => {
             this._matDialog.open(DialogInfoComponent, {
               data: {
-                errorType: ErrorTypeEnum.FRONT_ERROR,
+                errorType: ErrorTypeEnum.API_ERROR,
                 title: DialogInfoTitleEnum.WARNING,
                 error,
               },

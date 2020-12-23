@@ -74,14 +74,8 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
           };
           reader.readAsDataURL(next);
         },
-        (error: any) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.FRONT_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              error,
-            },
-          });
+        (error) => {
+          console.log(error);
         }
       );
     }

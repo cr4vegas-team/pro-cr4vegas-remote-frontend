@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -131,13 +131,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
           reader.readAsDataURL(next);
         },
         (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.FRONT_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              error,
-            },
-          });
+          console.log(error);
         }
       );
     }
@@ -209,7 +203,9 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
         );
         this._unitGenericService.getUnitsGeneric().value.push(newUnitGeneric);
         this._unitGenericService.refresh();
-        this._unitGenericSockerService.sendCreate(newUnitGeneric);
+        this._unitGenericSockerService.sendCreate(
+          this._unitGenericFactory.getUnitGenericWSDto(newUnitGeneric)
+        );
         this.close();
       },
       (error) => {
@@ -237,7 +233,9 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
           unitGenericRO.unitGeneric
         );
         this._unitGenericService.refresh();
-        this._unitGenericSockerService.sendUpdate(this.unitGeneric);
+        this._unitGenericSockerService.sendUpdate(
+          this._unitGenericFactory.getUnitGenericWSDto(this.unitGeneric)
+        );
         this.close();
       },
       (error) => {

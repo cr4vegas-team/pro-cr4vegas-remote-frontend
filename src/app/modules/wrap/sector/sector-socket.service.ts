@@ -1,3 +1,4 @@
+import { SectorWSDto } from './dto/sector-ws.dto';
 import { Injectable } from '@angular/core';
 import { WSEndPoints } from 'src/app/shared/constants/ws-endpoints.enum';
 import { WebsocketService } from './../../../shared/services/websocket.service';
@@ -26,20 +27,20 @@ export class SectorSocketService {
     });
   }
 
-  public sendCreate(sector: SectorEntity): void {
+  public sendCreate(dto: SectorWSDto): void {
     this._webSocketService.send(
       JSON.stringify({
         event: WSEndPoints.SEND_CREATE_SECTOR,
-        data: JSON.stringify(sector),
+        data: JSON.stringify(dto),
       })
     );
   }
 
-  public sendUpdate(sector: SectorEntity): void {
+  public sendUpdate(dto: SectorWSDto): void {
     this._webSocketService.send(
       JSON.stringify({
         event: WSEndPoints.SEND_UPDATE_SECTOR,
-        data: JSON.stringify(sector),
+        data: JSON.stringify(dto),
       })
     );
   }

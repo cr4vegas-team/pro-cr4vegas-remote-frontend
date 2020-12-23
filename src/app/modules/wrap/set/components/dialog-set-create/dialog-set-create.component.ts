@@ -1,4 +1,3 @@
-import { SetSocketService } from './../../set-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -20,6 +19,7 @@ import { SetUpdateDto } from '../../dto/set-update.dto';
 import { SetEntity } from '../../set.entity';
 import { SetFactory } from '../../set.factory';
 import { SetService } from '../../set.service';
+import { SetSocketService } from './../../set-socket.service';
 import { SetTypeEntity } from './../../set-type.entity';
 
 @Component({
@@ -147,7 +147,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       html += '</ul>';
       this._matDialog.open(DialogInfoComponent, {
         data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
+          errorType: ErrorTypeEnum.API_ERROR,
           title: DialogInfoTitleEnum.WARNING,
           html,
         },
@@ -176,7 +176,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
         const newSet: SetEntity = this._setFactory.createSet(setRO.set);
         this._setService.getSets().value.push(newSet);
         this._setService.refresh();
-        this._setSocketService.sendCreate(newSet);
+        this._setSocketService.sendCreate(this._setFactory.getSetWSDto(newSet));
         this.close();
       },
       (error) => {
@@ -201,7 +201,9 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       (setRO) => {
         this._setFactory.copySet(this.set, setRO.set);
         this._setService.refresh();
-        this._setSocketService.sendUpdate(this.set);
+        this._setSocketService.sendUpdate(
+          this._setFactory.getSetWSDto(this.set)
+        );
         this.close();
       },
       (error) => {

@@ -1,4 +1,3 @@
-import { StationSocketService } from './../../station-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
@@ -20,6 +19,7 @@ import { StationEntity } from '../../station.entity';
 import { StationFactory } from '../../station.factory';
 import { StationService } from '../../station.service';
 import { UploadService } from './../../../../../shared/services/upload.service';
+import { StationSocketService } from './../../station-socket.service';
 
 @Component({
   selector: 'app-dialog-station-create',
@@ -112,13 +112,7 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
           reader.readAsDataURL(next);
         },
         (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.FRONT_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              error,
-            },
-          });
+          console.log(error);
         }
       );
     }
@@ -191,7 +185,9 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
         );
         this._stationService.getStations().value.push(newStation);
         this._stationService.refresh();
-        this._stationSocketService.sendCreate(newStation);
+        this._stationSocketService.sendCreate(
+          this._stationFactory.getStationWSDto(newStation)
+        );
         this.close();
       },
       (error) => {
@@ -216,7 +212,9 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
       (stationRO) => {
         this._stationFactory.copyStation(this.station, stationRO.station);
         this._stationService.refresh();
-        this._stationSocketService.sendUpdate(this.station);
+        this._stationSocketService.sendUpdate(
+          this._stationFactory.getStationWSDto(this.station)
+        );
         this.close();
       },
       (error) => {

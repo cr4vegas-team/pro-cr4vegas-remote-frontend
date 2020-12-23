@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -94,13 +94,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
           reader.readAsDataURL(next);
         },
         (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.FRONT_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              error,
-            },
-          });
+          console.log(error);
         }
       );
     }
@@ -156,7 +150,9 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
         );
         this._sectorService.getSectors().value.push(newSector);
         this._sectorService.refresh();
-        this._sectorSocketService.sendCreate(newSector);
+        this._sectorSocketService.sendCreate(
+          this._sectorFactory.getSectorWSDto(newSector)
+        );
         this.close();
       },
       (error) => {
