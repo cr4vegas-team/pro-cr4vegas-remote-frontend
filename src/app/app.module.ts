@@ -54,5 +54,7 @@ registerLocaleData(localeEs, 'es');
   bootstrap: [AppComponent],
 })
 export class AppModule {
-  constructor(private readonly _webSocketService: WebsocketService) {}
+  constructor(private readonly _webSocketService: WebsocketService) {
+    this._webSocketService.connect();
+  }
 }

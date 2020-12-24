@@ -9,14 +9,39 @@ export class WebsocketService implements OnDestroy {
   private _webSocket: WebSocket;
   private _received$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
-  constructor() {
+  connect(): void {
     this._webSocket = new WebSocket(environment.ws.url);
     this._webSocket.onopen = () => {
-      console.log('Websocket connected!');
-      this._webSocket.onmessage = (message) => {
-        const dataJSON = JSON.parse(message.data);
-        this._received$.next(dataJSON);
-      };
+      console.log('Conexión con websocket exitosa!');
+      this.send(
+        JSON.stringify({
+          event: 'client',
+        })
+      );
+    };
+
+    this._webSocket.onmessage = (message) => {
+      const dataJSON = JSON.parse(message.data);
+      this._received$.next(dataJSON);
+    };
+
+    this._webSocket.onclose = (e) => {
+      console.log(
+        'La conexión de websocket se cerró. Intento de conexión en 1 segundo...',
+        e.reason
+      );
+      setTimeout(() => {
+        this.connect();
+      }, 1000);
+    };
+
+    this._webSocket.onerror = (err) => {
+      console.error(
+        'Websocket encontró un error: ',
+        err,
+        'Cerrando la conexión de websockets... (Recarge la página)'
+      );
+      this._webSocket.close();
     };
   }
 
