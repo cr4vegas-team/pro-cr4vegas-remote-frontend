@@ -2,7 +2,7 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-export const host = 'http://172.19.231.39:8881';
+export const host = 'http://172.31.228.154:8881';
 // export const host = 'http://server.rubenfgr.com:8881';
 
 export const environment = {
@@ -10,7 +10,7 @@ export const environment = {
   hmr: false,
   api: host + '/api/',
   ws: {
-    url: 'ws://172.19.231.39:8882',
+    url: 'ws://172.31.228.154:8882',
     // url: 'ws://server.rubenfgr.com:8882',
     options: {},
   },

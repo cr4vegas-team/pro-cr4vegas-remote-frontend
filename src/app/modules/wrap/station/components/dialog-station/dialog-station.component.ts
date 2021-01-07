@@ -1,4 +1,3 @@
-import { AuthService } from 'src/app/shared/services/auth.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -9,8 +8,8 @@ import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/co
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
+import { AuthService } from 'src/app/shared/auth/auth/auth.service';
+import { UserRoleEnum } from 'src/app/shared/auth/user/enum/user-role.enum';
 import { UnitEntity } from '../../../../../modules/unit/unit/unit.entity';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
@@ -46,8 +45,8 @@ export class DialogStationComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public station: StationEntity
   ) {
-    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
-      if (res) {
+    this._authService.getUser$().subscribe((user) => {
+      if (user.role == UserRoleEnum.ADMIN || user.role == UserRoleEnum.MODERATOR) {
         this.disabled = false;
       } else {
         this.disabled = true;

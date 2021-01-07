@@ -4,9 +4,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
+import { AuthService } from 'src/app/shared/auth/auth/auth.service';
+import { UserRoleEnum } from 'src/app/shared/auth/user/enum/user-role.enum';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
-import { AuthService } from 'src/app/shared/services/auth.service';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { UnitGenericEntity } from '../../unit-generic.entity';
 import { DialogUnitGenericCreateComponent } from '../dialog-unit-generic-create/dialog-unit-generic-create.component';
@@ -39,8 +40,11 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public unitGeneric: UnitGenericEntity
   ) {
-    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
-      if (res) {
+    this._authService.getUser$().subscribe((user) => {
+      if (
+        user.role == UserRoleEnum.ADMIN ||
+        user.role == UserRoleEnum.MODERATOR
+      ) {
         this.disabled = false;
       } else {
         this.disabled = true;
@@ -75,17 +79,17 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
     }
 
     this._subProperty1 = this.unitGeneric.property1$.subscribe((reading) => {
-        this.calculateBatch(reading);
+      this.calculateBatch(reading);
     });
   }
 
   calculateBatch(reading: number): void {
-      const initBatch = parseInt(this.unitGeneric.data1, 10);
-      if (!isNaN(reading) && !isNaN(initBatch)) {
-        this.tanda = reading - initBatch;
-      } else {
-        this.tanda = 0;
-      }
+    const initBatch = parseInt(this.unitGeneric.data1, 10);
+    if (!isNaN(reading) && !isNaN(initBatch)) {
+      this.tanda = reading - initBatch;
+    } else {
+      this.tanda = 0;
+    }
   }
 
   // ==================================================

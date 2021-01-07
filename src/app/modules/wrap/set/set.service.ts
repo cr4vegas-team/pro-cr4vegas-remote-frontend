@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { SetEntity } from '../../../modules/wrap/set/set.entity';
 import { SetFactory } from '../../../modules/wrap/set/set.factory';
 import { GLOBAL } from '../../../shared/constants/global.constant';
-import { AuthService } from '../../../shared/services/auth.service';
+import { AuthService } from '../../../shared/auth/auth/auth.service';
 import { SetCreateDto } from './dto/set-create.dto';
 import { SetTypeUpdateDto, SetUpdateDto } from './dto/set-update.dto';
 import { SetTypeEntity } from './set-type.entity';

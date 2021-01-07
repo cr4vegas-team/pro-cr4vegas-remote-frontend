@@ -1,4 +1,3 @@
-import { UnitHydrantSocketService } from './../../modules/unit/unit-hydrant/unit-hydrant-socket.service';
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
@@ -24,7 +23,8 @@ import { DialogStationComponent } from 'src/app/modules/wrap/station/components/
 import { StationEntity } from 'src/app/modules/wrap/station/station.entity';
 import { StationFactory } from 'src/app/modules/wrap/station/station.factory';
 import { StationService } from 'src/app/modules/wrap/station/station.service';
-import { AuthService } from 'src/app/shared/services/auth.service';
+import { AuthService } from '../auth/auth/auth.service';
+import { UnitHydrantSocketService } from './../../modules/unit/unit-hydrant/unit-hydrant-socket.service';
 
 @Injectable({
   providedIn: 'root',
@@ -61,7 +61,7 @@ export class StartService implements OnDestroy {
     private readonly _setFactory: SetFactory,
     private readonly _setService: SetService
   ) {
-    this._authService.getSubjectUserRole().subscribe((res) => {
+    this._authService.getUser$().subscribe((res) => {
       if (res !== null) {
         this.initStations();
         this.initSectors();

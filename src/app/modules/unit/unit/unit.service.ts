@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GLOBAL } from '../../../shared/constants/global.constant';
-import { AuthService } from '../../../shared/services/auth.service';
+import { AuthService } from '../../../shared/auth/auth/auth.service';
 import { UnitFactory } from './unit.factory';
 import { UnitsRO } from './unit.interfaces';
 

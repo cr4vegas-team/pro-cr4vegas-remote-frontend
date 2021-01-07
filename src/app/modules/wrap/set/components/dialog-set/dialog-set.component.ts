@@ -9,11 +9,12 @@ import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydra
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
+import { AuthService } from 'src/app/shared/auth/auth/auth.service';
+import { UserRoleEnum } from 'src/app/shared/auth/user/enum/user-role.enum';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
-import { AuthService } from 'src/app/shared/services/auth.service';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { DialogSetCreateComponent } from '../dialog-set-create/dialog-set-create.component';
 import { SetEntity } from './../../set.entity';
@@ -44,8 +45,11 @@ export class DialogSetComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public set: SetEntity
   ) {
-    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
-      if (res) {
+    this._authService.getUser$().subscribe((user) => {
+      if (
+        user.role == UserRoleEnum.ADMIN ||
+        user.role == UserRoleEnum.MODERATOR
+      ) {
         this.disabled = false;
       } else {
         this.disabled = true;

@@ -1,3 +1,4 @@
+import { AuthModule } from './shared/auth/auth.module';
 import { registerLocaleData } from '@angular/common';
 // ==================================================
 // MODULES
@@ -47,6 +48,7 @@ registerLocaleData(localeEs, 'es');
     WrapModule,
     SessionModule,
     GeneralModule,
+    AuthModule
   ],
 
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],

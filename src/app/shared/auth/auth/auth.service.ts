@@ -1,38 +1,32 @@
-import { UserRoleEnum } from './../constants/user-role.enum';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { ClassGetter } from '@angular/compiler/src/output/output_ast';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { GLOBAL } from '../constants/global.constant';
-import { UserEntity } from '../models/user.entity';
+import { GLOBAL } from '../../constants/global.constant';
+import { UserEntity } from '../user/user.entity';
+import { UserCreateDto } from './../user/dto/user-create.dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private _url: string;
 
-  private userRole$: BehaviorSubject<UserRoleEnum>;
-  private adminOrModerator$: BehaviorSubject<boolean>;
+  private _url: string;
+  private user$: BehaviorSubject<UserEntity>;
 
   constructor(private _http: HttpClient) {
     this._url = GLOBAL.API;
-    this.userRole$ = new BehaviorSubject(null);
-    this.adminOrModerator$ = new BehaviorSubject(false);
-    this.userRole$.subscribe((role) => {
-      if (role === UserRoleEnum.ADMIN || role === UserRoleEnum.MODERATOR) {
-        this.adminOrModerator$.next(true);
-      } else {
-        this.adminOrModerator$.next(false);
-      }
-    });
+    const userString = localStorage.getItem('user');
+    if (userString && userString != "") {
+      const user = JSON.parse(userString);
+      this.user$ = new BehaviorSubject(user);
+    } else {
+      this.user$ = new BehaviorSubject(null);
+    }
   }
 
-  public getSubjectUserRole(): BehaviorSubject<UserRoleEnum> {
-    return this.userRole$;
-  }
-
-  public getSubjectAdminOrModerator(): BehaviorSubject<boolean> {
-    return this.adminOrModerator$;
+  public getUser$(): BehaviorSubject<UserEntity> {
+    return this.user$;
   }
 
   public getHttpOptions(params: {}): {
@@ -54,27 +48,32 @@ export class AuthService {
       .post(this._url + 'auth/login', body, this.getHttpOptions({}))
       .subscribe(
         (res) => {
+
           const access_token = (res as any).access_token;
+          const user = (res as any).user;
 
           localStorage.setItem('access_token', access_token);
-          this.userRole$.next((res as any).role);
+          localStorage.setItem('user', JSON.stringify(user));
+
+          this.user$.next(user);
         },
         (error) => {
-          this.userRole$.next(null);
+          this.user$.next(null);
           console.log('Usuario o contraseña incorrectos');
         }
-    );
+      );
   }
 
   public logout(): void {
     localStorage.removeItem('access_token');
-    this.userRole$.next(null);
+    localStorage.removeItem('user');
+    this.user$.next(null);
   }
 
-  public signin(user: UserEntity): Observable<any> {
+  public signin(dto: UserCreateDto): Observable<any> {
     return this._http.post(
       this._url + 'auth/signin',
-      user,
+      dto,
       this.getHttpOptions({})
     );
   }

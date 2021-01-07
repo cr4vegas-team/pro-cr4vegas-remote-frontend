@@ -16,9 +16,9 @@ import { DialogStationCreateComponent } from '../../../modules/wrap/station/comp
 import { StationEntity } from '../../../modules/wrap/station/station.entity';
 import { StationService } from '../../../modules/wrap/station/station.service';
 import { MapboxStyleEnum } from '../../../shared/constants/mapbox-style.enum';
+import { AuthService } from '../../auth/auth/auth.service';
+import { UserRoleEnum } from '../../auth/user/enum/user-role.enum';
 import { GLOBAL } from '../../constants/global.constant';
-import { UserRoleEnum } from '../../constants/user-role.enum';
-import { AuthService } from '../../services/auth.service';
 import { MapService } from '../../services/map.service';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { DialogSettingComponent } from './../../../modules/general/setting/components/dialog-setting/dialog-setting.component';
@@ -84,18 +84,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   //  LIFE CYCLE
   // ==================================================
   ngOnInit(): void {
-    this._authService.getSubjectUserRole().subscribe((res) => {
-      if (res) {
-        this.hidden = false;
-      } else {
-        this.hidden = true;
-      }
-    });
-    this._authService.getSubjectAdminOrModerator().subscribe((res) => {
-      if (res) {
-        this.disabled = false;
-      } else {
-        this.disabled = true;
+    this._authService.getUser$().subscribe((user) => {
+      if (user) {
+        if (
+          user.role !== UserRoleEnum.NONE
+        ) {
+          this.hidden = false;
+        } else {
+          this.hidden = true;
+        }
       }
     });
   }

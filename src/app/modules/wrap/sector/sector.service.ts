@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { AuthService } from 'src/app/shared/services/auth.service';
+import { AuthService } from 'src/app/shared/auth/auth/auth.service';
 import { SectorFactory } from '../../../modules/wrap/sector/sector.factory';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { SectorEntity } from '../sector/sector.entity';

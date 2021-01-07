@@ -17,7 +17,6 @@ export class UnitHydrantSocketService {
   ) {
     this._webSocketService.subscribeReceived().subscribe((received) => {
       if (received) {
-        console.log(received);
         const event = received.event;
         const data = JSON.parse(received.data);
         if (event == WSEndPoints.RECEIVE_CREATE_UNIT_HYDRANT) {
