@@ -176,7 +176,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
         const newSet: SetEntity = this._setFactory.createSet(setRO.set);
         this._setService.getSets().value.push(newSet);
         this._setService.refresh();
-        this._setSocketService.sendCreate(this._setFactory.getSetWSDto(newSet));
+        this._setSocketService.sendChange(this._setFactory.getSetWSDto(newSet));
         this.close();
       },
       (error) => {
@@ -201,7 +201,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       (setRO) => {
         this._setFactory.copySet(this.set, setRO.set);
         this._setService.refresh();
-        this._setSocketService.sendUpdate(
+        this._setSocketService.sendChange(
           this._setFactory.getSetWSDto(this.set)
         );
         this.close();

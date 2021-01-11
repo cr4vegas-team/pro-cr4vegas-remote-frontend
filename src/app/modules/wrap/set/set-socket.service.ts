@@ -1,8 +1,7 @@
-import { SetWSDto } from './dto/set-ws.dto';
 import { Injectable } from '@angular/core';
 import { WSEndPoints } from 'src/app/shared/constants/ws-endpoints.enum';
 import { WebsocketService } from './../../../shared/services/websocket.service';
-import { SetEntity } from './set.entity';
+import { SetWSDto } from './dto/set-ws.dto';
 import { SetService } from './set.service';
 
 @Injectable({
@@ -19,29 +18,17 @@ export class SetSocketService {
       if (received) {
         const event = received.event;
         const data = JSON.parse(received.data);
-        if (event == WSEndPoints.RECEIVE_CREATE_SET) {
-          this._setService.createWS(data);
-        }
-        if (event == WSEndPoints.RECEIVE_UPDATE_SET) {
-          this._setService.updateWS(data);
+        if (event == WSEndPoints.EVENT_SET) {
+          this._setService.createOrUpdateWS(data);
         }
       }
     });
   }
 
-  public sendCreate(dto: SetWSDto): void {
+  public sendChange(dto: SetWSDto): void {
     this._webSocketService.send(
       JSON.stringify({
-        event: WSEndPoints.SEND_CREATE_SET,
-        data: JSON.stringify(dto),
-      })
-    );
-  }
-
-  public sendUpdate(dto: SetWSDto): void {
-    this._webSocketService.send(
-      JSON.stringify({
-        event: WSEndPoints.SEND_UPDATE_SET,
+        event: WSEndPoints.EVENT_SET,
         data: JSON.stringify(dto),
       })
     );

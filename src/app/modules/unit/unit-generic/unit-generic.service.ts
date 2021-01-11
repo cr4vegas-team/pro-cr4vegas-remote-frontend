@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
-import { MQTTPacket } from 'src/app/shared/models/mqtt-packet.model';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../auth/auth/auth.service';
 import { MapService } from './../../../shared/services/map.service';
@@ -150,38 +149,16 @@ export class UnitGenericService implements OnDestroy {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createWS(unitGenericWSString: string): void {
-    const unitGenericWS = this._unitGenericFactory.createUnitGeneric(
-      unitGenericWSString
-    );
-    this._unitsGenerics.value.push(unitGenericWS);
-    this.refresh();
-  }
-
-  public updateWS(unitGenericWSString: string): void {
-    const unitGenericWS = this._unitGenericFactory.createUnitGeneric(
-      unitGenericWSString
-    );
+  public createOrUpdateWS(unitGenericWSString: string): void {
+    const unitGenericWS = this._unitGenericFactory.createUnitGeneric(unitGenericWSString);
     const unitGenericFound = this._unitsGenerics.value.filter(
-      (unitGeneric) => (unitGeneric.id = unitGenericWS.id)
+      (station) => (station.id = unitGenericWS.id)
     )[0];
     if (unitGenericFound) {
       this._unitGenericFactory.copyUnitGeneric(unitGenericFound, unitGenericWS);
+    } else {
+      this._unitsGenerics.value.push(unitGenericWS);
     }
-  }
-
-  public extractMQTTPacketAndAct(mqttPacket: MQTTPacket): void {
-    const topicSplit = mqttPacket.topic.split('/');
-    const topicSplitLengh = topicSplit.length;
-    const unitGenericID = Number.parseInt(topicSplitLengh[topicSplitLengh - 1]);
-    const unitGenericFound = this._unitsGenerics.value.filter(
-      (unitGeneric) => (unitGeneric.id = unitGenericID)
-    )[0];
-    if (unitGenericFound) {
-      this._unitGenericFactory.updateProperties(
-        unitGenericFound,
-        mqttPacket.message
-      );
-    }
+    this.refresh();
   }
 }

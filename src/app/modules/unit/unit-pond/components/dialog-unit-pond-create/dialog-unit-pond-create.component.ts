@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -206,7 +206,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
         );
         this._unitPondService.getUnitsPonds().value.push(newUnitPond);
         this._unitPondService.refresh();
-        this._unitPondSocketService.sendCreate(
+        this._unitPondSocketService.sendChange(
           this._unitPondFactory.getUnitPondWSDto(newUnitPond)
         );
         this.close();
@@ -236,7 +236,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
           unitGenericRO.unitPond
         );
         this._unitPondService.refresh();
-        this._unitPondSocketService.sendUpdate(
+        this._unitPondSocketService.sendChange(
           this._unitPondFactory.getUnitPondWSDto(this.unitPond)
         );
         this.close();

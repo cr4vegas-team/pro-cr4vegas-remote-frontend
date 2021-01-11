@@ -113,19 +113,16 @@ export class SetService {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createWS(setWSString: string): void {
-    const setWS = this._setFactory.createSet(setWSString);
-    this._sets.value.push(setWS);
-    this.refresh();
-  }
-
-  public updateWS(setWSString: string): void {
+  public createOrUpdateWS(setWSString: string): void {
     const setWS = this._setFactory.createSet(setWSString);
     const setFound = this._sets.value.filter(
-      (set) => (set.id = setWS.id)
+      (station) => (station.id = setWS.id)
     )[0];
     if (setFound) {
       this._setFactory.copySet(setFound, setWS);
+    } else {
+      this._sets.value.push(setWS);
     }
+    this.refresh();
   }
 }

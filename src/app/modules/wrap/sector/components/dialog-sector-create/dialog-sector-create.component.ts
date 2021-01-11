@@ -1,10 +1,9 @@
-import { SectorSocketService } from './../../sector-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -20,6 +19,7 @@ import { SectorUpdateDto } from '../../dto/sector-update.dto';
 import { SectorEntity } from '../../sector.entity';
 import { SectorFactory } from '../../sector.factory';
 import { SectorService } from '../../sector.service';
+import { SectorSocketService } from './../../sector-socket.service';
 
 @Component({
   selector: 'app-dialog-sector-create',
@@ -150,7 +150,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
         );
         this._sectorService.getSectors().value.push(newSector);
         this._sectorService.refresh();
-        this._sectorSocketService.sendCreate(
+        this._sectorSocketService.sendChange(
           this._sectorFactory.getSectorWSDto(newSector)
         );
         this.close();
@@ -175,7 +175,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       (sectorRO) => {
         this._sectorFactory.copySector(this.sector, sectorRO.sector);
         this._sectorService.refresh();
-        this._sectorSocketService.sendUpdate(this.sector);
+        this._sectorSocketService.sendChange(this.sector);
         this.close();
       },
       (error) => {

@@ -141,19 +141,16 @@ export class StationService implements OnDestroy {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createWS(stationWSString: string): void {
-    const stationWS = this._stationFactory.createStation(stationWSString);
-    this._stations.value.push(stationWS);
-    this.refresh();
-  }
-
-  public updateWS(stationWSString: string): void {
+  public createOrUpdateWS(stationWSString: string): void {
     const stationWS = this._stationFactory.createStation(stationWSString);
     const stationFound = this._stations.value.filter(
       (station) => (station.id = stationWS.id)
     )[0];
     if (stationFound) {
       this._stationFactory.copyStation(stationFound, stationWS);
+    } else {
+      this._stations.value.push(stationWS);
     }
+    this.refresh();
   }
 }

@@ -1,10 +1,9 @@
-import { UnitHydrantSocketService } from './../../unit-hydrant-socket.service';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -25,6 +24,7 @@ import { DialogInfoComponent } from '../../../../../shared/components/dialog-inf
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitHydrantCreateDto } from '../../dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from '../../dto/unit-hydrant-update.dto';
+import { UnitHydrantSocketService } from './../../unit-hydrant-socket.service';
 
 @Component({
   selector: 'app-dialog-unit-hydrant-create',
@@ -201,7 +201,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
         );
         this._unitHydrantService.getUnitsHydrants().value.push(newUnitHydrant);
         this._unitHydrantService.refresh();
-        this._unitHydrantSockerService.sendCreate(
+        this._unitHydrantSockerService.sendChange(
           this._unitHydrantFactory.getUnitHydrantWSDto(newUnitHydrant)
         );
         this.close();
@@ -231,7 +231,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
           unitHydrantRO.unitHydrant
         );
         this._unitHydrantService.refresh();
-        this._unitHydrantSockerService.sendUpdate(this._unitHydrantFactory.getUnitHydrantWSDto(this.unitHydrant));
+        this._unitHydrantSockerService.sendChange(this._unitHydrantFactory.getUnitHydrantWSDto(this.unitHydrant));
         this.close();
       },
       (error) => {

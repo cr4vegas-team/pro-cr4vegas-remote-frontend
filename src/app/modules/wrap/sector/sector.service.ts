@@ -81,19 +81,16 @@ export class SectorService {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createWS(sectorWSString: string): void {
-    const sectorWS = this._sectorFactory.createSector(sectorWSString);
-    this._sectors.value.push(sectorWS);
-    this.refresh();
-  }
-
-  public updateWS(sectorWSString: string): void {
+  public createOrUpdateWS(sectorWSString: string): void {
     const sectorWS = this._sectorFactory.createSector(sectorWSString);
     const sectorFound = this._sectors.value.filter(
-      (sector) => (sector.id = sectorWS.id)
+      (station) => (station.id = sectorWS.id)
     )[0];
     if (sectorFound) {
       this._sectorFactory.copySector(sectorFound, sectorWS);
+    } else {
+      this._sectors.value.push(sectorWS);
     }
+    this.refresh();
   }
 }

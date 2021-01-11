@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -185,7 +185,7 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
         );
         this._stationService.getStations().value.push(newStation);
         this._stationService.refresh();
-        this._stationSocketService.sendCreate(
+        this._stationSocketService.sendChange(
           this._stationFactory.getStationWSDto(newStation)
         );
         this.close();
@@ -212,7 +212,7 @@ export class DialogStationCreateComponent implements OnInit, OnDestroy {
       (stationRO) => {
         this._stationFactory.copyStation(this.station, stationRO.station);
         this._stationService.refresh();
-        this._stationSocketService.sendUpdate(
+        this._stationSocketService.sendChange(
           this._stationFactory.getStationWSDto(this.station)
         );
         this.close();

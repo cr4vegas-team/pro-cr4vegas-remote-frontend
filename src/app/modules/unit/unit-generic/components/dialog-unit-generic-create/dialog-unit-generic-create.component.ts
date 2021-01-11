@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -203,7 +203,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
         );
         this._unitGenericService.getUnitsGeneric().value.push(newUnitGeneric);
         this._unitGenericService.refresh();
-        this._unitGenericSockerService.sendCreate(
+        this._unitGenericSockerService.sendChange(
           this._unitGenericFactory.getUnitGenericWSDto(newUnitGeneric)
         );
         this.close();
@@ -233,7 +233,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
           unitGenericRO.unitGeneric
         );
         this._unitGenericService.refresh();
-        this._unitGenericSockerService.sendUpdate(
+        this._unitGenericSockerService.sendChange(
           this._unitGenericFactory.getUnitGenericWSDto(this.unitGeneric)
         );
         this.close();

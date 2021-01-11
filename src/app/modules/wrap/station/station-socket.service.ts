@@ -1,8 +1,7 @@
-import { StationWSDto } from './dto/station-ws.dto';
 import { Injectable } from '@angular/core';
 import { WSEndPoints } from './../../../shared/constants/ws-endpoints.enum';
 import { WebsocketService } from './../../../shared/services/websocket.service';
-import { StationEntity } from './station.entity';
+import { StationWSDto } from './dto/station-ws.dto';
 import { StationService } from './station.service';
 
 @Injectable({
@@ -17,29 +16,17 @@ export class StationSocketService {
       if (received) {
         const event = received.event;
         const data = JSON.parse(received.data);
-        if (event == WSEndPoints.RECEIVE_CREATE_STATION) {
-          this._stationService.createWS(data);
-        }
-        if (event == WSEndPoints.RECEIVE_UPDATE_STATION) {
-          this._stationService.updateWS(data);
+        if (event == WSEndPoints.EVENT_STATION) {
+          this._stationService.createOrUpdateWS(data);
         }
       }
     });
   }
 
-  public sendCreate(dto: StationWSDto): void {
+  public sendChange(dto: StationWSDto): void {
     this._webSocketService.send(
       JSON.stringify({
-        event: WSEndPoints.SEND_CREATE_STATION,
-        data: JSON.stringify(dto),
-      })
-    );
-  }
-
-  public sendUpdate(dto: StationWSDto): void {
-    this._webSocketService.send(
-      JSON.stringify({
-        event: WSEndPoints.SEND_UPDATE_STATION,
+        event: WSEndPoints.EVENT_STATION,
         data: JSON.stringify(dto),
       })
     );

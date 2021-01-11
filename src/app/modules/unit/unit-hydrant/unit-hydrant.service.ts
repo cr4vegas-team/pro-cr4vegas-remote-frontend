@@ -3,7 +3,6 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../auth/auth/auth.service';
-import { MQTTPacket } from './../../../shared/models/mqtt-packet.model';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitHydrantCreateDto } from './dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from './dto/unit-hydrant-update.dto';
@@ -141,38 +140,15 @@ export class UnitHydrantService implements OnDestroy {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createWS(unitHydrantWSString: string): void {
-    const unitHydrantWS = this._unitHydrantFactory.createUnitHydrant(
-      unitHydrantWSString
-    );
-    this._unitsHydrants.value.push(unitHydrantWS);
-    this.refresh();
-  }
-
-  public updateWS(unitHydrantWSString: string): void {
-    const unitHydrantWS = this._unitHydrantFactory.createUnitHydrant(
-      unitHydrantWSString
-    );
+  public createOrUpdateWS(unitHydrantWSString: string): void {
+    const unitHydrantWS = this._unitHydrantFactory.createUnitHydrant(unitHydrantWSString);
     const unitHydrantFound = this._unitsHydrants.value.filter(
-      (unitHydrant) => (unitHydrant.id = unitHydrantWS.id)
+      (station) => (station.id = unitHydrantWS.id)
     )[0];
     if (unitHydrantFound) {
       this._unitHydrantFactory.copyUnitHydrant(unitHydrantFound, unitHydrantWS);
-    }
-  }
-
-  public extractMQTTPacketAndAct(mqttPacket: MQTTPacket): void {
-    const topicSplit = mqttPacket.topic.split('/');
-    const topicSplitLengh = topicSplit.length;
-    const unitHydrantID = Number.parseInt(topicSplit[topicSplitLengh - 1]);
-    const unitHydrantFound = this._unitsHydrants.value.filter(
-      (unitHydrant) => (unitHydrant.id == unitHydrantID)
-    )[0];
-    if (unitHydrantFound) {
-      this._unitHydrantFactory.updateProperties(
-        unitHydrantFound,
-        mqttPacket.message
-      );
+    } else {
+      this._unitsHydrants.value.push(unitHydrantWS);
     }
     this.refresh();
   }

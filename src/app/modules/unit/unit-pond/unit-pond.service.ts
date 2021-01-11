@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { MQTTPacket } from 'src/app/shared/models/mqtt-packet.model';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../auth/auth/auth.service';
 import { MapService } from './../../../shared/services/map.service';
@@ -140,31 +139,16 @@ export class UnitPondService implements OnDestroy {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createWS(unitPondWSString: string): void {
-    const unitPondWS = this._unitPondFactory.createUnitPond(unitPondWSString);
-    this._unitsPonds.value.push(unitPondWS);
-    this.refresh();
-  }
-
-  public updateWS(unitPondWSString: string): void {
+  public createOrUpdateWS(unitPondWSString: string): void {
     const unitPondWS = this._unitPondFactory.createUnitPond(unitPondWSString);
     const unitPondFound = this._unitsPonds.value.filter(
-      (unitPond) => (unitPond.id = unitPondWS.id)
+      (station) => (station.id = unitPondWS.id)
     )[0];
     if (unitPondFound) {
       this._unitPondFactory.copyUnitPond(unitPondFound, unitPondWS);
+    } else {
+      this._unitsPonds.value.push(unitPondWS);
     }
-  }
-
-  public extractMQTTPacketAndAct(mqttPacket: MQTTPacket): void {
-    const topicSplit = mqttPacket.topic.split('/');
-    const topicSplitLengh = topicSplit.length;
-    const unitPondID = Number.parseInt(topicSplitLengh[topicSplitLengh - 1]);
-    const unitPondFound = this._unitsPonds.value.filter(
-      (unitPond) => (unitPond.id = unitPondID)
-    )[0];
-    if (unitPondFound) {
-      this._unitPondFactory.updateProperties(unitPondFound, mqttPacket.message);
-    }
+    this.refresh();
   }
 }
