@@ -23,7 +23,7 @@ import { DialogStationComponent } from 'src/app/modules/wrap/station/components/
 import { StationEntity } from 'src/app/modules/wrap/station/station.entity';
 import { StationFactory } from 'src/app/modules/wrap/station/station.factory';
 import { StationService } from 'src/app/modules/wrap/station/station.service';
-import { AuthService } from '../auth/auth/auth.service';
+import { AuthService } from '../../modules/auth/auth/auth.service';
 import { UnitHydrantSocketService } from './../../modules/unit/unit-hydrant/unit-hydrant-socket.service';
 
 @Injectable({

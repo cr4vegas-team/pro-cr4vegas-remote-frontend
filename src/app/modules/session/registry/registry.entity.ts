@@ -1,11 +1,9 @@
 import { SessionEntity } from "../session/session.entity";
 
-export class OrderEntity {
+export class RegistryEntity {
 
   id: number;
   session: SessionEntity;
   message: string;
-  active: number;
   created: Date;
-  updated: Date;
 }

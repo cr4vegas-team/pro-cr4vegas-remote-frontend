@@ -5,7 +5,7 @@ import { PageRegistryComponent } from './../modules/session/registry/components/
 import { PageSessionComponent } from './../modules/session/session/components/page-session/page-session.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from './auth/auth/guards/auth.guard';
+import { AuthGuard } from '../modules/auth/auth/guards/auth.guard';
 import { PageUnitGenericComponent } from '../modules/unit/unit-generic/components/page-unit-generic/page-unit-generic.component';
 import { PageUnitHydrantComponent } from '../modules/unit/unit-hydrant/components/page-unit-hydrant/page-unit-hydrant.component';
 import { PageUnitPondComponent } from '../modules/unit/unit-pond/components/page-unit-pond/page-unit-pond.component';

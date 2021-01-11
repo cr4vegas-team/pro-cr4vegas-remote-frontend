@@ -9,8 +9,8 @@ import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydra
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
-import { AuthService } from 'src/app/shared/auth/auth/auth.service';
-import { UserRoleEnum } from 'src/app/shared/auth/user/enum/user-role.enum';
+import { AuthService } from 'src/app/modules/auth/auth/auth.service';
+import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';

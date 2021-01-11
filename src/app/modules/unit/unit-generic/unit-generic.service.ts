@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
 import { MQTTPacket } from 'src/app/shared/models/mqtt-packet.model';
 import { GLOBAL } from '../../../shared/constants/global.constant';
-import { AuthService } from '../../../shared/auth/auth/auth.service';
+import { AuthService } from '../../auth/auth/auth.service';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitGenericCreateDto } from './dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from './dto/unit-generic-update.dto';

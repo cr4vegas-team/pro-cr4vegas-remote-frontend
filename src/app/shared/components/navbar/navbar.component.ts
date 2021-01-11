@@ -3,7 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { UserEntity } from 'src/app/modules/auth/user/user.entity';
+import { AuthService } from '../../../modules/auth/auth/auth.service';
+import { UserRoleEnum } from '../../../modules/auth/user/enum/user-role.enum';
 import { DialogUnitGenericCreateComponent } from '../../../modules/unit/unit-generic/components/dialog-unit-generic-create/dialog-unit-generic-create.component';
 import { UnitGenericService } from '../../../modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantCreateComponent } from '../../../modules/unit/unit-hydrant/components/dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
@@ -16,10 +19,10 @@ import { DialogStationCreateComponent } from '../../../modules/wrap/station/comp
 import { StationEntity } from '../../../modules/wrap/station/station.entity';
 import { StationService } from '../../../modules/wrap/station/station.service';
 import { MapboxStyleEnum } from '../../../shared/constants/mapbox-style.enum';
-import { AuthService } from '../../auth/auth/auth.service';
-import { UserRoleEnum } from '../../auth/user/enum/user-role.enum';
+import { ErrorTypeEnum } from '../../constants/error-type.enum';
 import { GLOBAL } from '../../constants/global.constant';
 import { MapService } from '../../services/map.service';
+import { DialogInfoTitleEnum } from '../dialog-info/dialog-info-title.enum';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { DialogSettingComponent } from './../../../modules/general/setting/components/dialog-setting/dialog-setting.component';
 import { DialogOrderCreateComponent } from './../../../modules/session/order/components/dialog-order-create/dialog-order-create.component';
@@ -38,6 +41,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL;
   disabled = false;
   hidden = true;
+  user: UserEntity;
+  sessionCardHidden = true;;
 
   // ==================================================
   //  SHOWING CHECKBOX
@@ -95,6 +100,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this._authService.getUser$().subscribe(user => {
+      this.user = user;
+    })
   }
 
   ngOnDestroy(): void {
@@ -277,8 +285,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
   //  LOGOUT & CLOSE
   // ==================================================
   logout(): void {
-    this._authService.logout();
-    this._router.navigateByUrl('/');
+    this._authService.logout().subscribe((res) => {
+      if (res) {
+        this._authService.clearAccessFromStorage();
+        this._authService.getUser$().next(null);
+        this._router.navigateByUrl('/');
+      }
+    },
+      error => {
+        this._matDialog.open(DialogInfoComponent, {
+          data: {
+            errorType: ErrorTypeEnum.API_ERROR,
+            title: DialogInfoTitleEnum.ERROR,
+            html: error,
+          },
+        })
+      });
   }
 
   close(reason: string): void {

@@ -1,4 +1,4 @@
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from '../modules/auth/auth.module';
 import { NgModule } from '@angular/core';
 import { ChartsModule } from 'ng2-charts';
 import { AppRoutingModule } from './app-routing.module';
@@ -9,7 +9,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { LoginComponent } from './components/page-login/page-login.component';
 import { MapComponent } from './components/page-map/page-map.component';
 import { MaterialModule } from './material.module';
-import { AuthService } from './auth/auth/auth.service';
+import { AuthService } from '../modules/auth/auth/auth.service';
 import { MapService } from './services/map.service';
 
 const modules = [MaterialModule, ChartsModule, AppRoutingModule, AuthModule];

@@ -1,4 +1,4 @@
-import { AuthModule } from './shared/auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { registerLocaleData } from '@angular/common';
 // ==================================================
 // MODULES

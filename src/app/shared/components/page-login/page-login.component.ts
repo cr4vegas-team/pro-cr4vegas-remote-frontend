@@ -9,12 +9,12 @@ import {
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth/auth/auth.service';
-import { UserRoleEnum } from '../../auth/user/enum/user-role.enum';
+import { AuthService } from '../../../modules/auth/auth/auth.service';
+import { UserRoleEnum } from '../../../modules/auth/user/enum/user-role.enum';
 import { ErrorTypeEnum } from '../../constants/error-type.enum';
 import { DialogInfoTitleEnum } from '../dialog-info/dialog-info-title.enum';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
-import { UserCreateDto } from './../../auth/user/dto/user-create.dto';
+import { UserCreateDto } from '../../../modules/auth/user/dto/user-create.dto';
 
 export function validateEmailAndPass(
   otherControl: AbstractControl
@@ -124,14 +124,43 @@ export class LoginComponent implements OnInit {
       this._authService.login(
         this.loginForm.get('loginUser').value,
         this.loginForm.get('loginPassword').value
-      );
+      ).subscribe(
+        (res) => {
+          localStorage.setItem('access', JSON.stringify(res as any));
+          this._authService.saveAccessOnStorage(JSON.stringify(res as any));
+          this._authService.getUser$().next((res as any).user);
+        },
+        error => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: {
+              errorType: ErrorTypeEnum.API_ERROR,
+              title: DialogInfoTitleEnum.ERROR,
+              html: error,
+            },
+          })
+        });
     } else {
       this.loginMessage = this.MESSAGE_AUTH_ERR;
     }
   }
 
   logout(): void {
-    this._authService.logout();
+    this._authService.logout().subscribe((res) => {
+      if (res) {
+        this._authService.clearAccessFromStorage();
+        this._authService.getUser$().next(null);
+        this._router.navigateByUrl('/');
+      }
+    },
+      error => {
+        this._matDialog.open(DialogInfoComponent, {
+          data: {
+            errorType: ErrorTypeEnum.API_ERROR,
+            title: DialogInfoTitleEnum.ERROR,
+            html: error,
+          },
+        })
+      });
   }
 
   signin(): void {

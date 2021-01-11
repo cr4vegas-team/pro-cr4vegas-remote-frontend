@@ -8,8 +8,8 @@ import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/co
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
-import { AuthService } from 'src/app/shared/auth/auth/auth.service';
-import { UserRoleEnum } from 'src/app/shared/auth/user/enum/user-role.enum';
+import { AuthService } from 'src/app/modules/auth/auth/auth.service';
+import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { UnitEntity } from '../../../../../modules/unit/unit/unit.entity';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';

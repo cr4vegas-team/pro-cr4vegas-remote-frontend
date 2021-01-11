@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { GLOBAL } from '../../../shared/constants/global.constant';
-import { AuthService } from '../../../shared/auth/auth/auth.service';
+import { AuthService } from '../../auth/auth/auth.service';
 import { MQTTPacket } from './../../../shared/models/mqtt-packet.model';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitHydrantCreateDto } from './dto/unit-hydrant-create.dto';

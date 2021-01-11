@@ -1,6 +1,6 @@
 import { Directive, ElementRef, Input, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
-import { UserRoleEnum } from './../enum/user-role.enum';
+import { UserRoleEnum } from '../enum/user-role.enum';
 
 @Directive({
   selector: '[appRole]',

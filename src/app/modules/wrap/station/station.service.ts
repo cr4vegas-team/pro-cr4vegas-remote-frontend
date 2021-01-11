@@ -4,7 +4,7 @@ import { Map } from 'mapbox-gl';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { StationFactory } from '../../../modules/wrap/station/station.factory';
 import { GLOBAL } from '../../../shared/constants/global.constant';
-import { AuthService } from '../../../shared/auth/auth/auth.service';
+import { AuthService } from '../../auth/auth/auth.service';
 import { MapService } from './../../../shared/services/map.service';
 import { StationCreateDto } from './dto/station-create.dto';
 import { StationUpdateDto } from './dto/station-update.dto';

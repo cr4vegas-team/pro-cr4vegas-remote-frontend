@@ -4,13 +4,13 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { Label } from 'ng2-charts';
 import { Subscription } from 'rxjs';
-import { AuthService } from 'src/app/shared/auth/auth/auth.service';
-import { UserRoleEnum } from 'src/app/shared/auth/user/enum/user-role.enum';
-import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
-import { UploadService } from 'src/app/shared/services/upload.service';
 import { UnitPondEntity } from '../../../../../modules/unit/unit-pond/unit-pond.entity';
+import { DialogImageComponent } from '../../../../../shared/components/dialog-image/dialog-image.component';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
+import { UploadService } from '../../../../../shared/services/upload.service';
+import { AuthService } from '../../../../auth/auth/auth.service';
+import { UserRoleEnum } from '../../../../auth/user/enum/user-role.enum';
 import { DialogUnitPondCreateComponent } from '../dialog-unit-pond-create/dialog-unit-pond-create.component';
 
 @Component({

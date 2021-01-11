@@ -1,13 +1,5 @@
-<mat-sidenav-container
-  class="navbar-container"
-  (backdropClick)="close('backdrop')"
->
-  <mat-sidenav
-    class="navbar"
-    #sidenav
-    (keydown.escape)="close('escape')"
-    disableClose
-  >
+<mat-sidenav-container class="navbar-container" (backdropClick)="close('backdrop')">
+  <mat-sidenav class="navbar" #sidenav (keydown.escape)="close('escape')" disableClose>
     <img class="logo" src="../../../../assets/img/logo.png" />
     <br />
     <br />
@@ -24,39 +16,23 @@
     </button>
     <mat-menu #menuShows="matMenu">
       <div class="container">
-        <mat-checkbox
-          class="example-margin"
-          [(ngModel)]="cbxStationChecked"
-          (ngModelChange)="showStations()"
-          (click)="$event.stopPropagation()"
-        >
+        <mat-checkbox class="example-margin" [(ngModel)]="cbxStationChecked" (ngModelChange)="showStations()"
+          (click)="$event.stopPropagation()">
           Estaciones
         </mat-checkbox>
         <br />
-        <mat-checkbox
-          class="example-margin"
-          [(ngModel)]="cbxUnitHydrantChecked"
-          (ngModelChange)="showUnitsHydrants()"
-          (click)="$event.stopPropagation()"
-        >
+        <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitHydrantChecked" (ngModelChange)="showUnitsHydrants()"
+          (click)="$event.stopPropagation()">
           Hidrantes
         </mat-checkbox>
         <br />
-        <mat-checkbox
-          class="example-margin"
-          [(ngModel)]="cbxUnitPondChecked"
-          (ngModelChange)="showUnitsPonds()"
-          (click)="$event.stopPropagation()"
-        >
+        <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitPondChecked" (ngModelChange)="showUnitsPonds()"
+          (click)="$event.stopPropagation()">
           Balsas
         </mat-checkbox>
         <br />
-        <mat-checkbox
-          class="example-margin"
-          [(ngModel)]="cbxUnitGenericChecked"
-          (ngModelChange)="showUnitsGenerics()"
-          (click)="$event.stopPropagation()"
-        >
+        <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitGenericChecked" (ngModelChange)="showUnitsGenerics()"
+          (click)="$event.stopPropagation()">
           Genéricos
         </mat-checkbox>
       </div>
@@ -68,41 +44,22 @@
       </button>
       <hr />
       <div class="container">
-        <mat-radio-group
-          aria-labelledby="radio-group"
-          #group="matRadioGroup"
-          (change)="setStyle($event)"
-        >
-          <mat-radio-button
-            class="radio-button"
-            value="{{ mapboxStyleEnum.STREETS }}"
-            (click)="$event.stopPropagation()"
-          >
+        <mat-radio-group aria-labelledby="radio-group" #group="matRadioGroup" (change)="setStyle($event)">
+          <mat-radio-button class="radio-button" value="{{ mapboxStyleEnum.STREETS }}"
+            (click)="$event.stopPropagation()">
             Carretera
           </mat-radio-button>
           <br />
-          <mat-radio-button
-            class="radio-button"
-            value="{{ mapboxStyleEnum.SATELITE }}"
-            (click)="$event.stopPropagation()"
-            checked
-          >
+          <mat-radio-button class="radio-button" value="{{ mapboxStyleEnum.SATELITE }}"
+            (click)="$event.stopPropagation()" checked>
             Satélite
           </mat-radio-button>
           <br />
-          <mat-radio-button
-            class="radio-button"
-            value="{{ mapboxStyleEnum.DARK }}"
-            (click)="$event.stopPropagation()"
-          >
+          <mat-radio-button class="radio-button" value="{{ mapboxStyleEnum.DARK }}" (click)="$event.stopPropagation()">
             Oscuro
           </mat-radio-button>
           <br />
-          <mat-radio-button
-            class="radio-button"
-            value="{{ mapboxStyleEnum.LIGHT }}"
-            (click)="$event.stopPropagation()"
-          >
+          <mat-radio-button class="radio-button" value="{{ mapboxStyleEnum.LIGHT }}" (click)="$event.stopPropagation()">
             Claro
           </mat-radio-button>
           <br />
@@ -117,11 +74,7 @@
       Ir a...
     </button>
     <mat-menu #menuStations="matMenu">
-      <button
-        mat-menu-item
-        *ngFor="let station of stations"
-        (click)="centerMapTo(station)"
-      >
+      <button mat-menu-item *ngFor="let station of stations" (click)="centerMapTo(station)">
         {{ station.name }}
       </button>
     </mat-menu>
@@ -147,12 +100,7 @@
       <button mat-menu-item (click)="goUnitsPonds()">Balsas</button>
     </mat-menu>
 
-    <button
-      class="button-navbar"
-      mat-button
-      [matMenuTriggerFor]="create"
-      [disabled]="disabled"
-    >
+    <button class="button-navbar" mat-button [matMenuTriggerFor]="create" [disabled]="disabled">
       Crear
     </button>
 
@@ -177,36 +125,6 @@
       <button mat-menu-item (click)="openDialogUnitPondCreate()">Balsa</button>
     </mat-menu>
 
-    <!--
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuHistory">
-      Historial
-    </button>
-
-    <mat-menu #menuHistory="matMenu">
-      <button mat-menu-item (click)="openPageSession()">Sesiones</button>
-      <button mat-menu-item (click)="openPageRegistry()">Registro</button>
-      <button mat-menu-item (click)="openPageAction()">Acciones</button>
-      <button mat-menu-item (click)="openPageAlarm()">Alarmas</button>
-    </mat-menu>
-
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuOrder">
-      Ordenes
-    </button>
-
-    <mat-menu #menuOrder="matMenu">
-      <button mat-menu-item (click)="openPageOrder()">Listado</button>
-      <button mat-menu-item (click)="openDialogOrderCreate()">Crear</button>
-    </mat-menu>
-
-    <button
-      class="button-navbar"
-      mat-button
-      (click)="openDialogSetting()"
-    >
-      Ajustes
-    </button>
-    <br /> -->
-
     <!-- START Logout -->
     <button class="button-navbar" mat-button (click)="logout()">
       Desconectar
@@ -216,14 +134,40 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <button
-      class="button-menu"
-      mat-button
-      (click)="sidenav.open()"
-      [hidden]="hidden"
-    >
+    <button class="button-menu" mat-button (click)="sidenav.open()" [hidden]="hidden">
       <mat-icon>line_weight</mat-icon>
     </button>
+
+    <div id="div-session">
+      <button id="button-session" mat-raised-button (click)="sessionCardHidden = !sessionCardHidden">
+        <span class="text-primary">{{user.username}}</span>&nbsp;&nbsp;<span class="text-secondary">Inicio:
+          {{user.session.started | date: 'short'}}</span>
+      </button>
+      <mat-card id="card-session" [hidden]="sessionCardHidden">
+        <div>
+          <div class="row text-left">
+            <div class="col-2 d-flex justify-content-center align-items-center">
+              <mat-icon aria-hidden="false" aria-label="Example home icon">person</mat-icon>
+            </div>
+            <div class="col-10 d-flex flex-column align-items-center">
+              <div class="fw-bold">{{user.username}}</div>
+              <div>{{user.email}}</div>
+            </div>
+          </div>
+        </div>
+        <mat-card-content>
+          <div class="row">
+            <div class="col">col1</div>
+            <div class="col">col2</div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button>LIKE</button>
+          <button mat-button>SHARE</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
     <div>
       <router-outlet></router-outlet>
     </div>
