@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { MqttEventService } from './mqtt-event.service';
+import { MqttEventService } from '../mqtt-event.service';
 
 describe('MqttEventService', () => {
   let service: MqttEventService;
