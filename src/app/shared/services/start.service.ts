@@ -2,29 +2,18 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { DialogUnitGenericComponent } from 'src/app/modules/unit/unit-generic/components/dialog-unit-generic/dialog-unit-generic.component';
-import { UnitGenericEntity } from 'src/app/modules/unit/unit-generic/unit-generic.entity';
 import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant/dialog-unit-hydrant.component';
-import { UnitHydrantEntity } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.entity';
 import { UnitHydrantFactory } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.factory';
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
-import { UnitPondEntity } from 'src/app/modules/unit/unit-pond/unit-pond.entity';
 import { UnitPondFactory } from 'src/app/modules/unit/unit-pond/unit-pond.factory';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
-import { SectorEntity } from 'src/app/modules/wrap/sector/sector.entity';
-import { SectorFactory } from 'src/app/modules/wrap/sector/sector.factory';
 import { SectorService } from 'src/app/modules/wrap/sector/sector.service';
-import { SetEntity } from 'src/app/modules/wrap/set/set.entity';
-import { SetFactory } from 'src/app/modules/wrap/set/set.factory';
 import { SetService } from 'src/app/modules/wrap/set/set.service';
 import { DialogStationComponent } from 'src/app/modules/wrap/station/components/dialog-station/dialog-station.component';
-import { StationEntity } from 'src/app/modules/wrap/station/station.entity';
-import { StationFactory } from 'src/app/modules/wrap/station/station.factory';
 import { StationService } from 'src/app/modules/wrap/station/station.service';
-import { AuthService } from '../../modules/auth/auth/auth.service';
-import { UnitHydrantSocketService } from './../../modules/unit/unit-hydrant/unit-hydrant-socket.service';
 
 @Injectable({
   providedIn: 'root',
@@ -45,62 +34,39 @@ export class StartService implements OnDestroy {
   //  CONSTRUCTOR
   // ==================================================
   constructor(
-    private readonly _authService: AuthService,
     private readonly _matDialog: MatDialog,
+    // Services
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitHydrantService: UnitHydrantService,
-    private readonly _unitHydrantSocketService: UnitHydrantSocketService,
     private readonly _unitPondService: UnitPondService,
     private readonly _stationService: StationService,
     private readonly _sectorService: SectorService,
+    private readonly _setService: SetService,
+    // Factories
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _unitGenericFactory: UnitGenericFactory,
     private readonly _unitPondFactory: UnitPondFactory,
-    private readonly _stationFactory: StationFactory,
-    private readonly _sectorFactory: SectorFactory,
-    private readonly _setFactory: SetFactory,
-    private readonly _setService: SetService
   ) {
-    this._authService.getUser$().subscribe((res) => {
-      if (res !== null) {
-        this.initStations();
-        this.initSectors();
-        this.initSets();
-        this.initUnitsGenerics();
-        this.initUnitsHydrants();
-        this.initUnitsPonds();
-      }
-    });
-  }
-
-  // ==================================================
-  //  INIT & SUBSCRIBE STATIONS
-  // ==================================================
-  private initStations(): void {
-    this.findStations();
+    this.subscribeToUnitsGenerics();
+    this.subscribeToUnitsHydrants();
+    this.subscribeToUnitsPonds();
     this.subscribeToStations();
+
+    this.subscribeToUnitsGenericsMarkerChange();
+    this.subscribeToUnitsHydrantsMarkerChange();
+    this.subscribeToUnitsPondsMarkerChange();
+
+    this._unitGenericService.findAll();
+    this._unitHydrantService.findAll();
+    this._unitPondService.findAll();
+    this._stationService.findAll();
+    this._sectorService.findAll();
+    this._setService.findAll();
   }
 
-  private findStations(): void {
-    this._stationService.findAll().subscribe(
-      (stationsRO) => {
-        this._stationService.cleanAll();
-        stationsRO.stations.forEach((station: StationEntity) => {
-          const newStation: StationEntity = this._stationFactory.createStation(
-            station
-          );
-          newStation.marker.getElement().onclick = () =>
-            this._matDialog.open(DialogStationComponent, { data: newStation });
-          this._stationService.getStations().value.push(newStation);
-        });
-        this._stationService.refresh();
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
-  }
-
+  // ==================================================
+  //  SUBSCRIBE STATIONS
+  // ==================================================
   private subscribeToStations(): void {
     this._subStations = this._stationService
       .getStations()
@@ -113,86 +79,8 @@ export class StartService implements OnDestroy {
   }
 
   // ==================================================
-  //  INIT & SUBSCRIBE SECTORS
+  //  Sbuscribe Units Generics
   // ==================================================
-  private initSectors(): void {
-    this.findSectors();
-  }
-
-  private findSectors(): void {
-    this._sectorService.findAll().subscribe(
-      (sectorsRO) => {
-        this._sectorService.cleanAll();
-        sectorsRO.sectors.forEach((sector: SectorEntity) => {
-          const newSector: SectorEntity = this._sectorFactory.createSector(
-            sector
-          );
-          this._sectorService.getSectors().value.push(newSector);
-        });
-        this._sectorService.refresh();
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
-  }
-
-  // ==================================================
-
-  private initSets(): void {
-    this.findSets();
-  }
-
-  private findSets(): void {
-    this._setService.findAll().subscribe(
-      (setsRO) => {
-        this._setService.cleanAll();
-        setsRO.sets.forEach((set: SetEntity) => {
-          const newSet: SetEntity = this._setFactory.createSet(set);
-          this._setService.getSets().value.push(newSet);
-        });
-        this._setService.refresh();
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
-  }
-
-  // ==================================================
-  //  Init Units Generics
-  // ==================================================
-  private initUnitsGenerics(): void {
-    this.findUnitsGenerics();
-    this.subscribeToUnitsGenerics();
-  }
-
-  private findUnitsGenerics(): void {
-    this._unitGenericService.findAll().subscribe(
-      (unitGenericRO) => {
-        this._unitGenericService.cleanAll();
-        unitGenericRO.unitsGenerics.forEach(
-          (unitGeneric: UnitGenericEntity) => {
-            const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(
-              unitGeneric
-            );
-            newUnitGeneric.marker.getElement().onclick = () =>
-              this._matDialog.open(DialogUnitGenericComponent, {
-                data: newUnitGeneric,
-              });
-            this._unitGenericService
-              .getUnitsGeneric()
-              .value.push(newUnitGeneric);
-          }
-        );
-        this._unitGenericService.refresh();
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
-  }
-
   private subscribeToUnitsGenerics(): void {
     this._subUnitGenerics = this._unitGenericService
       .getUnitsGeneric()
@@ -221,40 +109,8 @@ export class StartService implements OnDestroy {
   }
 
   // ==================================================
-  //  Init Units Hydrants
+  //  Subscribe Units Hydrants
   // ==================================================
-  private initUnitsHydrants(): void {
-    this.findUnitsHydrants();
-    this.subscribeToUnitsHydrants();
-    this.subscribeToUnitsHydrantsMarkerChange();
-  }
-
-  private findUnitsHydrants(): void {
-    this._unitHydrantService.findAll().subscribe(
-      (unitHydrantsRO) => {
-        this._unitHydrantService.cleanAll();
-        unitHydrantsRO.unitsHydrants.forEach(
-          (unitHydrant: UnitHydrantEntity) => {
-            const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
-              unitHydrant
-            );
-            newUnitHydrant.marker.getElement().onclick = () =>
-              this._matDialog.open(DialogUnitHydrantComponent, {
-                data: newUnitHydrant,
-              });
-            this._unitHydrantService
-              .getUnitsHydrants()
-              .value.push(newUnitHydrant);
-          }
-        );
-        this._unitHydrantService.refresh();
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
-  }
-
   private subscribeToUnitsHydrants(): void {
     this._subUnitHydrants = this._unitHydrantService
       .getUnitsHydrants()
@@ -283,35 +139,8 @@ export class StartService implements OnDestroy {
   }
 
   // ==================================================
-  //  Init Units Ponds
+  //  Sbuscribe Units Ponds
   // ==================================================
-  private initUnitsPonds(): void {
-    this.findUnitsPonds();
-    this.subscribeToUnitsPonds();
-  }
-
-  private findUnitsPonds(): void {
-    this._unitPondService.findAll().subscribe(
-      (unitPondsRO) => {
-        this._unitPondService.cleanAll();
-        unitPondsRO.unitsPonds.forEach((unitPond: UnitPondEntity) => {
-          const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(
-            unitPond
-          );
-          newUnitPond.marker.getElement().onclick = () =>
-            this._matDialog.open(DialogUnitPondComponent, {
-              data: newUnitPond,
-            });
-          this._unitPondService.getUnitsPonds().value.push(newUnitPond);
-        });
-        this._unitPondService.refresh();
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
-  }
-
   private subscribeToUnitsPonds(): void {
     this._subUnitPonds = this._unitPondService
       .getUnitsPonds()
@@ -355,6 +184,12 @@ export class StartService implements OnDestroy {
     }
     if (this._subUnitHydrantMarkerChange) {
       this._subUnitHydrantMarkerChange.unsubscribe();
+    }
+    if (this._subUnitGenericMarkerChange) {
+      this._subUnitGenericMarkerChange.unsubscribe();
+    }
+    if (this._subUnitPondMarkerChange) {
+      this._subUnitPondMarkerChange.unsubscribe();
     }
   }
 }

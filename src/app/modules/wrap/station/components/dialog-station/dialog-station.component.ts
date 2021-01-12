@@ -2,14 +2,14 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/modules/auth/auth/auth.service';
+import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { DialogUnitGenericComponent } from 'src/app/modules/unit/unit-generic/components/dialog-unit-generic/dialog-unit-generic.component';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant/dialog-unit-hydrant.component';
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
-import { AuthService } from 'src/app/modules/auth/auth/auth.service';
-import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { UnitEntity } from '../../../../../modules/unit/unit/unit.entity';
 import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
@@ -46,7 +46,10 @@ export class DialogStationComponent implements OnInit, OnDestroy {
     public station: StationEntity
   ) {
     this._authService.getUser$().subscribe((user) => {
-      if (user.role == UserRoleEnum.ADMIN || user.role == UserRoleEnum.MODERATOR) {
+      if (
+        user && user.role === UserRoleEnum.ADMIN ||
+        user && user.role === UserRoleEnum.MODERATOR
+      ) {
         this.disabled = false;
       } else {
         this.disabled = true;

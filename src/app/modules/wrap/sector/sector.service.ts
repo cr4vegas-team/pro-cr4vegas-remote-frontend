@@ -36,9 +36,24 @@ export class SectorService {
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-  findAll(): Observable<SectorsRO> {
+  public findAll(): void {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<SectorsRO>(this._url, httpOptions);
+    this._httpClient.get<SectorsRO>(this._url, httpOptions).subscribe(
+      (sectorsRO) => {
+        this.cleanAll();
+        const sectorsFounded: SectorEntity[] = [];
+        sectorsRO.sectors.forEach((sector: SectorEntity) => {
+          const newSector: SectorEntity = this._sectorFactory.createSector(
+            sector
+          );
+          sectorsFounded.push(newSector);
+        });
+        this._sectors.next(sectorsFounded);
+      },
+      (error) => {
+        throw new Error(error);
+      }
+    );
   }
 
   create(sectorCreateDto: SectorCreateDto): Observable<SectorRO> {
@@ -76,6 +91,7 @@ export class SectorService {
 
   public cleanAll(): void {
     this._sectors.value.slice(0);
+    this._sectors.next([]);
   }
 
   // ==================================================

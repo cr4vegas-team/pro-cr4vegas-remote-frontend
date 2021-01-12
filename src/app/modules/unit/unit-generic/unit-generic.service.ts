@@ -84,9 +84,26 @@ export class UnitGenericService implements OnDestroy {
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-  findAll(): Observable<UnitsGenericsRO> {
+  public findAll(): void {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<UnitsGenericsRO>(this._url, httpOptions);
+    this._httpClient.get<UnitsGenericsRO>(this._url, httpOptions).subscribe(
+      (unitGenericRO) => {
+        this.cleanAll();
+        const unitGenericsFounded: UnitGenericEntity[] = [];
+        unitGenericRO.unitsGenerics.forEach(
+          (unitGeneric: UnitGenericEntity) => {
+            const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(
+              unitGeneric
+            );
+            unitGenericsFounded.push(newUnitGeneric);
+          }
+        );
+        this._unitsGenerics.next(unitGenericsFounded);
+      },
+      (error) => {
+        throw new Error(error);
+      }
+    );
   }
 
   create(
@@ -135,14 +152,15 @@ export class UnitGenericService implements OnDestroy {
       this.clean(unitGeneric);
     });
     this._unitsGenerics.value.splice(0);
+    this._unitsGenerics.next([]);
   }
 
   public clean(unitGeneric: UnitGenericEntity): void {
     if (unitGeneric.marker) {
       unitGeneric.marker.remove();
     }
-    if (unitGeneric.nodeSubscription) {
-      unitGeneric.nodeSubscription.unsubscribe();
+    if (unitGeneric.mqttSubscription) {
+      unitGeneric.mqttSubscription.unsubscribe();
     }
   }
 

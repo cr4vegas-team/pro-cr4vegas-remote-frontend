@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatRadioChange } from '@angular/material/radio';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { UserEntity } from 'src/app/modules/auth/user/user.entity';
 import { AuthService } from '../../../modules/auth/auth/auth.service';
 import { UserRoleEnum } from '../../../modules/auth/user/enum/user-role.enum';
@@ -42,7 +42,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   disabled = false;
   hidden = true;
   user: UserEntity;
-  sessionCardHidden = true;;
+  sessionCardHidden = true;
 
   // ==================================================
   //  SHOWING CHECKBOX
@@ -98,11 +98,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
         } else {
           this.hidden = true;
         }
+      } else {
+        this.hidden = true;
       }
     });
     this._authService.getUser$().subscribe(user => {
       this.user = user;
-    })
+    });
   }
 
   ngOnDestroy(): void {
@@ -290,6 +292,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this._authService.clearAccessFromStorage();
         this._authService.getUser$().next(null);
         this._router.navigateByUrl('/');
+        this.sessionCardHidden = true;
       }
     },
       error => {
@@ -299,7 +302,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             title: DialogInfoTitleEnum.ERROR,
             html: error,
           },
-        })
+        });
       });
   }
 

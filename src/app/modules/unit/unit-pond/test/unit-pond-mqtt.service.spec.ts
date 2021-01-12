@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AuthService } from '../../../modules/auth/auth/auth.service';
+import { UnitPondMqttService } from '../unit-pond-mqtt.service';
 
-describe('AuthService', () => {
-  let service: AuthService;
+describe('UnitPondMqttService', () => {
+  let service: UnitPondMqttService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AuthService);
+    service = TestBed.inject(UnitPondMqttService);
   });
 
   it('should be created', () => {

@@ -37,9 +37,22 @@ export class SetService {
   // ==================================================
   // API FUNCTIONS - SET
   // ==================================================
-  public findAll(): Observable<SetsRO> {
+  public findAll(): void {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<SetsRO>(this._url + '/all', httpOptions);
+    this._httpClient.get<SetsRO>(this._url + '/all', httpOptions).subscribe(
+      (setsRO) => {
+        this.cleanAll();
+        const setsFounded: SetEntity[] = [];
+        setsRO.sets.forEach((set: SetEntity) => {
+          const newSet: SetEntity = this._setFactory.createSet(set);
+          setsFounded.push(newSet);
+        });
+        this._sets.next(setsFounded);
+      },
+      (error) => {
+        throw new Error(error);
+      }
+    );
   }
 
   public create(setCreateDto: SetCreateDto): Observable<SetRO> {
@@ -108,6 +121,7 @@ export class SetService {
 
   public cleanAll(): void {
     this._sets.value.splice(0);
+    this._sets.next([]);
   }
 
   // ==================================================

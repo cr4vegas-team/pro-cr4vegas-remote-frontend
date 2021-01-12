@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Map, Marker } from 'mapbox-gl';
 import { BehaviorSubject } from 'rxjs';
-import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
-import { PondStateEnum } from 'src/app/shared/constants/pond-state.enum';
 import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { UnitFactory } from '../unit/unit.factory';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitPondCreateDto } from './dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
 import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
+import { UnitPondMqttService } from './unit-pond-mqtt.service';
 import { UnitPondEntity } from './unit-pond.entity';
 
 @Injectable({
@@ -31,6 +30,7 @@ export class UnitPondFactory {
   constructor(
     private readonly _unitFactory: UnitFactory,
     private readonly _mapService: MapService,
+    private readonly _unitPondMQTTService: UnitPondMqttService,
   ) {
     this._mapService.map.subscribe((map) => {
       if (map) {
@@ -55,6 +55,7 @@ export class UnitPondFactory {
       newUnitPond.unit = this._unitFactory.createUnit(unitPond.unit);
       newUnitPond.unit.unitTypeTable = UnitTypeTableEnum.UNIT_POND;
       this.createMarker(newUnitPond);
+      this._unitPondMQTTService.subscribeMQTT(newUnitPond);
     }
     return newUnitPond;
   }
@@ -65,45 +66,6 @@ export class UnitPondFactory {
     target.unit = this._unitFactory.createUnit(source.unit);
     target.marker.setLngLat([target.unit.longitude, target.unit.latitude]);
     this.createMarker(target);
-  }
-
-  public updateProperties(
-    unitPond: UnitPondEntity,
-    topicMessage: string
-  ): void {
-    if (unitPond.nodeSubscription) {
-      unitPond.nodeSubscription.unsubscribe();
-    }
-    const dataSplit: string[] = topicMessage.split(',');
-    if (dataSplit.length > 0) {
-      switch (dataSplit[0]) {
-        case '0':
-          unitPond.unit.communication = 0;
-          break;
-        case '1':
-          unitPond.unit.communication = 1;
-          break;
-        case '2':
-          if (dataSplit[1]) {
-            unitPond.level$.next(Number.parseInt(dataSplit[1]));
-            this.checkBouysState(unitPond);
-          }
-          break;
-        case '3':
-          if (dataSplit[1]) {
-            unitPond.unit.operator = dataSplit[1];
-          }
-          if (dataSplit[2]) {
-            unitPond.unit.signal = Number.parseFloat(dataSplit[1]);
-          }
-          if (dataSplit[3]) {
-            unitPond.unit.ip = dataSplit[1];
-          }
-          break;
-        default:
-      }
-    }
-    this.checkStatus(unitPond);
   }
 
   // ==================================================
@@ -136,15 +98,6 @@ export class UnitPondFactory {
     return unitPondWSDto;
   }
 
-  public clean(unitPond: UnitPondEntity): void {
-    if (unitPond.marker) {
-      unitPond.marker.remove();
-    }
-    if (unitPond.nodeSubscription) {
-      unitPond.nodeSubscription.unsubscribe();
-    }
-  }
-
   // ==================================================
   //  MARKER FUNCTIONS
   // ==================================================
@@ -170,7 +123,7 @@ export class UnitPondFactory {
     const point = document.createElement('div');
     point.style.width = '2.0em';
     point.style.height = '2.0em';
-    point.style.backgroundColor = this.getMarkerColour(unitPond);
+    point.style.backgroundColor = unitPond.getMarkerColour();
     point.style.margin = '1px auto';
     point.style.borderRadius = '50%';
     point.style.borderBottomRightRadius = '0%';
@@ -190,72 +143,7 @@ export class UnitPondFactory {
     if (this._map) {
       unitPond.marker.addTo(this._map);
     }
-  }
 
-  // ==================================================
-  //  MQTT
-  // ==================================================
-  private checkStatus(unitPond: UnitPondEntity): void {
-    this.checkBouysState(unitPond);
-    this.setMarkerColourAccourdingState(unitPond);
-  }
-
-  private checkBouysState(unitPond: UnitPondEntity): void {
-    let bouysState: PondStateEnum = null;
-    if (unitPond.level$.value < unitPond.level$.value / 3) {
-      bouysState = PondStateEnum.LOW;
-    }
-    if (
-      unitPond.level$.value >= unitPond.level$.value / 3 &&
-      unitPond.level$.value < unitPond.level$.value / 2
-    ) {
-      bouysState = PondStateEnum.MEDIUM;
-    }
-    if (
-      unitPond.level$.value >= unitPond.level$.value / 2 &&
-      unitPond.level$.value < unitPond.level$.value - 0.2
-    ) {
-      bouysState = PondStateEnum.HIGTH;
-    }
-    if (unitPond.level$.value >= unitPond.level$.value - 0.2) {
-      bouysState = PondStateEnum.ALARM;
-    }
-    if (unitPond.pondState !== bouysState) {
-      unitPond.pondState = bouysState;
-    }
-  }
-
-  private setMarkerColourAccourdingState(unitPond: UnitPondEntity): void {
-    unitPond.marker
-      .getElement()
-      .getElementsByTagName(
-        'div'
-      )[1].style.backgroundColor = this.getMarkerColour(unitPond);
-  }
-
-  private getMarkerColour(unitPond: UnitPondEntity): string {
-    if (unitPond.unit.active) {
-      return this.getMarkerColourAccordingBouyState(unitPond);
-    }
-    return MarkerColourEnum.INACTIVE;
-  }
-
-  private getMarkerColourAccordingBouyState(unitPond: UnitPondEntity): string {
-    if (unitPond.pondState) {
-      if (unitPond.pondState === PondStateEnum.LOW) {
-        return MarkerColourEnum.UNIT_POND_LOW;
-      }
-      if (unitPond.pondState === PondStateEnum.MEDIUM) {
-        return MarkerColourEnum.UNIT_POND_MEDIUM;
-      }
-      if (unitPond.pondState === PondStateEnum.HIGTH) {
-        return MarkerColourEnum.UNIT_POND_HIGTH;
-      }
-      if (unitPond.pondState === PondStateEnum.ALARM) {
-        return MarkerColourEnum.ALARM;
-      }
-    } else {
-      return MarkerColourEnum.UNIT_POND_LOW;
-    }
+    unitPond.checkStatus();
   }
 }

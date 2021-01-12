@@ -112,12 +112,6 @@ export class StationFactory {
     return stationWSDto;
   }
 
-  public clean(station: StationEntity): void {
-    if (station.marker) {
-      station.marker.remove();
-    }
-  }
-
   // ==================================================
   //  MARKER FUNCTIONS
   // ==================================================

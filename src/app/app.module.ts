@@ -1,4 +1,3 @@
-import { AuthModule } from './modules/auth/auth.module';
 import { registerLocaleData } from '@angular/common';
 // ==================================================
 // MODULES
@@ -10,10 +9,12 @@ import {
   NgModule
 } from '@angular/core';
 import { JwtModule } from '@auth0/angular-jwt';
+import { MqttModule } from 'ngx-mqtt';
 // ==================================================
 // COMPONENTS
 // ==================================================
 import { AppComponent } from './app.component';
+import { AuthModule } from './modules/auth/auth.module';
 import { GeneralModule } from './modules/general/general.module';
 import { SessionModule } from './modules/session/session.module';
 import { UnitModule } from './modules/unit/unit.module';
@@ -42,7 +43,9 @@ registerLocaleData(localeEs, 'es');
         allowedDomains: ['http://localhost:8881'],
       },
     }),
-
+    MqttModule.forRoot({
+      url: 'wss://emqx.rubenfgr.com:8084/mqtt',
+    }),
     SharedModule,
     UnitModule,
     WrapModule,

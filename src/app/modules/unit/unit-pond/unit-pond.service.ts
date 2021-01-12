@@ -85,9 +85,24 @@ export class UnitPondService implements OnDestroy {
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-  public findAll(): Observable<UnitsPondsRO> {
+  public findAll(): void {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<UnitsPondsRO>(this._url, httpOptions);
+    this._httpClient.get<UnitsPondsRO>(this._url, httpOptions).subscribe(
+      (unitPondsRO) => {
+        this.cleanAll();
+        const unitsPondsFounded: UnitPondEntity[] = [];
+        unitPondsRO.unitsPonds.forEach((unitPond: UnitPondEntity) => {
+          const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(
+            unitPond
+          );
+          unitsPondsFounded.push(newUnitPond);
+        });
+        this._unitsPonds.next(unitsPondsFounded);
+      },
+      (error) => {
+        throw new Error(error);
+      }
+    );
   }
 
   create(unitPondCreateDto: UnitPondCreateDto): Observable<UnitPondRO> {
@@ -131,9 +146,19 @@ export class UnitPondService implements OnDestroy {
 
   public cleanAll(): void {
     this._unitsPonds.value.forEach((unitPond) => {
-      this._unitPondFactory.clean(unitPond);
+      this.clean(unitPond);
     });
     this._unitsPonds.value.splice(0);
+    this._unitsPonds.next([]);
+  }
+
+  public clean(unitPond: UnitPondEntity): void {
+    if (unitPond.marker) {
+      unitPond.marker.remove();
+    }
+    if (unitPond.mqttSubscription) {
+      unitPond.mqttSubscription.unsubscribe();
+    }
   }
 
   // ==================================================

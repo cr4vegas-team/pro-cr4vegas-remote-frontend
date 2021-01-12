@@ -89,9 +89,22 @@ export class StationService implements OnDestroy {
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-  public findAll(): Observable<StationsRO> {
+  public findAll(): void {
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<StationsRO>(this._url, httpOptions);
+    this._httpClient.get<StationsRO>(this._url, httpOptions).subscribe(
+      (stationsRO) => {
+        this.cleanAll();
+        stationsRO.stations.forEach((station: StationEntity) => {
+          const newStation: StationEntity = this._stationFactory.createStation(
+            station
+          );
+        });
+        this.refresh();
+      },
+      (error) => {
+        throw new Error(error);
+      }
+    );
   }
 
   public create(stationCreateDto: StationCreateDto): Observable<StationRO> {
@@ -133,9 +146,16 @@ export class StationService implements OnDestroy {
 
   public cleanAll(): void {
     this._stations.value.forEach((station) => {
-      this._stationFactory.clean(station);
+      this.clean(station);
     });
     this._stations.value.splice(0);
+    this._stations.next([]);
+  }
+
+  public clean(station: StationEntity): void {
+    if (station.marker) {
+      station.marker.remove();
+    }
   }
 
   // ==================================================

@@ -2,10 +2,10 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
-import { UnitHydrantFactory } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.factory';
-import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { AuthService } from 'src/app/modules/auth/auth/auth.service';
 import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
+import { UnitHydrantFactory } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.factory';
+import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
 import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
@@ -14,6 +14,7 @@ import { DialogInfoComponent } from '../../../../../shared/components/dialog-inf
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitHydrantEntity } from '../../unit-hydrant.entity';
 import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
+import { UnitHydrantMqttService } from './../../unit-hydrant-mqtt.service';
 @Component({
   selector: 'app-dialog-unit-hydrant',
   templateUrl: './dialog-unit-hydrant.component.html',
@@ -39,13 +40,14 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
     private readonly _authService: AuthService,
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _unitHydrantMQTTService: UnitHydrantMqttService,
     @Inject(MAT_DIALOG_DATA)
     public unitHydrant: UnitHydrantEntity
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        user.role == UserRoleEnum.ADMIN ||
-        user.role == UserRoleEnum.MODERATOR
+        user && user.role === UserRoleEnum.ADMIN ||
+        user && user.role === UserRoleEnum.MODERATOR
       ) {
         this.disabled = false;
       } else {
@@ -135,7 +137,11 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
     }
   }
 
-  public openValve(): void {}
+  public openValve(): void {
+    this._unitHydrantMQTTService.publishOrders(this.unitHydrant, 1);
+  }
 
-  public closeValve(): void {}
+  public closeValve(): void {
+    this._unitHydrantMQTTService.publishOrders(this.unitHydrant, 0);
+  }
 }

@@ -42,8 +42,8 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        user.role == UserRoleEnum.ADMIN ||
-        user.role == UserRoleEnum.MODERATOR
+        user && user.role === UserRoleEnum.ADMIN ||
+        user && user.role === UserRoleEnum.MODERATOR
       ) {
         this.disabled = false;
       } else {

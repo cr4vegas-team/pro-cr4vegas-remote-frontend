@@ -83,9 +83,28 @@ export class UnitHydrantService implements OnDestroy {
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-  public findAll(): Observable<UnitsHydrantsRO> {
+  public findAll(): void {
+    /* const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.get<UnitsHydrantsRO>(this._url, httpOptions); */
     const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<UnitsHydrantsRO>(this._url, httpOptions);
+    this._httpClient.get<UnitsHydrantsRO>(this._url, httpOptions).subscribe(
+      (unitHydrantsRO) => {
+        this.cleanAll();
+        const unitHydrantsFounded: UnitHydrantEntity[] = [];
+        unitHydrantsRO.unitsHydrants.forEach(
+          (unitHydrant: UnitHydrantEntity) => {
+            const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
+              unitHydrant
+            );
+            unitHydrantsFounded.push(newUnitHydrant);
+          }
+        );
+        this._unitsHydrants.next(unitHydrantsFounded);
+      },
+      (error) => {
+        throw new Error(error);
+      }
+    );
   }
 
   create(
@@ -133,8 +152,19 @@ export class UnitHydrantService implements OnDestroy {
 
   public cleanAll(): void {
     this._unitsHydrants.value.forEach((unitHydrant) => {
-      this._unitHydrantFactory.clean(unitHydrant);
+      this.clean(unitHydrant);
     });
+    this._unitsHydrants.value.slice(0);
+    this._unitsHydrants.next([]);
+  }
+
+  public clean(unitHydrant: UnitHydrantEntity): void {
+    if (unitHydrant.marker) {
+      unitHydrant.marker.remove();
+    }
+    if (unitHydrant.mqttSubscription) {
+      unitHydrant.mqttSubscription.unsubscribe();
+    }
   }
 
   // ==================================================

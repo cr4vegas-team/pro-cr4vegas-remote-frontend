@@ -12,7 +12,7 @@ export class WebsocketService implements OnDestroy {
   connect(): void {
     this._webSocket = new WebSocket(environment.ws.url);
     this._webSocket.onopen = () => {
-      console.log('Conexión con websocket exitosa!');
+      console.log('¡Conexión con websocket exitosa!');
       this.send(
         JSON.stringify({
           event: 'client',
@@ -49,7 +49,7 @@ export class WebsocketService implements OnDestroy {
     return this._received$;
   }
 
-  send(data: string) {
+  send(data: string): void {
     this._webSocket.onopen = () => {
       this._webSocket.send(data);
     };

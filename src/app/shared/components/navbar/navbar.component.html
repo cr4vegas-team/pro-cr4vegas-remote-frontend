@@ -125,12 +125,6 @@
       <button mat-menu-item (click)="openDialogUnitPondCreate()">Balsa</button>
     </mat-menu>
 
-    <!-- START Logout -->
-    <button class="button-navbar" mat-button (click)="logout()">
-      Desconectar
-    </button>
-    <br />
-    <!-- END Logout -->
   </mat-sidenav>
 
   <mat-sidenav-content>
@@ -138,33 +132,44 @@
       <mat-icon>line_weight</mat-icon>
     </button>
 
-    <div id="div-session">
+    <div *ngIf="user" id="user" class="text-muted">
       <button id="button-session" mat-raised-button (click)="sessionCardHidden = !sessionCardHidden">
         <span class="text-primary">{{user.username}}</span>&nbsp;&nbsp;<span class="text-secondary">Inicio:
           {{user.session.started | date: 'short'}}</span>
       </button>
-      <mat-card id="card-session" [hidden]="sessionCardHidden">
-        <div>
-          <div class="row text-left">
-            <div class="col-2 d-flex justify-content-center align-items-center">
-              <mat-icon aria-hidden="false" aria-label="Example home icon">person</mat-icon>
-            </div>
-            <div class="col-10 d-flex flex-column align-items-center">
-              <div class="fw-bold">{{user.username}}</div>
-              <div>{{user.email}}</div>
-            </div>
+      <mat-card id="p-2 text-left" [hidden]="sessionCardHidden">
+
+        <div class="row d-flex justify-content-end">
+          <div class="col text-right">
+            <span class="fw-bold text-primary">{{user.username}}</span>
+            <br>
+            <span class="text-secondary">{{user.email}}</span>
+            <br>
+            <span class="text-success">{{user.role}}</span>
+          </div>
+          <div class="col-2 mr-3">
+            <img id="user-img" src="../../../../assets/img/user.png" alt="Usuario" title="Usuario">
           </div>
         </div>
-        <mat-card-content>
+
+        <div class="text-left">
           <div class="row">
-            <div class="col">col1</div>
-            <div class="col">col2</div>
+            <div class="col-2 text-body">Sesión:</div>
+            <div class="col-10">{{user.session.id}}</div>
           </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-button>LIKE</button>
-          <button mat-button>SHARE</button>
-        </mat-card-actions>
+          <div class="row">
+            <div class="col-2">Origen:</div>
+            <div class="col-10 text-start">{{user.session.origin}}</div>
+          </div>
+          <div class="row">
+            <div class="col-2">Dispositivo:</div>
+            <div class="col-10">{{user.session.userAgent}}</div>
+          </div>
+        </div>
+
+
+        <button mat-raised-button color="warn" (click)="logout()">Desconectar</button>
+
       </mat-card>
     </div>
 

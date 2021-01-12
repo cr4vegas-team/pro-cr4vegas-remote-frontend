@@ -1,7 +1,7 @@
+import { UnitGenericMqttService } from './unit-generic-mqtt.service';
 import { Injectable } from '@angular/core';
 import { Map, Marker } from 'mapbox-gl';
 import { BehaviorSubject } from 'rxjs';
-import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
 import { UnitFactory } from '../unit/unit.factory';
 import { UnitTypeTableEnum } from './../../../shared/constants/unit-type-table.enum';
 import { MapService } from './../../../shared/services/map.service';
@@ -26,7 +26,8 @@ export class UnitGenericFactory {
 
   constructor(
     private readonly _unitFactory: UnitFactory,
-    private readonly _mapService: MapService
+    private readonly _mapService: MapService,
+    private readonly _unitGenericMQTTService: UnitGenericMqttService
   ) {
     this._mapService.map.subscribe((map) => {
       if (map) {
@@ -54,6 +55,7 @@ export class UnitGenericFactory {
       newUnitGeneric.unit = this._unitFactory.createUnit(unitGeneric.unit);
       newUnitGeneric.unit.unitTypeTable = UnitTypeTableEnum.UNIT_GENERIC;
       this.createMarker(newUnitGeneric);
+      this._unitGenericMQTTService.subscribeMQTT(unitGeneric);
     }
     return newUnitGeneric;
   }
@@ -66,56 +68,6 @@ export class UnitGenericFactory {
     target.data5 = source.data5;
     target.unit = this._unitFactory.updateUnit(target.unit, source.unit);
     this.createMarker(target);
-  }
-
-  public updateProperties(
-    unitGeneric: UnitGenericEntity,
-    topicMessage: string
-  ): void {
-    if (unitGeneric.nodeSubscription) {
-      unitGeneric.nodeSubscription.unsubscribe();
-    }
-    const dataSplit: string[] = topicMessage.split(',');
-    if (dataSplit.length > 0) {
-      switch (dataSplit[0]) {
-        case '0':
-          unitGeneric.unit.communication = 0;
-          break;
-        case '1':
-          unitGeneric.unit.communication = 1;
-          break;
-        case '2':
-          if (dataSplit[1]) {
-            unitGeneric.property1$.next(Number.parseFloat(dataSplit[1]));
-          }
-          if (dataSplit[2]) {
-            unitGeneric.property1$.next(Number.parseFloat(dataSplit[2]));
-          }
-          if (dataSplit[3]) {
-            unitGeneric.property1$.next(Number.parseFloat(dataSplit[3]));
-          }
-          if (dataSplit[4]) {
-            unitGeneric.property1$.next(Number.parseFloat(dataSplit[4]));
-          }
-          if (dataSplit[5]) {
-            unitGeneric.property1$.next(Number.parseFloat(dataSplit[5]));
-          }
-          break;
-        case '3':
-          if (dataSplit[1]) {
-            unitGeneric.unit.operator = dataSplit[1];
-          }
-          if (dataSplit[2]) {
-            unitGeneric.unit.signal = Number.parseFloat(dataSplit[1]);
-          }
-          if (dataSplit[3]) {
-            unitGeneric.unit.ip = dataSplit[1];
-          }
-          break;
-        default:
-      }
-    }
-    this.setMarkerColourAccourdingState(unitGeneric);
   }
 
   // ==================================================
@@ -200,7 +152,7 @@ export class UnitGenericFactory {
     const point = document.createElement('div');
     point.style.width = '1.8em';
     point.style.height = '1.8em';
-    point.style.backgroundColor = this.getMarkerColour(unitGeneric);
+    point.style.backgroundColor = unitGeneric.getMarkerColour();
     point.style.margin = '0px auto';
     point.style.borderTopLeftRadius = '50%';
     point.style.borderTopRightRadius = '50%';
@@ -216,26 +168,6 @@ export class UnitGenericFactory {
     this._markerChange$.next(unitGeneric);
     if (this._map) {
       unitGeneric.marker.addTo(this._map);
-    }
-  }
-
-  private setMarkerColourAccourdingState(unitGeneric: UnitGenericEntity): void {
-    unitGeneric.marker
-      .getElement()
-      .getElementsByTagName(
-        'div'
-      )[1].style.backgroundColor = this.getMarkerColour(unitGeneric);
-  }
-
-  private getMarkerColour(unitGEneric: UnitGenericEntity): string {
-    if (unitGEneric.unit.active) {
-      if (unitGEneric.unit.communication) {
-        return MarkerColourEnum.UNIT;
-      } else {
-        return MarkerColourEnum.WITHOUT_COMMUNICATION;
-      }
-    } else {
-      return MarkerColourEnum.INACTIVE;
     }
   }
 }

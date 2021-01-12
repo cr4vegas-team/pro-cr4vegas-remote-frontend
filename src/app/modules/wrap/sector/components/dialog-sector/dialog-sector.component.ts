@@ -16,6 +16,7 @@ import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { SectorEntity } from './../../sector.entity';
 import { DialogSectorCreateComponent } from './../dialog-sector-create/dialog-sector-create.component';
+import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
 
 @Component({
   selector: 'app-dialog-sector',
@@ -43,8 +44,11 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public sector: SectorEntity
   ) {
-    this._authService.getUser$().subscribe((res) => {
-      if (res) {
+    this._authService.getUser$().subscribe((user) => {
+      if (
+        user && user.role === UserRoleEnum.ADMIN ||
+        user && user.role === UserRoleEnum.MODERATOR
+      ) {
         this.disabled = false;
       } else {
         this.disabled = true;

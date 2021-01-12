@@ -1,5 +1,6 @@
 import { Marker } from 'mapbox-gl';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
 import { UnitEntity } from '../unit/unit.entity';
 
 export class UnitGenericEntity {
@@ -28,6 +29,26 @@ export class UnitGenericEntity {
   // ==================================================
   // FRONTEND PROPERTIES
   // ==================================================
-  nodeSubscription: Subscription;
+  mqttSubscription: Subscription;
   marker: Marker;
+
+  public setMarkerColourAccourdingState(): void {
+    this.marker
+      .getElement()
+      .getElementsByTagName(
+        'div'
+      )[1].style.backgroundColor = this.getMarkerColour();
+  }
+
+  public getMarkerColour(): string {
+    if (this.unit.active) {
+      if (this.unit.communication) {
+        return MarkerColourEnum.UNIT;
+      } else {
+        return MarkerColourEnum.WITHOUT_COMMUNICATION;
+      }
+    } else {
+      return MarkerColourEnum.INACTIVE;
+    }
+  }
 }
