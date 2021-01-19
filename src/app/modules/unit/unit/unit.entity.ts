@@ -25,6 +25,7 @@ export class UnitEntity {
   created: Date;
   updated: Date;
   image: string;
+  name: string;
 
   // ==================================================
   //  MQTT PROPERTIES

@@ -19,7 +19,7 @@ export class AuthService {
     this._url = GLOBAL.API;
     try {
       const userString = localStorage.getItem('access');
-      if (userString && userString != "") {
+      if (userString && userString !== '') {
         const access = JSON.parse(userString);
         if (access.user) {
           this.user$ = new BehaviorSubject(access.user);
@@ -43,8 +43,8 @@ export class AuthService {
     params?: HttpParams;
   } {
     const access = localStorage.getItem('access');
-    let accessToken = "";
-    if (access && access != "") {
+    let accessToken = '';
+    if (access && access !== '') {
       const accessJSON = JSON.parse(access);
       if (accessJSON.access_token) {
         accessToken = accessJSON.access_token;

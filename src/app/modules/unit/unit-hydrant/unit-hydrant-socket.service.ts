@@ -16,7 +16,7 @@ export class UnitHydrantSocketService {
       if (received) {
         const event = received.event;
         const data = JSON.parse(received.data);
-        if (event == WSEndPoints.EVENT_UNIT_HYDRANT) {
+        if (event === WSEndPoints.EVENT_UNIT_HYDRANT) {
           this._unitHydrantService.createOrUpdateWS(data);
         }
       }

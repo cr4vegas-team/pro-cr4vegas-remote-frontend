@@ -11,6 +11,8 @@ import { MapComponent } from './components/page-map/page-map.component';
 import { MaterialModule } from './material.module';
 import { AuthService } from '../modules/auth/auth/auth.service';
 import { MapService } from './services/map.service';
+import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
+import { PondComponent } from './components/elements/pond/pond.component';
 
 const modules = [MaterialModule, ChartsModule, AppRoutingModule, AuthModule];
 
@@ -22,6 +24,8 @@ const modules = [MaterialModule, ChartsModule, AppRoutingModule, AuthModule];
     DialogInfoComponent,
     DialogResultComponent,
     DialogImageComponent,
+    DialogConfirmComponent,
+    PondComponent,
   ],
   // ===========================================================
   //  IMPORTS
@@ -38,6 +42,7 @@ const modules = [MaterialModule, ChartsModule, AppRoutingModule, AuthModule];
     NavbarComponent,
     DialogInfoComponent,
     DialogResultComponent,
+    PondComponent,
   ],
 
   // ===========================================================

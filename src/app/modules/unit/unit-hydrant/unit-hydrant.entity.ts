@@ -104,13 +104,13 @@ export class UnitHydrantEntity {
   // ==================================================
   //  MARKER
   // ==================================================
-  private setMarkerColourAccourdingState(this: UnitHydrantEntity): void {
+  private setMarkerColourAccourdingState(): void {
     this.marker
       .getElement()
       .getElementsByTagName('div')[1].style.background = this.getMarkerColour();
   }
 
-  public getMarkerColour(this: UnitHydrantEntity): string {
+  public getMarkerColour(): string {
     if (this.unit.active === 1) {
       if (this.unit.communication === 1) {
         return this.getMarkerColourAccordingBouyState();

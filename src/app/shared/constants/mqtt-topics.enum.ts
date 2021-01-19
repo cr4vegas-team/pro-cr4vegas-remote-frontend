@@ -8,6 +8,7 @@ export enum MQTTTopics {
   PUBLISH_UNIT_GENERIC = 's/u/g/', // unit/generic
   PUBLISH_UNIT_HYDRANT = 's/u/h/', // unit/hydrant
   PUBLISH_UNIT_POND = 's/u/p/', // unit/pond
+  PUBLISH_UNIT_STATION_PECHINA = 's/u/s/', // unit/pond
 
   OBSERVE_STATION = 'n/es/', // station
   OBSERVE_SET = 'n/cj/', // set
@@ -15,5 +16,6 @@ export enum MQTTTopics {
   OBSERVE_UNIT_GENERIC = 'n/u/g/', // unit/generic
   OBSERVE_UNIT_HYDRANT = 'n/u/h/', // unit/hydrant
   OBSERVE_UNIT_POND = 'n/u/p/', // unit/pond
+  OBSERVE_UNIT_STATION_PECHINA = 'n/u/s/', // unit/station/
 
 }

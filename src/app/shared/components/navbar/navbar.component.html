@@ -1,50 +1,56 @@
-<mat-sidenav-container class="navbar-container" (backdropClick)="close('backdrop')">
+<mat-sidenav-container class="w-100 vh-100" (backdropClick)="close('backdrop')">
   <mat-sidenav class="navbar" #sidenav (keydown.escape)="close('escape')" disableClose>
-    <img class="logo" src="../../../../assets/img/logo.png" />
+    <img class="img-fluid p-3" src="../../../../assets/img/logo.png" />
     <br />
     <br />
     <!-- <p><button mat-button (click)="close('toggle button')">Toggle</button></p> -->
 
     <!-- START Map -->
-    <button class="button-navbar" mat-button (click)="goMap()">Mapa</button>
-    <br />
+    <button mat-button color="primary" class="fs-5 w-100 text-start mb-2" (click)="goMap()">
+      <div class="icon-link fas fa-map-marker-alt"></div>
+      &nbsp;&nbsp;Mapa
+    </button>
     <!-- END Map -->
 
     <!-- START Show Menú -->
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuShows">
-      Mostrar
+    <button mat-button color="primary" class="fs-5 w-100 text-start mb-2" [matMenuTriggerFor]="menuShows">
+      <div class="icon-link fas fa-bookmark"></div>
+      &nbsp;&nbsp;Mostrar
     </button>
-    <mat-menu #menuShows="matMenu">
-      <div class="container">
+    <mat-menu class="overflow-visible" #menuShows="matMenu">
+      <div class="p-3 fs-5 row gy-2">
         <mat-checkbox class="example-margin" [(ngModel)]="cbxStationChecked" (ngModelChange)="showStations()"
           (click)="$event.stopPropagation()">
           Estaciones
         </mat-checkbox>
-        <br />
+
         <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitHydrantChecked" (ngModelChange)="showUnitsHydrants()"
           (click)="$event.stopPropagation()">
           Hidrantes
         </mat-checkbox>
-        <br />
+
         <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitPondChecked" (ngModelChange)="showUnitsPonds()"
           (click)="$event.stopPropagation()">
           Balsas
         </mat-checkbox>
-        <br />
+
         <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitGenericChecked" (ngModelChange)="showUnitsGenerics()"
           (click)="$event.stopPropagation()">
           Genéricos
         </mat-checkbox>
       </div>
-      <button mat-button (click)="$event.stopPropagation(); setCbxToTrue()">
+      <button mat-button color="primary" class="fs-5 text-start mb-2"
+        (click)="$event.stopPropagation(); setCbxToTrue()">
         Mostrartodo
       </button>
-      <button mat-button (click)="$event.stopPropagation(); setCbxToFalse()">
+      <button mat-button color="primary" class="fs-5 text-start mb-2"
+        (click)="$event.stopPropagation(); setCbxToFalse()">
         Limpiar
       </button>
       <hr />
-      <div class="container">
-        <mat-radio-group aria-labelledby="radio-group" #group="matRadioGroup" (change)="setStyle($event)">
+      <div>
+        <mat-radio-group class="p-3 fs-5 row gy-2" aria-labelledby="radio-group" #group="matRadioGroup"
+          (change)="setStyle($event)">
           <mat-radio-button class="radio-button" value="{{ mapboxStyleEnum.STREETS }}"
             (click)="$event.stopPropagation()">
             Carretera
@@ -70,107 +76,109 @@
     <!-- END Show Menú -->
 
     <!-- START Go to... -->
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="menuStations">
-      Ir a...
+    <button mat-button color="primary" class="fs-5 w-100 text-start mb-2" [matMenuTriggerFor]="menuStations">
+      <div class="icon-link fas fa-plane"></div>
+      &nbsp;&nbsp;Ir a...
     </button>
     <mat-menu #menuStations="matMenu">
       <button mat-menu-item *ngFor="let station of stations" (click)="centerMapTo(station)">
         {{ station.name }}
       </button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationPlanta()">Planta de ozono</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationPechina()">Pechina / Benahadux</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationGador()">Gador</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationBoticario()">Boticario</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationLasViudas()">Las Viudas</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationAljibeSalvador()">Aljibe El Salvador</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationLosTrancos()">Los Trancos</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationCostacabana()">Costacabana</button>
+      <button class="fs-5" mat-menu-item (click)="flyToUnitStationBobar()">El Bobar</button>
+
     </mat-menu>
+
     <br />
     <!-- END Go to... -->
 
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="list">
-      Listar
+    <button mat-button color="primary" class="fs-5 w-100 text-start mb-2" [matMenuTriggerFor]="list">
+      <div class="icon-link fas fa-list"></div>
+      &nbsp;&nbsp;Listar
     </button>
 
     <mat-menu #list="matMenu">
-      <button mat-menu-item [matMenuTriggerFor]="listUnits">
+      <button class="fs-5" mat-menu-item [matMenuTriggerFor]="listUnits">
         Unidades de control
       </button>
-      <button mat-menu-item (click)="goSectors()">Sectores</button>
-      <button mat-menu-item (click)="goStations()">Estaciones</button>
-      <button mat-menu-item (click)="goSets()">Conjuntos</button>
+      <button class="fs-5" mat-menu-item (click)="goSectors()">Sectores</button>
+      <button class="fs-5" mat-menu-item (click)="goSets()">Conjuntos</button>
     </mat-menu>
 
     <mat-menu #listUnits="matMenu">
-      <button mat-menu-item (click)="goUnitsGenerics()">Genéricos</button>
-      <button mat-menu-item (click)="goUnitsHydrants()">Hidrantes</button>
-      <button mat-menu-item (click)="goUnitsPonds()">Balsas</button>
+      <button class="fs-5" mat-menu-item (click)="goUnitsGenerics()">Genéricos</button>
+      <button class="fs-5" mat-menu-item (click)="goUnitsHydrants()">Hidrantes</button>
+      <button class="fs-5" mat-menu-item (click)="goUnitsPonds()">Balsas</button>
+      <button class="fs-5" mat-menu-item (click)="goStations()">Estaciones</button>
     </mat-menu>
 
-    <button class="button-navbar" mat-button [matMenuTriggerFor]="create" [disabled]="disabled">
-      Crear
+    <br />
+
+    <button mat-button color="primary" class="fs-5 w-100 text-start mb-2" [matMenuTriggerFor]="create"
+      [disabled]="disabled">
+      <div class="icon-link fas fa-plus"></div>
+      &nbsp;&nbsp;Crear
     </button>
 
     <mat-menu #create="matMenu">
-      <button mat-menu-item [matMenuTriggerFor]="createUnits">
+      <button class="fs-5" mat-menu-item [matMenuTriggerFor]="createUnits">
         Unidades de control
       </button>
-      <button mat-menu-item (click)="openDialogSectorCreate()">Sector</button>
-      <button mat-menu-item (click)="openDialogStationCreate()">
-        Estación
-      </button>
-      <button mat-menu-item (click)="openDialogSetCreate()">Conjunto</button>
+      <button class="fs-5" mat-menu-item (click)="openDialogSectorCreate()">Sector</button>
+      <button class="fs-5" mat-menu-item (click)="openDialogSetCreate()">Conjunto</button>
     </mat-menu>
 
     <mat-menu #createUnits="matMenu">
-      <button mat-menu-item (click)="openDialogUnitGenericCreate()">
+      <button class="fs-5" mat-menu-item (click)="openDialogUnitGenericCreate()">
         Genérico
       </button>
-      <button mat-menu-item (click)="openDialogUnitHydrantCreate()">
+      <button class="fs-5" mat-menu-item (click)="openDialogUnitHydrantCreate()">
         Hidrante
       </button>
-      <button mat-menu-item (click)="openDialogUnitPondCreate()">Balsa</button>
+      <button class="fs-5" mat-menu-item (click)="openDialogUnitPondCreate()">Balsa</button>
     </mat-menu>
-
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <button class="button-menu" mat-button (click)="sidenav.open()" [hidden]="hidden">
+    <button class="superponer position-fixed top-0 start-0 m-sm-2 opacity-50 bg-white-70 px-3 py-2 rounded border-0"
+      (click)="sidenav.open()" [hidden]="hidden">
       <mat-icon>line_weight</mat-icon>
     </button>
 
-    <div *ngIf="user" id="user" class="text-muted">
-      <button id="button-session" mat-raised-button (click)="sessionCardHidden = !sessionCardHidden">
-        <span class="text-primary">{{user.username}}</span>&nbsp;&nbsp;<span class="text-secondary">Inicio:
-          {{user.session.started | date: 'short'}}</span>
+    <div *ngIf="user" id="user" class="superponer position-fixed top-0 end-0 m-sm-2 text-end">
+      <button class="opacity-50 bg-white-70 p-2 rounded border-0 mb-2" (click)="sessionCardHidden = !sessionCardHidden">
+        <span class="text-primary">{{ user.username }}</span>&nbsp;&nbsp;<span class="text-secondary">Inicio: {{
+          user.session.started | date: "short" }}</span>
       </button>
-      <mat-card id="p-2 text-left" [hidden]="sessionCardHidden">
 
-        <div class="row d-flex justify-content-end">
-          <div class="col text-right">
-            <span class="fw-bold text-primary">{{user.username}}</span>
-            <br>
-            <span class="text-secondary">{{user.email}}</span>
-            <br>
-            <span class="text-success">{{user.role}}</span>
+      <div>
+        <div class="p-3 bg-white rounded" [hidden]="sessionCardHidden">
+          <div class="row">
+            <div class="col text-end">
+              <div class="text-primary mb-2">{{ user.username }}</div>
+              <div class="text-success mb-2">{{ user.role }}</div>
+              <div class="text-secondary mb-2">{{ user.email }}</div>
+              <div class="text-secondary mb-2">
+                Sesión {{ user.session.id }}
+              </div>
+            </div>
+            <div class="col d-flex justify-content-center align-items-center">
+              <div class="icon fas fa-user"></div>
+            </div>
           </div>
-          <div class="col-2 mr-3">
-            <img id="user-img" src="../../../../assets/img/user.png" alt="Usuario" title="Usuario">
-          </div>
+
+          <button mat-raised-button class="mt-1" color="warn" (click)="logout()">
+            Desconectar
+          </button>
         </div>
-
-        <div class="text-left">
-          <div class="row">
-            <div class="col-2 text-body">Sesión:</div>
-            <div class="col-10">{{user.session.id}}</div>
-          </div>
-          <div class="row">
-            <div class="col-2">Origen:</div>
-            <div class="col-10 text-start">{{user.session.origin}}</div>
-          </div>
-          <div class="row">
-            <div class="col-2">Dispositivo:</div>
-            <div class="col-10">{{user.session.userAgent}}</div>
-          </div>
-        </div>
-
-
-        <button mat-raised-button color="warn" (click)="logout()">Desconectar</button>
-
-      </mat-card>
+      </div>
     </div>
 
     <div>

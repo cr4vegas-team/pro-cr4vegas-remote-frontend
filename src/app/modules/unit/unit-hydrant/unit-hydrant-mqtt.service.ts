@@ -17,27 +17,28 @@ export class UnitHydrantMqttService {
   //  PUBLISH
   // ==================================================
   public publishGETCommunication(unitHydrant: UnitHydrantEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.id, `1`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `1`);
   }
 
   public publishGETData(unitHydrant: UnitHydrantEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.id, `2`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `2`);
   }
 
   public publishGETSIMData(unitHydrant: UnitHydrantEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.id, `3`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `3`);
   }
 
-  public publishOrders(unitHydrant: UnitHydrantEntity, electrovalvula: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.id, `5,${electrovalvula}`);
+  public publishOrders(unitHydrant: UnitHydrantEntity, electrovalvula: number, manual: number): void {
+    console.log(unitHydrant);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `5,${electrovalvula},${manual}`);
   }
 
   public publishSendSpeed(unitHydrant: UnitHydrantEntity, sendSpeed: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.id, `8,${sendSpeed}`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `8,${sendSpeed}`);
   }
 
   public publishConfiguration(unitHydrant: UnitHydrantEntity, reading: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.id, `9,${reading}`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `9,${reading}`);
   }
 
   // ==================================================
@@ -45,8 +46,7 @@ export class UnitHydrantMqttService {
   // ==================================================
   public subscribeMQTT(unitHydrant: UnitHydrantEntity): void {
     unitHydrant.mqttSubscription = this._mqttEventService.observe(MQTTTopics.OBSERVE_UNIT_HYDRANT +
-      unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.id).subscribe((mqttMSG: IMqttMessage) => {
-        console.log(mqttMSG.payload.toString());
+      unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code).subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitHydrant, mqttMSG.payload.toString());
       });
   }

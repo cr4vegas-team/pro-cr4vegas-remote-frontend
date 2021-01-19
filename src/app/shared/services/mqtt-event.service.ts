@@ -20,7 +20,7 @@ export class MqttEventService {
   }
 
   public unsafePublish(topic: string, message: string): void {
-    this._mqttService.unsafePublish(topic, message, { retain: true });
+    this._mqttService.unsafePublish(topic, message);
   }
 
   public observe(topic: string): Observable<IMqttMessage> {

@@ -13,4 +13,5 @@ export class UnitUpdateDto {
   description: string;
   image: string;
   active: number;
+  name: string;
 }

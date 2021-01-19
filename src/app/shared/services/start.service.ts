@@ -14,6 +14,9 @@ import { SectorService } from 'src/app/modules/wrap/sector/sector.service';
 import { SetService } from 'src/app/modules/wrap/set/set.service';
 import { DialogStationComponent } from 'src/app/modules/wrap/station/components/dialog-station/dialog-station.component';
 import { StationService } from 'src/app/modules/wrap/station/station.service';
+import { DialogUnitStationPechinaComponent } from './../../modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
+import { UnitStationPechinaFactoryService } from './../../modules/unit/unit-station-pechina/unit-station-pechina-factory.service';
+import { UnitStationPechinaService } from './../../modules/unit/unit-station-pechina/unit-station-pechina.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,9 +29,11 @@ export class StartService implements OnDestroy {
   private _subUnitGenerics: Subscription;
   private _subUnitHydrants: Subscription;
   private _subUnitPonds: Subscription;
+  private _subUnitStationPechina: Subscription;
   private _subUnitHydrantMarkerChange: Subscription;
   private _subUnitGenericMarkerChange: Subscription;
   private _subUnitPondMarkerChange: Subscription;
+  private _subUnitStationPechinaMarkerChange: Subscription;
 
   // ==================================================
   //  CONSTRUCTOR
@@ -39,6 +44,7 @@ export class StartService implements OnDestroy {
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
+    private readonly _unitStationPechinaService: UnitStationPechinaService,
     private readonly _stationService: StationService,
     private readonly _sectorService: SectorService,
     private readonly _setService: SetService,
@@ -46,26 +52,30 @@ export class StartService implements OnDestroy {
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _unitGenericFactory: UnitGenericFactory,
     private readonly _unitPondFactory: UnitPondFactory,
+    private readonly _unitStationPechinaFactory: UnitStationPechinaFactoryService,
   ) {
     this.subscribeToUnitsGenerics();
     this.subscribeToUnitsHydrants();
     this.subscribeToUnitsPonds();
     this.subscribeToStations();
+    this.subscribeToUnitStationPechina();
 
     this.subscribeToUnitsGenericsMarkerChange();
     this.subscribeToUnitsHydrantsMarkerChange();
     this.subscribeToUnitsPondsMarkerChange();
+    this.subscribeToUnitStationPechinaMarkerChange();
 
     this._unitGenericService.findAll();
     this._unitHydrantService.findAll();
     this._unitPondService.findAll();
+    this._unitStationPechinaService.find();
     this._stationService.findAll();
     this._sectorService.findAll();
     this._setService.findAll();
   }
 
   // ==================================================
-  //  SUBSCRIBE STATIONS
+  //  SUBSCRIBE TO STATIONS
   // ==================================================
   private subscribeToStations(): void {
     this._subStations = this._stationService
@@ -79,7 +89,7 @@ export class StartService implements OnDestroy {
   }
 
   // ==================================================
-  //  Sbuscribe Units Generics
+  //  SUBSCRIBE TO UNITS GENERICS
   // ==================================================
   private subscribeToUnitsGenerics(): void {
     this._subUnitGenerics = this._unitGenericService
@@ -109,7 +119,7 @@ export class StartService implements OnDestroy {
   }
 
   // ==================================================
-  //  Subscribe Units Hydrants
+  //  SBUSCRIBE TO UNITS HYDRANTS
   // ==================================================
   private subscribeToUnitsHydrants(): void {
     this._subUnitHydrants = this._unitHydrantService
@@ -119,6 +129,7 @@ export class StartService implements OnDestroy {
           unitHydrant.marker.getElement().onclick = () =>
             this._matDialog.open(DialogUnitHydrantComponent, {
               data: unitHydrant,
+              maxWidth: '800px',
             });
         });
       });
@@ -132,6 +143,7 @@ export class StartService implements OnDestroy {
           unitHydrant.marker.getElement().onclick = () => {
             this._matDialog.open(DialogUnitHydrantComponent, {
               data: unitHydrant,
+              maxWidth: '800px',
             });
           };
         }
@@ -139,7 +151,7 @@ export class StartService implements OnDestroy {
   }
 
   // ==================================================
-  //  Sbuscribe Units Ponds
+  //  SUBSCRIBE TO UNITS PONDS
   // ==================================================
   private subscribeToUnitsPonds(): void {
     this._subUnitPonds = this._unitPondService
@@ -160,6 +172,35 @@ export class StartService implements OnDestroy {
           unitPond.marker.getElement().onclick = () => {
             this._matDialog.open(DialogUnitPondComponent, {
               data: unitPond,
+            });
+          };
+        }
+      });
+  }
+
+  // ==================================================
+  //  SUBSCRIBE TO UNIT STATION PECHINA
+  // ==================================================
+  private subscribeToUnitStationPechina(): void {
+    this._subUnitStationPechina = this._unitStationPechinaService
+      .getUnitStationPechina()
+      .subscribe((unitStationPechina) => {
+        if (unitStationPechina && unitStationPechina.marker) {
+          unitStationPechina.marker.getElement().onclick = () => {
+            this._matDialog.open(DialogUnitStationPechinaComponent, { data: unitStationPechina });
+          };
+        }
+      });
+  }
+
+  private subscribeToUnitStationPechinaMarkerChange(): void {
+    this._subUnitStationPechinaMarkerChange = this._unitStationPechinaFactory
+      .getMarkerChange()
+      .subscribe((unitStationPechina) => {
+        if (unitStationPechina !== null) {
+          unitStationPechina.marker.getElement().onclick = () => {
+            this._matDialog.open(DialogUnitStationPechinaComponent, {
+              data: unitStationPechina,
             });
           };
         }

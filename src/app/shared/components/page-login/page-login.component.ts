@@ -68,7 +68,7 @@ export class LoginComponent implements OnInit {
 
         if (this.init) {
           this.init = false;
-          this.loginMessage = "---";
+          this.loginMessage = '---';
         }
       },
       (error) => {
@@ -110,7 +110,7 @@ export class LoginComponent implements OnInit {
       );
   }
 
-  private checkRolePermission(userRole: UserRoleEnum) {
+  private checkRolePermission(userRole: UserRoleEnum): void {
     if (userRole && userRole !== UserRoleEnum.NONE) {
       this.userRolePermission = true;
       this._router.navigate(['/map']);
@@ -131,13 +131,14 @@ export class LoginComponent implements OnInit {
           this._authService.getUser$().next((res as any).user);
         },
         error => {
+          this._authService.clearAccessFromStorage();
           this._matDialog.open(DialogInfoComponent, {
             data: {
               errorType: ErrorTypeEnum.API_ERROR,
               title: DialogInfoTitleEnum.ERROR,
               html: error,
             },
-          })
+          });
         });
     } else {
       this.loginMessage = this.MESSAGE_AUTH_ERR;
@@ -159,18 +160,18 @@ export class LoginComponent implements OnInit {
             title: DialogInfoTitleEnum.ERROR,
             html: error,
           },
-        })
+        });
       });
   }
 
   signin(): void {
     if (this.signinForm.valid) {
-      let userCreateDto = new UserCreateDto();
+      const userCreateDto = new UserCreateDto();
       userCreateDto.username = this.signinForm.get('signinUser').value;
       userCreateDto.email = this.signinForm.get('signinEmail').value;
       userCreateDto.password = this.signinForm.get('signinPassword').value;
       this._authService.signin(userCreateDto).subscribe((userRO) => {
-        let user = userRO.user;
+        const user = userRO.user;
         this._matDialog.open(DialogInfoComponent, {
           data: {
             errorType: ErrorTypeEnum.FRONT_ERROR,

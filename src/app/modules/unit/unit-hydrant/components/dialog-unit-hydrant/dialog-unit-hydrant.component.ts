@@ -14,10 +14,12 @@ import { DialogInfoComponent } from '../../../../../shared/components/dialog-inf
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitHydrantEntity } from '../../unit-hydrant.entity';
 import { DialogUnitHydrantCreateComponent } from '../dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
+import { DialogConfirmComponent } from './../../../../../shared/components/dialog-confirm/dialog-confirm.component';
 import { UnitHydrantMqttService } from './../../unit-hydrant-mqtt.service';
 @Component({
   selector: 'app-dialog-unit-hydrant',
   templateUrl: './dialog-unit-hydrant.component.html',
+  styleUrls: ['./dialog-unit-hydrant.component.css'],
 })
 export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
@@ -46,8 +48,8 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        user && user.role === UserRoleEnum.ADMIN ||
-        user && user.role === UserRoleEnum.MODERATOR
+        (user && user.role === UserRoleEnum.ADMIN) ||
+        (user && user.role === UserRoleEnum.MODERATOR)
       ) {
         this.disabled = false;
       } else {
@@ -58,7 +60,7 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
 
   // ==================================================
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (
       this.unitHydrant.unit.image !== undefined &&
       this.unitHydrant.unit.image !== null &&
@@ -93,6 +95,17 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
         this.batch = reading - this.unitHydrant.initBatch;
       }
     });
+
+    setTimeout(() => {
+      this.unitHydrant.bouyLow$.next(1);
+    }, 5000);
+
+  }
+
+  task(i) {
+    setTimeout(function() {
+      // actions... increment, decrement, etc.
+    }, 500 * i);
   }
 
   // ==================================================
@@ -100,6 +113,7 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   openDialogHydrantCreate(): void {
     this._matDialog.open(DialogUnitHydrantCreateComponent, {
       data: this.unitHydrant,
+      maxWidth: '1000px'
     });
   }
 
@@ -138,10 +152,28 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   }
 
   public openValve(): void {
-    this._unitHydrantMQTTService.publishOrders(this.unitHydrant, 1);
+    if (
+      this.unitHydrant.bouyMedium$.value === 1 &&
+      this.unitHydrant.bouyHight$.value !== 1
+    ) {
+      const dialogRef = this._matDialog.open(DialogConfirmComponent, {
+        width: '300px',
+        data:
+          'La balsa esta llena. Teniendo en cuenta que si abre manualmente solo dispone de la boya de alarma de nivel para un cierre automático, ¿Desea abrir la balsa?',
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          this._unitHydrantMQTTService.publishOrders(this.unitHydrant, 1, 1);
+        }
+      });
+    }
+    if (this.unitHydrant.bouyHight$.value !== 1) {
+      this._unitHydrantMQTTService.publishOrders(this.unitHydrant, 1, 0);
+    }
   }
 
   public closeValve(): void {
-    this._unitHydrantMQTTService.publishOrders(this.unitHydrant, 0);
+    this._unitHydrantMQTTService.publishOrders(this.unitHydrant, 0, 0);
   }
 }

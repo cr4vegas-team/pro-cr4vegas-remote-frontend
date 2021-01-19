@@ -29,6 +29,7 @@ export class UnitFactory {
       unitEntity.description = source.description;
       unitEntity.image = source.image;
       unitEntity.communication = 0;
+      unitEntity.name = source.name;
     }
     return unitEntity;
   }
@@ -49,6 +50,7 @@ export class UnitFactory {
       target.updated = source.updated;
       target.description = source.description;
       target.image = source.image;
+      target.name = source.name;
     }
     return target;
   }
@@ -69,6 +71,7 @@ export class UnitFactory {
     unitCreateDto.sets = source.sets ? source.sets.map((set) => set.id) : [];
     unitCreateDto.image = source.image;
     unitCreateDto.active = source.active;
+    unitCreateDto.name = source.name;
     return unitCreateDto;
   }
 
@@ -86,6 +89,7 @@ export class UnitFactory {
     unitUpdateDto.sets = source.sets ? source.sets.map((set) => set.id) : [];
     unitUpdateDto.image = source.image;
     unitUpdateDto.active = source.active;
+    unitUpdateDto.name = source.name;
     return unitUpdateDto;
   }
 
@@ -103,6 +107,7 @@ export class UnitFactory {
     unitWSDto.sets = source.sets ? source.sets.map((set) => set) : [];
     unitWSDto.image = source.image;
     unitWSDto.active = source.active;
+    unitWSDto.name = source.name;
     return unitWSDto;
   }
 }

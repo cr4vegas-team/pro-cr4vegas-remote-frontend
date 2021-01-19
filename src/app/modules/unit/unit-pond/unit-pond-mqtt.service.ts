@@ -15,34 +15,34 @@ export class UnitPondMqttService {
   //  PUBLISH
   // ==================================================
   public publishGETCommunication(unitPond: UnitPondEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.id, `1`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code, `1`);
   }
 
   public publishGETData(unitPond: UnitPondEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.id, `2`)
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code, `2`)
   }
 
   public publishGETSIMData(unitPond: UnitPondEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.id, `3`)
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code, `3`)
   }
 
   public publishOrders(unitPond: UnitPondEntity, electrovalvula: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.id, `5,${electrovalvula}`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code, `5,${electrovalvula}`);
   }
 
   public publishSendSpeed(unitPond: UnitPondEntity, sendSpeed: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.id, `8,${sendSpeed}`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code, `8,${sendSpeed}`);
   }
 
   public publishConfiguration(unitPond: UnitPondEntity, reading: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.id, `9,${reading}`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code, `9,${reading}`);
   }
 
   // ==================================================
   //  SUBSCRIPTIONS
   // ==================================================
   public subscribeMQTT(unitPond: UnitPondEntity) {
-    unitPond.mqttSubscription = this._mqttEventService.observe(MQTTTopics.OBSERVE_UNIT_HYDRANT + unitPond.id).subscribe((mqttMSG: IMqttMessage) => {
+    unitPond.mqttSubscription = this._mqttEventService.observe(MQTTTopics.OBSERVE_UNIT_HYDRANT + unitPond.unit.code).subscribe((mqttMSG: IMqttMessage) => {
       this.updateProperties(unitPond, mqttMSG.payload.toString());
     });
   }

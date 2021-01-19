@@ -5,6 +5,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UserEntity } from 'src/app/modules/auth/user/user.entity';
+import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { AuthService } from '../../../modules/auth/auth/auth.service';
 import { UserRoleEnum } from '../../../modules/auth/user/enum/user-role.enum';
 import { DialogUnitGenericCreateComponent } from '../../../modules/unit/unit-generic/components/dialog-unit-generic-create/dialog-unit-generic-create.component';
@@ -74,6 +75,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
+    private readonly _unitStationPechinaService: UnitStationPechinaService,
     private readonly _stationService: StationService,
     private readonly _mapService: MapService,
     private readonly _startService: StartService
@@ -281,6 +283,60 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   openDialogSetting(): void {
     this._matDialog.open(DialogSettingComponent, { data: null });
+  }
+
+  flyToUnitStationPechina(): void {
+    const longitude = this._unitStationPechinaService.getUnitStationPechina().value.unit.longitude;
+    const latitude = this._unitStationPechinaService.getUnitStationPechina().value.unit.latitude;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationPlanta(): void {
+    const longitude = -2.416275;
+    const latitude = 36.874496;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationGador(): void {
+    const longitude = -2.508389;
+    const latitude = 36.963916;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationBoticario(): void {
+    const longitude =  -2.390605;
+    const latitude = 36.867357;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationLasViudas(): void {
+    const longitude =  -2.378156;
+    const latitude = 36.889178;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationLosTrancos(): void {
+    const longitude =  -2.280015;
+    const latitude = 36.850658;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationAljibeSalvador(): void {
+    const longitude =  -2.363679;
+    const latitude = 36.876024;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationCostacabana(): void {
+    const longitude =  -2.387583;
+    const latitude = 36.837485;
+    this._mapService.centerTo(longitude, latitude);
+  }
+
+  flyToUnitStationBobar(): void {
+    const longitude =  -2.424824;
+    const latitude = 36.822050;
+    this._mapService.centerTo(longitude, latitude);
   }
 
   // ==================================================

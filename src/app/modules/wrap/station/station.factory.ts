@@ -25,6 +25,7 @@ export class StationFactory {
   //  FACTORY FUNCTIONS
   // ==================================================
   createStation(sourceStation: any): StationEntity {
+    console.log(sourceStation);
     if (sourceStation) {
       const station: StationEntity = new StationEntity();
       station.id = sourceStation.id;

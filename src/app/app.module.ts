@@ -8,6 +8,7 @@ import {
   LOCALE_ID,
   NgModule
 } from '@angular/core';
+import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { JwtModule } from '@auth0/angular-jwt';
 import { MqttModule } from 'ngx-mqtt';
 // ==================================================
@@ -54,7 +55,10 @@ registerLocaleData(localeEs, 'es');
     AuthModule
   ],
 
-  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'es' },
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { maxWidth: '100%'} }
+  ],
 
   bootstrap: [AppComponent],
 })

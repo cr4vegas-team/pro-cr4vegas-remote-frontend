@@ -17,23 +17,23 @@ export class UnitGenericMqttService {
   //  PUBLISH
   // ==================================================
   public publishGETCommunication(unitGeneric: UnitGenericEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.id, `1`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `1`);
   }
 
   public publishGETData(unitGeneric: UnitGenericEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.id, `2`)
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `2`)
   }
 
   public publishGETSIMData(unitGeneric: UnitGenericEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.id, `3`)
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `3`)
   }
 
   public publishSendSpeed(unitGeneric: UnitGenericEntity, sendSpeed: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.id, `8,${sendSpeed}`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `8,${sendSpeed}`);
   }
 
   public publishConfiguration(unitGeneric: UnitGenericEntity, reading: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.id, `9,${reading}`);
+    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `9,${reading}`);
   }
 
   // ==================================================

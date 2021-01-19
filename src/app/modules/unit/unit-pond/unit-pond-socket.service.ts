@@ -15,7 +15,7 @@ export class UnitPondSocketService {
       if (received) {
         const event = received.event;
         const data = JSON.parse(received.data);
-        if (event == WSEndPoints.EVENT_UNIT_POND) {
+        if (event === WSEndPoints.EVENT_UNIT_POND) {
           this._unitPondService.createOrUpdateWS(data);
         }
       }

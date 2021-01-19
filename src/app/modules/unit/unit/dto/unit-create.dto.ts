@@ -11,4 +11,5 @@ export class UnitCreateDto {
   description: string;
   image: string;
   active: number;
+  name: string;
 }

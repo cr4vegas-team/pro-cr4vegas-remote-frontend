@@ -15,4 +15,5 @@ export class UnitWSDto {
   description: string;
   image: string;
   active: number;
+  name: string;
 }
