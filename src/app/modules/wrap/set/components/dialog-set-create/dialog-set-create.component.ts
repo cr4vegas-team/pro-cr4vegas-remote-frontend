@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -11,6 +11,7 @@ import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { UnitService } from 'src/app/modules/unit/unit/unit.service';
 import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
 import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
+import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
@@ -27,6 +28,7 @@ import { SetTypeEntity } from './../../set-type.entity';
   templateUrl: './dialog-set-create.component.html',
 })
 export class DialogSetCreateComponent implements OnInit, OnDestroy {
+  unitTypetable = UnitTypeTableEnum;
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
   create = true;
   loading = false;
@@ -74,7 +76,6 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
 
     this.setForm = this._formBuilder.group({
       id: [this.set.id],
-      code: [this.set.code, [Validators.pattern('[A-Z0-9]{1,5}')]],
       name: [this.set.name, [Validators.required]],
       description: [this.set.description],
       active: [this.set.active, [Validators.required]],
@@ -137,17 +138,13 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       this.loading = false;
     } else {
       let html = '<h2>Existen campos incorrectos</h2><ul>';
-      if (this.setForm.get('code').invalid) {
-        html +=
-          '<li>El código debe contener de 1 a 5 caracteres (letras mayúsculas o números)</li>';
-      }
       if (this.setForm.get('name').invalid) {
         html += '<li>El nombre debe estar entre 3 y 45 caracteres</li>';
       }
       html += '</ul>';
       this._matDialog.open(DialogInfoComponent, {
         data: {
-          errorType: ErrorTypeEnum.API_ERROR,
+          errorType: ErrorTypeEnum.FRONT_ERROR,
           title: DialogInfoTitleEnum.WARNING,
           html,
         },
@@ -348,6 +345,21 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       this.subUnits.unsubscribe();
     }
   }
+
+  getType(unit: UnitEntity): string {
+    switch (unit.unitTypeTable) {
+      case UnitTypeTableEnum.UNIT_GENERIC:
+        return 'Genérico';
+      case UnitTypeTableEnum.UNIT_HYDRANT:
+        return 'Hidrante';
+      case UnitTypeTableEnum.UNIT_POND:
+        return 'Balsa';
+      case UnitTypeTableEnum.UNIT_STATION_PECHINA:
+        return 'Estación Pechina';
+      default:
+        return 'Indefinido';
+    }
+  }
 }
 
 @Component({
@@ -376,4 +388,6 @@ export class DialogSetTypeDeleteComponent {
   onNoClick(): void {
     this.dialogRef.close();
   }
+
+
 }

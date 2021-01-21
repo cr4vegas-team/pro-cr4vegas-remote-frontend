@@ -21,7 +21,6 @@ export class UnitFactory {
       unitEntity.latitude = source.latitude;
       unitEntity.unitTypeTable = source.unitTypeTable;
       unitEntity.sector = source.sector;
-      unitEntity.station = source.station;
       unitEntity.sets = source.sets;
       unitEntity.active = source.active;
       unitEntity.created = source.created;
@@ -43,7 +42,6 @@ export class UnitFactory {
       target.latitude = source.latitude;
       target.unitTypeTable = source.unitTypeTable;
       target.sector = source.sector;
-      target.station = source.station;
       target.sets = source.sets;
       target.active = source.active;
       target.created = source.created;
@@ -67,7 +65,6 @@ export class UnitFactory {
     unitCreateDto.latitude = source.latitude;
     unitCreateDto.description = source.description;
     unitCreateDto.sector = source.sector ? source.sector.id : null;
-    unitCreateDto.station = source.station ? source.station.id : null;
     unitCreateDto.sets = source.sets ? source.sets.map((set) => set.id) : [];
     unitCreateDto.image = source.image;
     unitCreateDto.active = source.active;
@@ -85,7 +82,6 @@ export class UnitFactory {
     unitUpdateDto.latitude = source.latitude;
     unitUpdateDto.description = source.description;
     unitUpdateDto.sector = source.sector ? source.sector.id : NaN;
-    unitUpdateDto.station = source.station ? source.station.id : NaN;
     unitUpdateDto.sets = source.sets ? source.sets.map((set) => set.id) : [];
     unitUpdateDto.image = source.image;
     unitUpdateDto.active = source.active;
@@ -103,7 +99,6 @@ export class UnitFactory {
     unitWSDto.latitude = source.latitude;
     unitWSDto.description = source.description;
     unitWSDto.sector = source.sector ? source.sector : null;
-    unitWSDto.station = source.station ? source.station : null;
     unitWSDto.sets = source.sets ? source.sets.map((set) => set) : [];
     unitWSDto.image = source.image;
     unitWSDto.active = source.active;

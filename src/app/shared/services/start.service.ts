@@ -12,8 +12,6 @@ import { UnitPondFactory } from 'src/app/modules/unit/unit-pond/unit-pond.factor
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
 import { SectorService } from 'src/app/modules/wrap/sector/sector.service';
 import { SetService } from 'src/app/modules/wrap/set/set.service';
-import { DialogStationComponent } from 'src/app/modules/wrap/station/components/dialog-station/dialog-station.component';
-import { StationService } from 'src/app/modules/wrap/station/station.service';
 import { DialogUnitStationPechinaComponent } from './../../modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
 import { UnitStationPechinaFactoryService } from './../../modules/unit/unit-station-pechina/unit-station-pechina-factory.service';
 import { UnitStationPechinaService } from './../../modules/unit/unit-station-pechina/unit-station-pechina.service';
@@ -45,19 +43,17 @@ export class StartService implements OnDestroy {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
     private readonly _unitStationPechinaService: UnitStationPechinaService,
-    private readonly _stationService: StationService,
     private readonly _sectorService: SectorService,
     private readonly _setService: SetService,
     // Factories
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _unitGenericFactory: UnitGenericFactory,
     private readonly _unitPondFactory: UnitPondFactory,
-    private readonly _unitStationPechinaFactory: UnitStationPechinaFactoryService,
+    private readonly _unitStationPechinaFactory: UnitStationPechinaFactoryService
   ) {
     this.subscribeToUnitsGenerics();
     this.subscribeToUnitsHydrants();
     this.subscribeToUnitsPonds();
-    this.subscribeToStations();
     this.subscribeToUnitStationPechina();
 
     this.subscribeToUnitsGenericsMarkerChange();
@@ -69,23 +65,8 @@ export class StartService implements OnDestroy {
     this._unitHydrantService.findAll();
     this._unitPondService.findAll();
     this._unitStationPechinaService.find();
-    this._stationService.findAll();
     this._sectorService.findAll();
     this._setService.findAll();
-  }
-
-  // ==================================================
-  //  SUBSCRIBE TO STATIONS
-  // ==================================================
-  private subscribeToStations(): void {
-    this._subStations = this._stationService
-      .getStations()
-      .subscribe((stations) => {
-        stations.forEach((station) => {
-          station.marker.getElement().onclick = () =>
-            this._matDialog.open(DialogStationComponent, { data: station });
-        });
-      });
   }
 
   // ==================================================
@@ -187,7 +168,9 @@ export class StartService implements OnDestroy {
       .subscribe((unitStationPechina) => {
         if (unitStationPechina && unitStationPechina.marker) {
           unitStationPechina.marker.getElement().onclick = () => {
-            this._matDialog.open(DialogUnitStationPechinaComponent, { data: unitStationPechina });
+            this._matDialog.open(DialogUnitStationPechinaComponent, {
+              data: unitStationPechina,
+            });
           };
         }
       });
@@ -231,6 +214,12 @@ export class StartService implements OnDestroy {
     }
     if (this._subUnitPondMarkerChange) {
       this._subUnitPondMarkerChange.unsubscribe();
+    }
+    if (this._subUnitStationPechina) {
+      this._subUnitStationPechina.unsubscribe();
+    }
+    if (this._subUnitStationPechinaMarkerChange) {
+      this._subUnitStationPechinaMarkerChange.unsubscribe();
     }
   }
 }

@@ -18,8 +18,6 @@ import { SectorEntity } from '../../../../../modules/wrap/sector/sector.entity';
 import { SectorService } from '../../../../../modules/wrap/sector/sector.service';
 import { SetEntity } from '../../../../../modules/wrap/set/set.entity';
 import { SetService } from '../../../../../modules/wrap/set/set.service';
-import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
-import { StationService } from '../../../../../modules/wrap/station/station.service';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitHydrantCreateDto } from '../../dto/unit-hydrant-create.dto';
@@ -36,7 +34,6 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   loading = false;
 
   sectors: Observable<SectorEntity[]>;
-  stations: Observable<StationEntity[]>;
   sets: Observable<SetEntity[]>;
 
   unitHydrantForm: FormGroup;
@@ -50,7 +47,6 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     private readonly _matDialog: MatDialog,
     private readonly _sectorService: SectorService,
     private readonly _setService: SetService,
-    private readonly _stationService: StationService,
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _formBuilder: FormBuilder,
@@ -66,7 +62,6 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sectors = this._sectorService.getSectors();
-    this.stations = this._stationService.getStations();
     this.sets = this._setService.getSets();
 
     if (this.unitHydrant) {
@@ -100,7 +95,6 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
         ],
         unitTypeTable: [this.unitHydrant.unit.unitTypeTable],
         sector: [this.unitHydrant.unit.sector, [Validators.required]],
-        station: [this.unitHydrant.unit.station],
         sets: [this.unitHydrant.unit.sets],
         description: [this.unitHydrant.unit.description],
         unitType: [this.unitHydrant.unit.unitTypeTable],

@@ -14,9 +14,7 @@
     <form [formGroup]="sectorForm">
       <div class="row">
         <div class="col-sm mr-3">
-          <mat-checkbox class="example-margin" formControlName="active"
-            >Activo</mat-checkbox
-          >
+          <mat-checkbox class="example-margin" formControlName="active">Activo</mat-checkbox>
         </div>
       </div>
 
@@ -30,13 +28,7 @@
             <button type="button" mat-raised-button (click)="fileInput.click()">
               Choose File
             </button>
-            <input
-              hidden
-              (change)="onFileSelected($event)"
-              #fileInput
-              type="file"
-              id="file"
-            />
+            <input hidden (change)="onFileSelected($event)" #fileInput type="file" id="file" />
             <br />
             <br />
           </div>
@@ -61,27 +53,18 @@
 
       <mat-form-field appearance="fill">
         <mat-label>Unidades</mat-label>
-        <mat-select
-          [compareWith]="compareUnitGeneric"
-          multiple
-          formControlName="units"
-        >
+        <mat-select [compareWith]="compareUnitGeneric" multiple formControlName="units">
           <mat-select-trigger>
             <mat-chip-list #chipList aria-label="Fruit selection">
-              <mat-chip
-                *ngFor="let unit of sectorForm.value.units"
-                [selectable]="selectable"
-                [removable]="removable"
-                (removed)="remove(unit)"
-              >
-                {{ unit.code }}
+              <mat-chip *ngFor="let unit of sectorForm.value.units" [selectable]="selectable" [removable]="removable"
+                (removed)="remove(unit)">
+                {{ unit.code }} {{ getType(unit) }}
                 <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
               </mat-chip>
             </mat-chip-list>
           </mat-select-trigger>
 
-          <mat-option *ngFor="let unit of units" [value]="unit"
-            >{{ unit.code }}
+          <mat-option *ngFor="let unit of units" [value]="unit">{{ unit.code }}
           </mat-option>
         </mat-select>
       </mat-form-field>

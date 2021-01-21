@@ -17,6 +17,8 @@ import { UploadService } from 'src/app/shared/services/upload.service';
 import { SectorEntity } from './../../sector.entity';
 import { DialogSectorCreateComponent } from './../dialog-sector-create/dialog-sector-create.component';
 import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
+import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
+import { DialogUnitStationPechinaComponent } from 'src/app/modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
 
 @Component({
   selector: 'app-dialog-sector',
@@ -38,6 +40,7 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
+    private readonly _unitStationPechinaService: UnitStationPechinaService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
     private readonly _authService: AuthService,
@@ -46,8 +49,8 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        user && user.role === UserRoleEnum.ADMIN ||
-        user && user.role === UserRoleEnum.MODERATOR
+        (user && user.role === UserRoleEnum.ADMIN) ||
+        (user && user.role === UserRoleEnum.MODERATOR)
       ) {
         this.disabled = false;
       } else {
@@ -109,6 +112,8 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
         return 'Hidrante';
       case UnitTypeTableEnum.UNIT_POND:
         return 'Balsa';
+      case UnitTypeTableEnum.UNIT_STATION_PECHINA:
+        return 'Estación Pechina';
       default:
         return 'Indefinido';
     }
@@ -141,6 +146,11 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
     }
     if (unit.unitTypeTable === UnitTypeTableEnum.UNIT_POND) {
       this._matDialog.open(DialogUnitPondComponent, {
+        data: this._unitPondService.getOneByUnitId(unit.id),
+      });
+    }
+    if (unit.unitTypeTable === UnitTypeTableEnum.UNIT_STATION_PECHINA) {
+      this._matDialog.open(DialogUnitStationPechinaComponent, {
         data: this._unitPondService.getOneByUnitId(unit.id),
       });
     }

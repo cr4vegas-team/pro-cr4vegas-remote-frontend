@@ -5,59 +5,84 @@ import { MqttEventService } from 'src/app/shared/services/mqtt-event.service';
 import { UnitStationPechinaEntity } from './unit-station-pechina.entity';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnitStationPechinaMqttService {
-
-  constructor(
-    private readonly _mqttEventService: MqttEventService,
-  ) { }
+  constructor(private readonly _mqttEventService: MqttEventService) {}
 
   // ==================================================
   //  PUBLISH
   // ==================================================
-  public publishGETCommunication(unitStationPechina: UnitStationPechinaEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_STATION_PECHINA
-      + unitStationPechina.unit.code, `1`);
+  public publishGETCommunication(
+    unitStationPechina: UnitStationPechinaEntity
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      `1`
+    );
   }
 
   public publishGETData(unitStationPechina: UnitStationPechinaEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_STATION_PECHINA
-      + unitStationPechina.unit.code, `2`);
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      `2`
+    );
   }
 
   public publishGETSIMData(unitStationPechina: UnitStationPechinaEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_STATION_PECHINA
-      + unitStationPechina.unit.code, `3`);
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      `3`
+    );
   }
 
-  public publishOrders(unitStationPechina: UnitStationPechinaEntity, electrovalvula: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_STATION_PECHINA
-      + unitStationPechina.unit.code, `5,${electrovalvula}`);
+  public publishOrders(
+    unitStationPechina: UnitStationPechinaEntity,
+    electrovalvula: number
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      `5,${electrovalvula}`
+    );
   }
 
-  public publishSendSpeed(unitStationPechina: UnitStationPechinaEntity, sendSpeed: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_STATION_PECHINA
-      + unitStationPechina.unit.code, `8,${sendSpeed}`);
+  public publishSendSpeed(
+    unitStationPechina: UnitStationPechinaEntity,
+    sendSpeed: number
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      `8,${sendSpeed}`
+    );
   }
 
-  public publishConfiguration(unitStationPechina: UnitStationPechinaEntity, reading: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_STATION_PECHINA
-      + unitStationPechina.unit.code, `9,${reading}`);
+  public publishConfiguration(
+    unitStationPechina: UnitStationPechinaEntity,
+    reading: number
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      `9,${reading}`
+    );
   }
 
   // ==================================================
   //  SUBSCRIPTIONS
   // ==================================================
   public subscribeMQTT(unitStationPechina: UnitStationPechinaEntity): void {
-    unitStationPechina.mqttSubscription = this._mqttEventService.observe(MQTTTopics.OBSERVE_UNIT_STATION_PECHINA
-      + unitStationPechina.unit.code).subscribe((mqttMSG: IMqttMessage) => {
-        console.log(mqttMSG.payload);
+    unitStationPechina.mqttSubscription = this._mqttEventService
+      .observe(
+        MQTTTopics.OBSERVE_UNIT_STATION_PECHINA + unitStationPechina.unit.code
+      )
+      .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitStationPechina, mqttMSG.payload.toString());
       });
   }
 
-  public updateProperties(unitStationPechina: UnitStationPechinaEntity, topicMessage: string): void {
+  public updateProperties(
+    unitStationPechina: UnitStationPechinaEntity,
+    topicMessage: string
+  ): void {
     const dataSplit: string[] = topicMessage.toString().split(',');
     if (dataSplit.length > 0) {
       switch (dataSplit[0]) {

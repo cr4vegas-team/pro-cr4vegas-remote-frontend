@@ -1,6 +1,5 @@
 import { SectorEntity } from '../../wrap/sector/sector.entity';
 import { SetEntity } from '../../wrap/set/set.entity';
-import { StationEntity } from '../../wrap/station/station.entity';
 import { UnitTypeTableEnum } from './../../../shared/constants/unit-type-table.enum';
 
 export class UnitEntity {
@@ -17,7 +16,6 @@ export class UnitEntity {
   altitude: number;
   latitude: number;
   longitude: number;
-  station: StationEntity;
   sector: SectorEntity;
   sets: SetEntity[];
   description: string;

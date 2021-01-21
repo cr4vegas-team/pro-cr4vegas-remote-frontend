@@ -12,8 +12,6 @@ import { SectorEntity } from '../../../../../modules/wrap/sector/sector.entity';
 import { SectorService } from '../../../../../modules/wrap/sector/sector.service';
 import { SetEntity } from '../../../../../modules/wrap/set/set.entity';
 import { SetService } from '../../../../../modules/wrap/set/set.service';
-import { StationEntity } from '../../../../../modules/wrap/station/station.entity';
-import { StationService } from '../../../../../modules/wrap/station/station.service';
 import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitEntity } from '../../../unit/unit.entity';
@@ -36,7 +34,6 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
   loading = false;
 
   sectors: Observable<SectorEntity[]>;
-  stations: Observable<StationEntity[]>;
   sets: Observable<SetEntity[]>;
 
   unitGenericForm: FormGroup;
@@ -50,7 +47,6 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     private readonly _matDialog: MatDialog,
     private readonly _sectorService: SectorService,
     private readonly _setService: SetService,
-    private readonly _stationService: StationService,
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitGenericFactory: UnitGenericFactory,
     private readonly _formBuilder: FormBuilder,
@@ -66,7 +62,6 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sectors = this._sectorService.getSectors();
-    this.stations = this._stationService.getStations();
     this.sets = this._setService.getSets();
 
     if (this.unitGeneric) {
@@ -103,7 +98,6 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
         ],
         unitTypeTable: [this.unitGeneric.unit.unitTypeTable],
         sector: [this.unitGeneric.unit.sector, [Validators.required]],
-        station: [this.unitGeneric.unit.station],
         sets: [this.unitGeneric.unit.sets],
         description: [this.unitGeneric.unit.description],
         image: [this.unitGeneric.unit.image],

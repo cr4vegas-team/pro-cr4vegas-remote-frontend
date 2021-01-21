@@ -38,7 +38,7 @@ export class UnitPondService implements OnDestroy {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitPondFactory: UnitPondFactory,
-    private readonly _mapService: MapService,
+    private readonly _mapService: MapService
   ) {
     this._unitsPonds = new BehaviorSubject<UnitPondEntity[]>(
       Array<UnitPondEntity>()

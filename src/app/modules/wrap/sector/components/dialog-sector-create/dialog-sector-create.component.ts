@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
@@ -13,6 +13,7 @@ import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialo
 import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
 import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
+import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { SectorCreateDto } from '../../dto/sector-create.dto';
 import { SectorUpdateDto } from '../../dto/sector-update.dto';
@@ -267,6 +268,21 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     this.sector = null;
     if (this.subUnits) {
       this.subUnits.unsubscribe();
+    }
+  }
+
+  getType(unit: UnitEntity): string {
+    switch (unit.unitTypeTable) {
+      case UnitTypeTableEnum.UNIT_GENERIC:
+        return 'Genérico';
+      case UnitTypeTableEnum.UNIT_HYDRANT:
+        return 'Hidrante';
+      case UnitTypeTableEnum.UNIT_POND:
+        return 'Balsa';
+      case UnitTypeTableEnum.UNIT_STATION_PECHINA:
+        return 'Estación Pechina';
+      default:
+        return 'Indefinido';
     }
   }
 }

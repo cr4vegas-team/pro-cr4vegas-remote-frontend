@@ -19,7 +19,6 @@ import { UnitHydrantMqttService } from './../../unit-hydrant-mqtt.service';
 @Component({
   selector: 'app-dialog-unit-hydrant',
   templateUrl: './dialog-unit-hydrant.component.html',
-  styleUrls: ['./dialog-unit-hydrant.component.css'],
 })
 export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
@@ -95,18 +94,13 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
         this.batch = reading - this.unitHydrant.initBatch;
       }
     });
-
-    setTimeout(() => {
-      this.unitHydrant.bouyLow$.next(1);
-    }, 5000);
-
   }
 
-  task(i) {
+/*   task(i) {
     setTimeout(function() {
       // actions... increment, decrement, etc.
     }, 500 * i);
-  }
+  } */
 
   // ==================================================
 

@@ -5,53 +5,105 @@ import { MQTTTopics } from 'src/app/shared/constants/mqtt-topics.enum';
 import { MqttEventService } from 'src/app/shared/services/mqtt-event.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnitHydrantMqttService {
-
-  constructor(
-    private readonly _mqttEventService: MqttEventService,
-  ) { }
+  constructor(private readonly _mqttEventService: MqttEventService) {}
 
   // ==================================================
   //  PUBLISH
   // ==================================================
   public publishGETCommunication(unitHydrant: UnitHydrantEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `1`);
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_HYDRANT +
+        unitHydrant.unit.sector.code.toLowerCase() +
+        '/' +
+        unitHydrant.unit.code,
+      `1`
+    );
   }
 
   public publishGETData(unitHydrant: UnitHydrantEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `2`);
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_HYDRANT +
+        unitHydrant.unit.sector.code.toLowerCase() +
+        '/' +
+        unitHydrant.unit.code,
+      `2`
+    );
   }
 
   public publishGETSIMData(unitHydrant: UnitHydrantEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `3`);
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_HYDRANT +
+        unitHydrant.unit.sector.code.toLowerCase() +
+        '/' +
+        unitHydrant.unit.code,
+      `3`
+    );
   }
 
-  public publishOrders(unitHydrant: UnitHydrantEntity, electrovalvula: number, manual: number): void {
+  public publishOrders(
+    unitHydrant: UnitHydrantEntity,
+    electrovalvula: number,
+    manual: number
+  ): void {
     console.log(unitHydrant);
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `5,${electrovalvula},${manual}`);
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_HYDRANT +
+        unitHydrant.unit.sector.code.toLowerCase() +
+        '/' +
+        unitHydrant.unit.code,
+      `5,${electrovalvula},${manual}`
+    );
   }
 
-  public publishSendSpeed(unitHydrant: UnitHydrantEntity, sendSpeed: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `8,${sendSpeed}`);
+  public publishSendSpeed(
+    unitHydrant: UnitHydrantEntity,
+    sendSpeed: number
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_HYDRANT +
+        unitHydrant.unit.sector.code.toLowerCase() +
+        '/' +
+        unitHydrant.unit.code,
+      `8,${sendSpeed}`
+    );
   }
 
-  public publishConfiguration(unitHydrant: UnitHydrantEntity, reading: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_HYDRANT + unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code, `9,${reading}`);
+  public publishConfiguration(
+    unitHydrant: UnitHydrantEntity,
+    reading: number
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_HYDRANT +
+        unitHydrant.unit.sector.code.toLowerCase() +
+        '/' +
+        unitHydrant.unit.code,
+      `9,${reading}`
+    );
   }
 
   // ==================================================
   //  SUBSCRIPTIONS
   // ==================================================
   public subscribeMQTT(unitHydrant: UnitHydrantEntity): void {
-    unitHydrant.mqttSubscription = this._mqttEventService.observe(MQTTTopics.OBSERVE_UNIT_HYDRANT +
-      unitHydrant.unit.sector.code.toLowerCase() + '/' + unitHydrant.unit.code).subscribe((mqttMSG: IMqttMessage) => {
+    unitHydrant.mqttSubscription = this._mqttEventService
+      .observe(
+        MQTTTopics.OBSERVE_UNIT_HYDRANT +
+          unitHydrant.unit.sector.code.toLowerCase() +
+          '/' +
+          unitHydrant.unit.code
+      )
+      .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitHydrant, mqttMSG.payload.toString());
       });
   }
 
-  public updateProperties(unitHydrant: UnitHydrantEntity, topicMessage: string): void {
+  public updateProperties(
+    unitHydrant: UnitHydrantEntity,
+    topicMessage: string
+  ): void {
     const dataSplit: string[] = topicMessage.toString().split(',');
     if (dataSplit.length > 0) {
       switch (dataSplit[0]) {

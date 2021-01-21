@@ -27,6 +27,9 @@ import { DialogUnitStationPechinaComponent } from './unit-station-pechina/compon
 import { UnitFactory } from './unit/unit.factory';
 import { UnitService } from './unit/unit.service';
 import { DialogUnitStationPechinaCreateComponent } from './unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina-create/dialog-unit-station-pechina-create.component';
+import { UnitFilterPipe } from './unit/unit-filter.pipe';
+import { UnitActiveFilterPipe } from './unit/unit-active-filter.pipe';
+import { UnitCommunicationFilterPipe } from './unit/unit-communication-filter.pipe';
 
 @NgModule({
   // ==================================================
@@ -44,6 +47,9 @@ import { DialogUnitStationPechinaCreateComponent } from './unit-station-pechina/
     DialogUnitPondCreateComponent,
     DialogUnitStationPechinaComponent,
     DialogUnitStationPechinaCreateComponent,
+    UnitFilterPipe,
+    UnitActiveFilterPipe,
+    UnitCommunicationFilterPipe,
   ],
   // ==================================================
   // IMPORTS

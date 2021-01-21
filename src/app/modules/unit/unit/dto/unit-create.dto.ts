@@ -2,7 +2,6 @@ import { UnitTypeTableEnum } from './../../../../shared/constants/unit-type-tabl
 export class UnitCreateDto {
   code: number;
   unitTypeTable: UnitTypeTableEnum;
-  station?: number;
   sector?: number;
   sets?: number[];
   altitude: number;

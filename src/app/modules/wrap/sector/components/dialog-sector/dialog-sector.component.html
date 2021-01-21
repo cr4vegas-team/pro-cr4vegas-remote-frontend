@@ -9,9 +9,7 @@
 <div mat-dialog-content>
   <div class="row">
     <div class="col-sm mr-3">
-      <mat-checkbox class="example-margin" [checked]="sector.active" disabled
-        >Activo</mat-checkbox
-      >
+      <mat-checkbox class="example-margin" [checked]="sector.active" disabled>Activo</mat-checkbox>
     </div>
   </div>
 
@@ -19,17 +17,14 @@
     <!-- ====================================
                 LEFT COLUMN
                ==================================== -->
-    <div class="col-sm dialog-col-mw">
+    <div class="col-md dialog-col-mw">
       <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
       <br /><br />
 
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-3">Descripción:</div>
-          <div class="col">
-            {{ sector.description }}
-          </div>
-        </div>
+
+        Descripción: {{ sector.description }}
+
       </div>
     </div>
     <!-- ====================================
@@ -39,21 +34,12 @@
       <h3>Unidades de control</h3>
       <mat-form-field>
         <mat-label>Filter</mat-label>
-        <input
-          matInput
-          (keyup)="applyFilter($event)"
-          placeholder="Ex. ium"
-          #input
-        />
+        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input />
       </mat-form-field>
 
       <mat-selection-list [multiple]="false">
-        <mat-list-option
-          *ngFor="let unit of units"
-          role="listitem"
-          (click)="openDialogUnit(unit)"
-          >{{ getType(unit.unitTypeTable) }} - {{ unit.code }}</mat-list-option
-        >
+        <mat-list-option *ngFor="let unit of units" role="listitem" (click)="openDialogUnit(unit)">{{
+          getType(unit.unitTypeTable) }} - {{ unit.code }}</mat-list-option>
       </mat-selection-list>
     </div>
   </div>
@@ -66,11 +52,7 @@
            ==================================== -->
 <div mat-dialog-actions>
   <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button
-    mat-raised-button
-    (click)="openDialogSectorCreate()"
-    [disabled]="disabled"
-  >
+  <button mat-raised-button (click)="openDialogSectorCreate()" [disabled]="disabled">
     Modificar
   </button>
 </div>

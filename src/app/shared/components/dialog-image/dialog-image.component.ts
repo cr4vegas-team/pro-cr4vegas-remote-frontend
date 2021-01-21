@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { GLOBAL } from '../../constants/global.constant';
 
 @Component({
   selector: 'app-dialog-image',
@@ -14,6 +15,10 @@ export class DialogImageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.imageURL = this.data;
+    if (!this.data) {
+      this.imageURL = GLOBAL.IMAGE_DEFAULT;
+    } else {
+      this.imageURL = this.data;
+    }
   }
 }

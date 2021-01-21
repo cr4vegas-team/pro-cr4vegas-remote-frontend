@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { TableEmptyMSGEnum } from '../../../../../shared/constants/table-empty-msg.enum';
+import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { UnitGenericEntity } from '../../unit-generic.entity';
 import { UnitGenericService } from '../../unit-generic.service';
 import { DialogUnitGenericComponent } from '../dialog-unit-generic/dialog-unit-generic.component';
@@ -12,74 +11,54 @@ import { DialogUnitGenericComponent } from '../dialog-unit-generic/dialog-unit-g
   selector: 'app-page-unit-generic',
   templateUrl: './page-unit-generic.component.html',
 })
-export class PageUnitGenericComponent implements OnInit, AfterViewInit {
-  tableEmptyMSG = TableEmptyMSGEnum;
-  unitsGenerics: UnitGenericEntity[];
-  displayedColumns: string[] = [
-    'id',
-    'code',
-    'active',
-    'communication',
-    'sector',
-    'station',
-    'sets',
-  ];
-  dataSource: MatTableDataSource<UnitGenericEntity>;
+export class PageUnitGenericComponent implements OnInit {
+  unitsGenerics = [];
+  searchText: string;
+  checkedCommunication: boolean = false;
+  checkedActive: boolean = true;
+  showLoader = false;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   constructor(
     private readonly _unitGenericService: UnitGenericService,
-    private readonly _matDialog: MatDialog
+    private readonly _matDialog: MatDialog,
   ) {
-    this.unitsGenerics = [];
-    this.dataSource = new MatTableDataSource(this.unitsGenerics);
+    this._unitGenericService.getUnitsGeneric().subscribe((unitsgenerics) => {
+      this.unitsGenerics = unitsgenerics;
+    });
   }
 
-  ngOnInit(): void {
-    this._unitGenericService
-      .getUnitsGeneric()
-      .subscribe(
-        (res) => {
-          this.unitsGenerics = res;
-          this.dataSource = new MatTableDataSource(this.unitsGenerics);
-        },
-        (err) => {
-          console.log('ERROR - UnitGenericComponent: ' + err.message);
-        }
-      )
-      .unsubscribe();
+  ngOnInit() {}
 
-    this.dataSource.filterPredicate = (unitGeneric, filterValue) => {
-      let setsString = '';
-      unitGeneric.unit.sets.forEach((set) => (setsString += set.name));
-      return (
-        String(unitGeneric.unit.code).includes(filterValue) ||
-        (unitGeneric.unit.sector &&
-          unitGeneric.unit.sector.name.toLowerCase().includes(filterValue)) ||
-        (unitGeneric.unit.station &&
-          unitGeneric.unit.station.name.toLowerCase().includes(filterValue)) ||
-        setsString.toLowerCase().includes(filterValue)
-      );
-    };
-  }
-
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
-
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  openDialogUnitGeneric(unitGeneric: UnitGenericEntity): void {
+  openDialoggeneric(unitGeneric: UnitGenericEntity): void {
     this._matDialog.open(DialogUnitGenericComponent, { data: unitGeneric });
+  }
+
+  applyFilter(searchText: string): void {
+    this.searchText = searchText;
+  }
+
+  openDialogImage(imageURL): void {
+    this._matDialog.open(DialogImageComponent, { data: imageURL });
+  }
+
+  compare(a: UnitGenericEntity, b: UnitGenericEntity) {
+    // Comparamos la propiedad bot de user.
+
+    if (a.unit.code < b.unit.code) return 1;
+    if (a.unit.code > b.unit.code) return -1;
+    else {
+      // Si la propiedad bot de user es igual, ordenar alfabéticamente.
+
+      if (a.unit.communication > b.unit.communication) return 1;
+      if (a.unit.communication < b.unit.communication) return -1;
+      else {
+        if (a.unit.sector > b.unit.sector) return 1;
+        else if (a.unit.sector < b.unit.sector) return -1;
+        return 0;
+      }
+    }
   }
 }

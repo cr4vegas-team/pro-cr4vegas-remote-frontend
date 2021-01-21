@@ -1,6 +1,10 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 import { SectorEntity } from 'src/app/modules/wrap/sector/sector.entity';
@@ -21,10 +25,10 @@ import { UnitStationPechinaService } from './../../../unit-station-pechina.servi
 @Component({
   selector: 'app-dialog-unit-station-pechina-create',
   templateUrl: './dialog-unit-station-pechina-create.component.html',
-  styleUrls: ['./dialog-unit-station-pechina-create.component.css']
+  styleUrls: ['./dialog-unit-station-pechina-create.component.css'],
 })
-export class DialogUnitStationPechinaCreateComponent implements OnInit, OnDestroy {
-
+export class DialogUnitStationPechinaCreateComponent
+  implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
   create = true;
   loading = false;
@@ -50,7 +54,7 @@ export class DialogUnitStationPechinaCreateComponent implements OnInit, OnDestro
     private readonly _unitStationPechinaSockerService: UnitStationPechinaSocketService,
     @Inject(MAT_DIALOG_DATA)
     public unitStationPechina: UnitStationPechinaEntity
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.sectors = this._sectorService.getSectors();
@@ -86,7 +90,6 @@ export class DialogUnitStationPechinaCreateComponent implements OnInit, OnDestro
         ],
         unitTypeTable: [this.unitStationPechina.unit.unitTypeTable],
         sector: [this.unitStationPechina.unit.sector, [Validators.required]],
-        station: [this.unitStationPechina.unit.station],
         sets: [this.unitStationPechina.unit.sets],
         description: [this.unitStationPechina.unit.description],
         image: [this.unitStationPechina.unit.image],
@@ -102,20 +105,22 @@ export class DialogUnitStationPechinaCreateComponent implements OnInit, OnDestro
       this.unitStationPechina.unit.image !== null &&
       this.unitStationPechina.unit.image !== ''
     ) {
-      this._uploadService.getImage(this.unitStationPechina.unit.image).subscribe(
-        (next) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
-              reader.result as string
-            ) as string;
-          };
-          reader.readAsDataURL(next);
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
+      this._uploadService
+        .getImage(this.unitStationPechina.unit.image)
+        .subscribe(
+          (next) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
+                reader.result as string
+              ) as string;
+            };
+            reader.readAsDataURL(next);
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
     }
   }
 
@@ -156,28 +161,32 @@ export class DialogUnitStationPechinaCreateComponent implements OnInit, OnDestro
     const unitStationPechinaUpdateDto: UnitStationPechinaUpdateDto = this._unitStationPechinaFactoryService.getUnitStationUpdateDto(
       this.unitStationPechinaForm.value
     );
-    this._unitStationPechinaService.update(unitStationPechinaUpdateDto).subscribe(
-      (unitStationPechina) => {
-        this._unitStationPechinaFactoryService.copyUnitStationPechina(
-          this.unitStationPechina,
-          unitStationPechina
-        );
-        this._unitStationPechinaService.refresh();
-        this._unitStationPechinaSockerService.sendChange(
-          this._unitStationPechinaFactoryService.getUnitStationPechinaWSDto(this.unitStationPechina)
-        );
-        this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
-      }
-    );
+    this._unitStationPechinaService
+      .update(unitStationPechinaUpdateDto)
+      .subscribe(
+        (unitStationPechina) => {
+          this._unitStationPechinaFactoryService.copyUnitStationPechina(
+            this.unitStationPechina,
+            unitStationPechina
+          );
+          this._unitStationPechinaService.refresh();
+          this._unitStationPechinaSockerService.sendChange(
+            this._unitStationPechinaFactoryService.getUnitStationPechinaWSDto(
+              this.unitStationPechina
+            )
+          );
+          this.close();
+        },
+        (error) => {
+          this._matDialog.open(DialogInfoComponent, {
+            data: {
+              errorType: ErrorTypeEnum.API_ERROR,
+              title: DialogInfoTitleEnum.WARNING,
+              html: error,
+            },
+          });
+        }
+      );
   }
 
   private uploadImage(): void {

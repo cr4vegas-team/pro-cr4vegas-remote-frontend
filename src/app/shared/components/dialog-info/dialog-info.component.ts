@@ -27,6 +27,7 @@ export class DialogInfoComponent implements OnInit {
   }
 
   editHTMLWithApiError(): void {
+    console.log(this.data);
     this.html += '<h3>Datos enviados incorrectos</h3>';
     this.html += '<ul>';
     if (Array.isArray(this.data.html.error.message)) {

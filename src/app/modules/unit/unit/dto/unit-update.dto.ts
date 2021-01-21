@@ -4,7 +4,6 @@ export class UnitUpdateDto {
   id: number;
   code: number;
   unitTypeTable: UnitTypeTableEnum;
-  station?: number;
   sector?: number;
   sets?: number[];
   altitude: number;

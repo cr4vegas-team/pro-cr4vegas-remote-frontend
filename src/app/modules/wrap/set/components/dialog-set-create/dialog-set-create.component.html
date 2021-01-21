@@ -5,7 +5,7 @@
 
   <h1 mat-dialog-title *ngIf="create">Crear Conjunto</h1>
   <h1 mat-dialog-title *ngIf="!create">
-    Modificar Conjunto - <span>{{ set.code }}</span>
+    Modificar Conjunto - <span>{{ set.name }}</span>
   </h1>
 
   <!-- CONTENT -->
@@ -14,9 +14,7 @@
     <form [formGroup]="setForm">
       <div class="row">
         <div class="col-sm mr-3">
-          <mat-checkbox class="example-margin" formControlName="active"
-            >Activo</mat-checkbox
-          >
+          <mat-checkbox class="example-margin" formControlName="active">Activo</mat-checkbox>
         </div>
       </div>
 
@@ -31,13 +29,7 @@
               Seleccionar Imagen
             </button>
             <br />
-            <input
-              hidden
-              (change)="onFileSelected($event)"
-              #fileInput
-              type="file"
-              id="file"
-            />
+            <input hidden (change)="onFileSelected($event)" #fileInput type="file" id="file" />
             <br />
           </div>
         </div>
@@ -47,28 +39,16 @@
         <div class="col-sm mr-3">
           <div>
             <mat-form-field appearance="fill">
-              <mat-label>Código</mat-label>
-              <input matInput formControlName="code" required />
-            </mat-form-field>
-            <br />
-            <mat-form-field appearance="fill">
               <mat-label>Nombre</mat-label>
-              <input matInput formControlName="name" required/>
+              <input matInput formControlName="name" required />
             </mat-form-field>
             <br />
             <div class="row">
               <div class="col">
                 <mat-form-field appearance="fill">
                   <mat-label>Tipo</mat-label>
-                  <mat-select
-                    [compareWith]="compareUnitSetType"
-                    formControlName="setType" required #setTypeSelected
-                  >
-                    <mat-option
-                      *ngFor="let setType of setTypes"
-                      [value]="setType"
-                      >{{ setType.name }}</mat-option
-                    >
+                  <mat-select [compareWith]="compareUnitSetType" formControlName="setType" required #setTypeSelected>
+                    <mat-option *ngFor="let setType of setTypes" [value]="setType">{{ setType.name }}</mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
@@ -83,27 +63,20 @@
 
       <mat-form-field appearance="fill">
         <mat-label>Unidades</mat-label>
-        <mat-select
-          [compareWith]="compareUnitSet"
-          multiple
-          formControlName="units"
-        >
+        <mat-select [compareWith]="compareUnitSet" multiple formControlName="units">
           <mat-select-trigger>
             <mat-chip-list #chipList aria-label="Fruit selection">
-              <mat-chip
-                *ngFor="let unit of setForm.value.units"
-                [selectable]="selectable"
-                [removable]="removable"
-                (removed)="remove(unit)"
-              >
-                {{ unit.code }}
+              <mat-chip *ngFor="let unit of setForm.value.units" [selectable]="selectable" [removable]="removable"
+                (removed)="remove(unit)">
+                {{ unit.code }} {{ getType(unit) }}
                 <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
               </mat-chip>
             </mat-chip-list>
           </mat-select-trigger>
 
-          <mat-option *ngFor="let unit of units" [value]="unit"
-            >{{ unit.code }}
+          <mat-option *ngFor="let unit of units" [value]="unit">
+
+            {{ unit.code }} {{ getType(unit) }}
           </mat-option>
         </mat-select>
       </mat-form-field>

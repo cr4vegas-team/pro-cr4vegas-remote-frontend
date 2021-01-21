@@ -11,19 +11,12 @@ import { PageUnitHydrantComponent } from '../modules/unit/unit-hydrant/component
 import { PageUnitPondComponent } from '../modules/unit/unit-pond/components/page-unit-pond/page-unit-pond.component';
 import { PageSectorComponent } from '../modules/wrap/sector/components/page-sector/page-sector.component';
 import { PageSetComponent } from '../modules/wrap/set/components/page-set/page-set.component';
-import { PageStationComponent } from '../modules/wrap/station/components/page-station/page-station.component';
 import { LoginComponent } from './components/page-login/page-login.component';
 import { MapComponent } from './components/page-map/page-map.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'map', component: MapComponent, canActivate: [AuthGuard] },
-
-  {
-    path: 'stations',
-    component: PageStationComponent,
-    canActivate: [AuthGuard],
-  },
   { path: 'sectors', component: PageSectorComponent, canActivate: [AuthGuard] },
   { path: 'sets', component: PageSetComponent, canActivate: [AuthGuard] },
 
@@ -72,7 +65,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'ignore', relativeLinkResolution: 'legacy' })],
+  imports: [
+    RouterModule.forRoot(routes, {
+      onSameUrlNavigation: 'ignore',
+      relativeLinkResolution: 'legacy',
+    }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

@@ -34,12 +34,7 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
   public barChartLegend = true;
   private _level: Subscription;
 
-  public barChartData: ChartDataSets[] = [
-    {
-      data: [this.unitPond.level$.value / 1000],
-      label: 'Nivel',
-    },
-  ];
+  public barChartData: ChartDataSets[];
 
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
 
@@ -57,6 +52,13 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA)
     public unitPond: UnitPondEntity
   ) {
+    this.barChartData = [
+      {
+        data: [unitPond.level$.value / 1000],
+        label: 'Nivel',
+      },
+    ];
+
     this._authService.getUser$().subscribe((user) => {
       if (
         user && user.role === UserRoleEnum.ADMIN ||

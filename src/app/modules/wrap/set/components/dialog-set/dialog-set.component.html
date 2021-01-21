@@ -1,12 +1,7 @@
 <!-- ====================================
       TITLE
      ==================================== -->
-<h1 mat-dialog-title *ngIf="set.active === 1" class="ok">
-  {{ set.id }} - {{ set.code }} - {{ set.name }}
-</h1>
-<h1 mat-dialog-title *ngIf="set.active === 0" class="error">
-  {{ set.id }} - {{ set.code }} - {{ set.name }}
-</h1>
+     <h1 mat-dialog-title>{{ set.name }}</h1>
 <!-- ====================================
             CONTENT
            ==================================== -->
@@ -53,7 +48,7 @@
           *ngFor="let unit of units"
           role="listitem"
           (click)="openDialogUnit(unit)"
-          >{{ unit.code }}</mat-list-option
+          >{{ unit.code }} {{ getType(unit) }}</mat-list-option
         >
       </mat-selection-list>
     </div>

@@ -16,9 +16,6 @@ import { DialogUnitPondCreateComponent } from '../../../modules/unit/unit-pond/c
 import { UnitPondService } from '../../../modules/unit/unit-pond/unit-pond.service';
 import { DialogSectorCreateComponent } from '../../../modules/wrap/sector/components/dialog-sector-create/dialog-sector-create.component';
 import { DialogSetCreateComponent } from '../../../modules/wrap/set/components/dialog-set-create/dialog-set-create.component';
-import { DialogStationCreateComponent } from '../../../modules/wrap/station/components/dialog-station-create/dialog-station-create.component';
-import { StationEntity } from '../../../modules/wrap/station/station.entity';
-import { StationService } from '../../../modules/wrap/station/station.service';
 import { MapboxStyleEnum } from '../../../shared/constants/mapbox-style.enum';
 import { ErrorTypeEnum } from '../../constants/error-type.enum';
 import { GLOBAL } from '../../constants/global.constant';
@@ -35,7 +32,6 @@ import { StartService } from './../../services/start.service';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  stations: Array<StationEntity>;
   userRole: UserRoleEnum = null;
   mapboxStyleEnum = MapboxStyleEnum;
   mapboxStyleSelected: MapboxStyleEnum;
@@ -76,16 +72,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
     private readonly _unitStationPechinaService: UnitStationPechinaService,
-    private readonly _stationService: StationService,
     private readonly _mapService: MapService,
     private readonly _startService: StartService
-  ) {
-    this._stationService.getStations().subscribe((stations) => {
-      if (stations) {
-        this.stations = stations;
-      }
-    });
-  }
+  ) {}
 
   // ==================================================
   //  LIFE CYCLE
@@ -93,9 +82,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._authService.getUser$().subscribe((user) => {
       if (user) {
-        if (
-          user.role !== UserRoleEnum.NONE
-        ) {
+        if (user.role !== UserRoleEnum.NONE) {
           this.hidden = false;
         } else {
           this.hidden = true;
@@ -104,7 +91,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.hidden = true;
       }
     });
-    this._authService.getUser$().subscribe(user => {
+    this._authService.getUser$().subscribe((user) => {
       this.user = user;
     });
   }
@@ -122,13 +109,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this._subUnitPonds) {
       this._subUnitPonds.unsubscribe();
     }
-  }
-
-  // ==================================================
-  //  MAP
-  // ==================================================
-  centerMapTo(station: StationEntity): void {
-    this._mapService.centerTo(station.longitude, station.latitude);
   }
 
   // ==================================================
@@ -158,17 +138,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  showStations(): void {
-    if (this.cbxStationChecked) {
-      this._stationService.getHiddenMarkers().next(false);
-    } else {
-      this._stationService.getHiddenMarkers().next(true);
-    }
-  }
-
   showAll(): void {
     this.showUnitsHydrants();
-    this.showStations();
     this.showUnitsPonds();
     this.showUnitsGenerics();
   }
@@ -201,10 +172,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // ==================================================
   goMap(): void {
     this._router.navigate(['/map']);
-  }
-
-  goStations(): void {
-    this._router.navigate(['/stations']);
   }
 
   goSectors(): void {
@@ -253,10 +220,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this._matDialog.open(DialogInfoComponent, { data });
   }
 
-  openDialogStationCreate(): void {
-    this._matDialog.open(DialogStationCreateComponent, { data: null });
-  }
-
   openDialogSectorCreate(): void {
     this._matDialog.open(DialogSectorCreateComponent, { data: null });
   }
@@ -286,8 +249,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   flyToUnitStationPechina(): void {
-    const longitude = this._unitStationPechinaService.getUnitStationPechina().value.unit.longitude;
-    const latitude = this._unitStationPechinaService.getUnitStationPechina().value.unit.latitude;
+    const longitude = this._unitStationPechinaService.getUnitStationPechina()
+      .value.unit.longitude;
+    const latitude = this._unitStationPechinaService.getUnitStationPechina()
+      .value.unit.latitude;
     this._mapService.centerTo(longitude, latitude);
   }
 
@@ -304,38 +269,38 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   flyToUnitStationBoticario(): void {
-    const longitude =  -2.390605;
+    const longitude = -2.390605;
     const latitude = 36.867357;
     this._mapService.centerTo(longitude, latitude);
   }
 
   flyToUnitStationLasViudas(): void {
-    const longitude =  -2.378156;
+    const longitude = -2.378156;
     const latitude = 36.889178;
     this._mapService.centerTo(longitude, latitude);
   }
 
   flyToUnitStationLosTrancos(): void {
-    const longitude =  -2.280015;
+    const longitude = -2.280015;
     const latitude = 36.850658;
     this._mapService.centerTo(longitude, latitude);
   }
 
   flyToUnitStationAljibeSalvador(): void {
-    const longitude =  -2.363679;
+    const longitude = -2.363679;
     const latitude = 36.876024;
     this._mapService.centerTo(longitude, latitude);
   }
 
   flyToUnitStationCostacabana(): void {
-    const longitude =  -2.387583;
+    const longitude = -2.387583;
     const latitude = 36.837485;
     this._mapService.centerTo(longitude, latitude);
   }
 
   flyToUnitStationBobar(): void {
-    const longitude =  -2.424824;
-    const latitude = 36.822050;
+    const longitude = -2.424824;
+    const latitude = 36.82205;
     this._mapService.centerTo(longitude, latitude);
   }
 
@@ -343,23 +308,31 @@ export class NavbarComponent implements OnInit, OnDestroy {
   //  LOGOUT & CLOSE
   // ==================================================
   logout(): void {
-    this._authService.logout().subscribe((res) => {
-      if (res) {
+    this._authService.logout().subscribe(
+      (res) => {
+        if (res) {
+          this._authService.clearAccessFromStorage();
+          this._authService.getUser$().next(null);
+          this._router.navigateByUrl('/');
+          this.sessionCardHidden = true;
+        }
+      },
+      (error) => {
         this._authService.clearAccessFromStorage();
         this._authService.getUser$().next(null);
         this._router.navigateByUrl('/');
         this.sessionCardHidden = true;
-      }
-    },
-      error => {
         this._matDialog.open(DialogInfoComponent, {
           data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.ERROR,
-            html: error,
+            errorType: ErrorTypeEnum.FRONT_ERROR,
+            title: DialogInfoTitleEnum.WARNING,
+            html: `
+              <h3>Su sesión a expirado, vuelva a conectarse</h3>
+            `,
           },
         });
-      });
+      }
+    );
   }
 
   close(reason: string): void {

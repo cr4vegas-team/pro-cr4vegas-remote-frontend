@@ -143,4 +143,19 @@ export class DialogSetComponent implements OnInit, OnDestroy {
       this.subUnits.unsubscribe();
     }
   }
+
+  getType(unit: UnitEntity): string {
+    switch (unit.unitTypeTable) {
+      case UnitTypeTableEnum.UNIT_GENERIC:
+        return 'Genérico';
+      case UnitTypeTableEnum.UNIT_HYDRANT:
+        return 'Hidrante';
+      case UnitTypeTableEnum.UNIT_POND:
+        return 'Balsa';
+      case UnitTypeTableEnum.UNIT_STATION_PECHINA:
+        return 'Estación Pechina';
+      default:
+        return 'Indefinido';
+    }
+  }
 }

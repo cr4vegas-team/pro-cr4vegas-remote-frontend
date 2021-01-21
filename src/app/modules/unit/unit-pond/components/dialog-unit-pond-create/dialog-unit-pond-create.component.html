@@ -91,21 +91,7 @@
               </mat-select>
             </mat-form-field>
             <br />
-            <mat-form-field appearance="fill">
-              <mat-label>Estación</mat-label>
-              <mat-select
-                [compareWith]="compareUnitHydrant"
-                name="station"
-                formControlName="station"
-              >
-                <mat-option
-                  *ngFor="let station of stations | async"
-                  [value]="station"
-                  >{{ station.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <br />
+
             <mat-form-field appearance="fill">
               <mat-label>Conjuntos</mat-label>
               <mat-select

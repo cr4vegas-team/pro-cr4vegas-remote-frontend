@@ -7,7 +7,6 @@ export class SetEntity {
   // ==================================================
   id: number;
   setType: SetTypeEntity;
-  code: string;
   name: string;
   description: string;
   updated: Date;

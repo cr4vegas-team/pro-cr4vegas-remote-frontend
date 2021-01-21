@@ -5,7 +5,6 @@ import { PondStateEnum } from '../../../shared/constants/pond-state.enum';
 import { UnitEntity } from '../unit/unit.entity';
 
 export class UnitHydrantEntity {
-
   // ==================================================
   // API properties
   // ==================================================
@@ -25,16 +24,17 @@ export class UnitHydrantEntity {
   bouyLow$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   bouyMedium$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   bouyHight$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  pondState$: BehaviorSubject<PondStateEnum> = new BehaviorSubject<PondStateEnum>(
-    PondStateEnum.NA
-  );
-  bouyWarning$: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   // ==================================================
   // FRONTEND PROPERTIES
   // ==================================================
+  pondState$: BehaviorSubject<PondStateEnum> = new BehaviorSubject<PondStateEnum>(
+    PondStateEnum.NA
+  );
+  bouyWarning$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   mqttSubscription: Subscription;
   marker: Marker;
+  batch: number;
 
   // ==================================================
   //  STATUS
@@ -121,9 +121,7 @@ export class UnitHydrantEntity {
     return MarkerColourEnum.INACTIVE;
   }
 
-  private getMarkerColourAccordingBouyState(
-    this: UnitHydrantEntity
-  ): string {
+  private getMarkerColourAccordingBouyState(this: UnitHydrantEntity): string {
     if (this.pondState$) {
       if (this.pondState$.value === PondStateEnum.LOW) {
         return MarkerColourEnum.UNIT_POND_LOW;
@@ -145,11 +143,9 @@ export class UnitHydrantEntity {
   private setMarkerAnimationAccordingState(): void {
     if (this.valve$.value === 1) {
       if (this.bouyHight$.value === 1) {
-        this.marker.getElement().style.boxShadow =
-          '0px 0px 10px 5px red';
+        this.marker.getElement().style.boxShadow = '0px 0px 10px 5px red';
       } else {
-        this.marker.getElement().style.boxShadow =
-          '0px 0px 10px 5px green';
+        this.marker.getElement().style.boxShadow = '0px 0px 10px 5px green';
       }
     } else {
       this.marker.getElement().style.boxShadow = '';

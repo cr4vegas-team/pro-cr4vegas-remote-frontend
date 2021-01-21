@@ -15,7 +15,6 @@ export class SetFactory {
     const set: SetEntity = new SetEntity();
     if (source) {
       set.id = source.id;
-      set.code = source.code;
       set.name = source.name;
       set.setType = source.setType;
       set.description = source.description;
@@ -30,7 +29,6 @@ export class SetFactory {
 
   public copySet(target: SetEntity, source: SetEntity): void {
     target.id = source.id;
-    target.code = source.code;
     target.name = source.name;
     target.setType = source.setType;
     target.description = source.description;

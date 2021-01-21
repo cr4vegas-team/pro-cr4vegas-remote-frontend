@@ -19,10 +19,6 @@
     </button>
     <mat-menu class="overflow-visible" #menuShows="matMenu">
       <div class="p-3 fs-5 row gy-2">
-        <mat-checkbox class="example-margin" [(ngModel)]="cbxStationChecked" (ngModelChange)="showStations()"
-          (click)="$event.stopPropagation()">
-          Estaciones
-        </mat-checkbox>
 
         <mat-checkbox class="example-margin" [(ngModel)]="cbxUnitHydrantChecked" (ngModelChange)="showUnitsHydrants()"
           (click)="$event.stopPropagation()">
@@ -81,9 +77,6 @@
       &nbsp;&nbsp;Ir a...
     </button>
     <mat-menu #menuStations="matMenu">
-      <button mat-menu-item *ngFor="let station of stations" (click)="centerMapTo(station)">
-        {{ station.name }}
-      </button>
       <button class="fs-5" mat-menu-item (click)="flyToUnitStationPlanta()">Planta de ozono</button>
       <button class="fs-5" mat-menu-item (click)="flyToUnitStationPechina()">Pechina / Benahadux</button>
       <button class="fs-5" mat-menu-item (click)="flyToUnitStationGador()">Gador</button>
@@ -116,7 +109,6 @@
       <button class="fs-5" mat-menu-item (click)="goUnitsGenerics()">Genéricos</button>
       <button class="fs-5" mat-menu-item (click)="goUnitsHydrants()">Hidrantes</button>
       <button class="fs-5" mat-menu-item (click)="goUnitsPonds()">Balsas</button>
-      <button class="fs-5" mat-menu-item (click)="goStations()">Estaciones</button>
     </mat-menu>
 
     <br />

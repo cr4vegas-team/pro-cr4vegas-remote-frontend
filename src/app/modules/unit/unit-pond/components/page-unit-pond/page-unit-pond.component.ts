@@ -2,8 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { TableEmptyMSGEnum } from '../../../../../shared/constants/table-empty-msg.enum';
+import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { UnitPondEntity } from '../../../../../modules/unit/unit-pond/unit-pond.entity';
 import { UnitPondService } from '../../../../../modules/unit/unit-pond/unit-pond.service';
 import { DialogUnitPondComponent } from '../dialog-unit-pond/dialog-unit-pond.component';
@@ -13,81 +12,53 @@ import { DialogUnitPondComponent } from '../dialog-unit-pond/dialog-unit-pond.co
   templateUrl: './page-unit-pond.component.html',
 })
 export class PageUnitPondComponent implements OnInit {
-  tableEmptyMSG = TableEmptyMSGEnum;
-
-  unitsPonds: UnitPondEntity[];
-  displayedColumns: string[] = [
-    'id',
-    'code',
-    'active',
-    'communication',
-    'm3',
-    'height',
-    'sector',
-    'station',
-    'sets',
-  ];
-  dataSource: MatTableDataSource<UnitPondEntity>;
+  unitsPonds = [];
+  searchText: string;
+  checkedCommunication: boolean = false;
+  checkedActive: boolean = true;
+  showLoader = false;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  // ==================================================
-
   constructor(
     private readonly _unitPondService: UnitPondService,
-    private readonly _matDialog: MatDialog
+    private readonly _matDialog: MatDialog,
   ) {
-    this.unitsPonds = [];
-    this.dataSource = new MatTableDataSource(this.unitsPonds);
+    this._unitPondService.getUnitsPonds().subscribe((unitsPonds) => {
+      this.unitsPonds = unitsPonds;
+    });
   }
 
-  // ==================================================
+  ngOnInit() {}
 
-  ngOnInit(): void {
-    this._unitPondService
-      .getUnitsPonds()
-      .subscribe(
-        (res) => {
-          this.unitsPonds = res;
-          this.dataSource.data = this.unitsPonds;
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-        },
-        (err) => {
-          console.log('ERROR - UnitPondComponent: ' + err.message);
-        }
-      )
-      .unsubscribe();
-
-    this.dataSource.filterPredicate = (unitPond, filterValue) => {
-      let setsString = '';
-      unitPond.unit.sets.forEach((set) => (setsString += set.name));
-      return (
-        String(unitPond.unit.code).includes(filterValue) ||
-        (unitPond.unit.sector &&
-          unitPond.unit.sector.name.toLowerCase().includes(filterValue)) ||
-        (unitPond.unit.station &&
-          unitPond.unit.station.name.toLowerCase().includes(filterValue)) ||
-        setsString.toLowerCase().includes(filterValue)
-      );
-    };
-  }
-
-  // ==================================================
-
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  // ==================================================
-
-  openDialogUnitPond(unitPond: UnitPondEntity): void {
+  openDialogPond(unitPond: UnitPondEntity): void {
     this._matDialog.open(DialogUnitPondComponent, { data: unitPond });
+  }
+
+  applyFilter(searchText: string): void {
+    this.searchText = searchText;
+  }
+
+  openDialogImage(imageURL): void {
+    this._matDialog.open(DialogImageComponent, { data: imageURL });
+  }
+
+  compare(a: UnitPondEntity, b: UnitPondEntity) {
+    // Comparamos la propiedad bot de user.
+
+    if (a.unit.code < b.unit.code) return 1;
+    if (a.unit.code > b.unit.code) return -1;
+    else {
+      // Si la propiedad bot de user es igual, ordenar alfabéticamente.
+
+      if (a.unit.communication > b.unit.communication) return 1;
+      if (a.unit.communication < b.unit.communication) return -1;
+      else {
+        if (a.unit.sector > b.unit.sector) return 1;
+        else if (a.unit.sector < b.unit.sector) return -1;
+        return 0;
+      }
+    }
   }
 }
