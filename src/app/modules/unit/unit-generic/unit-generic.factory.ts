@@ -7,7 +7,6 @@ import { UnitTypeTableEnum } from './../../../shared/constants/unit-type-table.e
 import { MapService } from './../../../shared/services/map.service';
 import { UnitGenericCreateDto } from './dto/unit-generic-create.dto';
 import { UnitGenericUpdateDto } from './dto/unit-generic-update.dto';
-import { UnitGenericWSDto } from './dto/unit-generic-ws.dto';
 import { UnitGenericEntity } from './unit-generic.entity';
 
 @Injectable({
@@ -55,7 +54,7 @@ export class UnitGenericFactory {
       newUnitGeneric.unit = this._unitFactory.createUnit(unitGeneric.unit);
       newUnitGeneric.unit.unitTypeTable = UnitTypeTableEnum.UNIT_GENERIC;
       this.createMarker(newUnitGeneric);
-      this._unitGenericMQTTService.subscribeMQTT(unitGeneric);
+      this._unitGenericMQTTService.subscribeToMQTT(unitGeneric);
     }
     return newUnitGeneric;
   }
@@ -99,18 +98,6 @@ export class UnitGenericFactory {
       unitGeneric.unit
     );
     return unitGenericUpdateDto;
-  }
-
-  public getUnitGenericWSDto(unitGeneric: any): UnitGenericWSDto {
-    const unitGenericWSDto: UnitGenericWSDto = new UnitGenericWSDto();
-    unitGenericWSDto.id = unitGeneric.id;
-    unitGenericWSDto.data1 = unitGeneric.data1;
-    unitGenericWSDto.data2 = unitGeneric.data2;
-    unitGenericWSDto.data3 = unitGeneric.data3;
-    unitGenericWSDto.data4 = unitGeneric.data4;
-    unitGenericWSDto.data5 = unitGeneric.data5;
-    unitGenericWSDto.unit = this._unitFactory.getUnitWSDto(unitGeneric.unit);
-    return unitGenericWSDto;
   }
 
   // ==================================================

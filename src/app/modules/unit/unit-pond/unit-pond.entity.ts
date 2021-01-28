@@ -27,7 +27,8 @@ export class UnitPondEntity {
   // FRONTEND PROPERTIES
   // ==================================================
   marker: Marker;
-  mqttSubscription: Subscription;
+  mqttNodeSubscription: Subscription;
+  mqttServerSubscription: Subscription;
 
   // ==================================================
   //  MQTT

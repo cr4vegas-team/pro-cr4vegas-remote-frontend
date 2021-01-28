@@ -4,7 +4,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { DialogConfirmComponent } from 'src/app/shared/components/dialog-confirm/dialog-confirm.component';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
-import { TableEmptyMSGEnum } from '../../../../../shared/constants/table-empty-msg.enum';
+import { UnitHydrantUpdateInitBatchDto } from '../../dto/unit-hydrant-update-initbatch.dto';
 import { UnitHydrantMqttService } from '../../unit-hydrant-mqtt.service';
 import { UnitHydrantEntity } from '../../unit-hydrant.entity';
 import { UnitHydrantFactory } from '../../unit-hydrant.factory';
@@ -96,15 +96,13 @@ export class PageUnitHydrantComponent implements OnInit {
   }
 
   resetBatch(unitHydrant: UnitHydrantEntity): void {
-    const unitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(
-      unitHydrant
-    );
-    unitHydrantUpdateDto.initBatch = unitHydrant.reading$.value;
+    const unitHydrantUpdateInitBatchDto = new UnitHydrantUpdateInitBatchDto();
+    unitHydrantUpdateInitBatchDto.id = unitHydrant.id;
+    unitHydrantUpdateInitBatchDto.initBatch = unitHydrant.reading$.value;
     this._unitHydrantService
-      .update(unitHydrantUpdateDto)
-      .subscribe((unitHydrantRO) => {
-        unitHydrant.initBatch = unitHydrantRO.unitHydrant.initBatch;
-        unitHydrant.batch = unitHydrant.reading$.value - unitHydrant.initBatch;
+      .updateInitBatch(unitHydrantUpdateInitBatchDto)
+      .subscribe((initBatch) => {
+        unitHydrant.initBatch = initBatch;
       });
   }
 }

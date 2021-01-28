@@ -92,7 +92,7 @@
         <div class="row mb-2">
           <div class="col-md-6 col">Tanda:</div>
           <div class="col-md-6 col fw-bold">
-            {{ batch }} m3
+            {{ (unitHydrant.reading$ | async) - unitHydrant.initBatch }} m3
           </div>
         </div>
 

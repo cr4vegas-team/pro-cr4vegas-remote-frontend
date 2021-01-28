@@ -87,7 +87,11 @@ export class UnitHydrantMqttService {
   // ==================================================
   //  SUBSCRIPTIONS
   // ==================================================
-  public subscribeMQTT(unitHydrant: UnitHydrantEntity): void {
+  public subscribeToTopicsMQTT(unitHydrant: UnitHydrantEntity): void {
+    this.subscribeToNodeTopics(unitHydrant);
+  }
+
+  private subscribeToNodeTopics(unitHydrant: UnitHydrantEntity): void {
     unitHydrant.mqttSubscription = this._mqttEventService
       .observe(
         MQTTTopics.OBSERVE_UNIT_HYDRANT +
@@ -106,15 +110,11 @@ export class UnitHydrantMqttService {
   ): void {
     const dataSplit: string[] = topicMessage.toString().split(',');
     if (dataSplit.length > 0) {
+      unitHydrant.unit.received = 1;
       switch (dataSplit[0]) {
-        case '0':
-          unitHydrant.unit.communication = 0;
-          break;
         case '1':
-          unitHydrant.unit.communication = 1;
           break;
         case '2':
-          unitHydrant.unit.communication = 1;
           if (dataSplit[1]) {
             unitHydrant.valve$.next(Number.parseInt(dataSplit[1], 10));
           }
@@ -138,7 +138,6 @@ export class UnitHydrantMqttService {
           }
           break;
         case '3':
-          unitHydrant.unit.communication = 1;
           if (dataSplit[1]) {
             unitHydrant.unit.operator = dataSplit[1];
           }

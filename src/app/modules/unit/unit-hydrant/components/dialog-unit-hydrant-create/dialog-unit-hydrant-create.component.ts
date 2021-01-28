@@ -7,8 +7,6 @@ import {
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { UnitHydrantEntity } from '../../../../../modules/unit/unit-hydrant/unit-hydrant.entity';
 import { UnitHydrantFactory } from '../../../../../modules/unit/unit-hydrant/unit-hydrant.factory';
@@ -18,7 +16,6 @@ import { SectorEntity } from '../../../../../modules/wrap/sector/sector.entity';
 import { SectorService } from '../../../../../modules/wrap/sector/sector.service';
 import { SetEntity } from '../../../../../modules/wrap/set/set.entity';
 import { SetService } from '../../../../../modules/wrap/set/set.service';
-import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitHydrantCreateDto } from '../../dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from '../../dto/unit-hydrant-update.dto';
@@ -74,6 +71,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
       id: [this.unitHydrant.id],
       filter: [this.unitHydrant.filter],
       diameter: [this.unitHydrant.diameter],
+      initBatch: [this.unitHydrant.initBatch],
       unit: this._formBuilder.group({
         active: [this.unitHydrant.unit.active, [Validators.required]],
         id: [this.unitHydrant.unit.id],
@@ -121,9 +119,6 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        },
-        (error) => {
-          console.log(error);
         }
       );
     }
@@ -162,13 +157,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
         html += '<li>Debe seleccionar un sector</li>';
       }
       html += '</ul>';
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     }
   }
 
@@ -188,28 +177,16 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     const unitHydrantCreateDto: UnitHydrantCreateDto = this._unitHydrantFactory.getUnitHydrantCreateDto(
       this.unitHydrantForm.value
     );
-    this._unitHydrantService.create(unitHydrantCreateDto).subscribe(
-      (unitGenericRO) => {
+    this._unitHydrantService
+      .create(unitHydrantCreateDto)
+      .subscribe((unitGenericRO) => {
         const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
           unitGenericRO.unitHydrant
         );
         this._unitHydrantService.getUnitsHydrants().value.push(newUnitHydrant);
         this._unitHydrantService.refresh();
-        this._unitHydrantSockerService.sendChange(
-          this._unitHydrantFactory.getUnitHydrantWSDto(newUnitHydrant)
-        );
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
-      }
-    );
+      });
   }
 
   // ==================================================
@@ -218,26 +195,16 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     const unitHydrantUpdateDto: UnitHydrantUpdateDto = this._unitHydrantFactory.getUnitHydrantUpdateDto(
       this.unitHydrantForm.value
     );
-    this._unitHydrantService.update(unitHydrantUpdateDto).subscribe(
-      (unitHydrantRO) => {
+    this._unitHydrantService
+      .update(unitHydrantUpdateDto)
+      .subscribe((unitHydrantRO) => {
         this._unitHydrantFactory.copyUnitHydrant(
           this.unitHydrant,
           unitHydrantRO.unitHydrant
         );
         this._unitHydrantService.refresh();
-        this._unitHydrantSockerService.sendChange(this._unitHydrantFactory.getUnitHydrantWSDto(this.unitHydrant));
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
-      }
-    );
+      });
   }
 
   // ==================================================
@@ -252,15 +219,6 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
             this.unitHydrantForm.value.unit.image = next.filename;
             this.createOrUpdateUnitHydrant();
           }
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
         }
       );
     } else {
@@ -284,13 +242,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     }
     html += '</ul>';
     if (!validImage) {
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     } else {
       const reader = new FileReader();
       reader.onload = () => {

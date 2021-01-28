@@ -30,3 +30,25 @@
 [0118/192552.139:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)
 [0119/110544.579:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)
 [0121/135652.289:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)
+[0126/092122.654:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)
+[0126/105438.444:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)
+[0127/093704.044:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/093704.129:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/093704.129:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/093704.129:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/093704.129:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/093704.129:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/094704.065:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/094704.065:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/094704.065:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/094704.065:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/094704.065:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/094704.065:ERROR:crash_report_database_win.cc(496)] failed to stat report
+[0127/094704.065:ERROR:filesystem_win.cc(116)] GetFileAttributes C:\Users\ruben\AppData\Local\Temp\.profile\Crashpad\reports\eb8adc8a-e21c-428f-913c-cb77bdc2796c.dmp: El sistema no puede encontrar el archivo especificado. (0x2)
+[0127/094704.065:ERROR:filesystem_win.cc(116)] GetFileAttributes C:\Users\ruben\AppData\Local\Temp\.profile\Crashpad\reports\b3fe01cd-38d4-47da-96b9-1afae0de8d80.dmp: El sistema no puede encontrar el archivo especificado. (0x2)
+[0127/094704.065:ERROR:filesystem_win.cc(116)] GetFileAttributes C:\Users\ruben\AppData\Local\Temp\.profile\Crashpad\reports\42b27a99-0aba-4383-8a9c-a53c85c746b9.dmp: El sistema no puede encontrar el archivo especificado. (0x2)
+[0127/094704.065:ERROR:filesystem_win.cc(116)] GetFileAttributes C:\Users\ruben\AppData\Local\Temp\.profile\Crashpad\reports\fa2d2ad2-7647-47be-b4b4-1a4767676f56.dmp: El sistema no puede encontrar el archivo especificado. (0x2)
+[0127/094704.065:ERROR:filesystem_win.cc(116)] GetFileAttributes C:\Users\ruben\AppData\Local\Temp\.profile\Crashpad\reports\3e6cd754-454a-4cd4-91bd-deab4c9338bb.dmp: El sistema no puede encontrar el archivo especificado. (0x2)
+[0127/094704.065:ERROR:filesystem_win.cc(116)] GetFileAttributes C:\Users\ruben\AppData\Local\Temp\.profile\Crashpad\reports\746235a6-b340-407e-baa9-768acfdeac37.dmp: El sistema no puede encontrar el archivo especificado. (0x2)
+[0127/094704.065:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)
+[0127/132455.353:ERROR:directory_reader_win.cc(43)] FindFirstFile: El sistema no puede encontrar la ruta especificada. (0x3)

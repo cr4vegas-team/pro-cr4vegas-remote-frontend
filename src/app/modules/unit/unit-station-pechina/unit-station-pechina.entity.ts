@@ -23,7 +23,8 @@ export class UnitStationPechinaEntity {
   // FRONTEND PROPERTIES
   // ==================================================
   marker: Marker;
-  mqttSubscription: Subscription;
+  mqttNodeSubscription: Subscription;
+  mqttServerSubscription: Subscription;
 
   constructor() {
     this.flow$ = new BehaviorSubject(0);

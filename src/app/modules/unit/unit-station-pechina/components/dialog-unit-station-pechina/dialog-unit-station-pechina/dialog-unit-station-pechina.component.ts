@@ -4,7 +4,7 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/modules/auth/auth/auth.service';
-import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
+import { UserRole } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { UploadService } from 'src/app/shared/services/upload.service';
@@ -41,8 +41,8 @@ export class DialogUnitStationPechinaComponent implements OnInit, OnDestroy {
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        user && user.role === UserRoleEnum.ADMIN ||
-        user && user.role === UserRoleEnum.MODERATOR
+        user && user.role === UserRole.ADMIN ||
+        user && user.role === UserRole.MODERATOR
       ) {
         this.disabled = false;
       } else {
@@ -68,9 +68,6 @@ export class DialogUnitStationPechinaComponent implements OnInit, OnDestroy {
               ) as string;
             };
             reader.readAsDataURL(next);
-          },
-          (error) => {
-            console.log(error);
           }
         );
     }

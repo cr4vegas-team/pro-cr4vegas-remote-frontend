@@ -10,7 +10,7 @@ import { DialogInfoComponent } from '../../../../../shared/components/dialog-inf
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UploadService } from '../../../../../shared/services/upload.service';
 import { AuthService } from '../../../../auth/auth/auth.service';
-import { UserRoleEnum } from '../../../../auth/user/enum/user-role.enum';
+import { UserRole } from '../../../../auth/user/enum/user-role.enum';
 import { DialogUnitPondCreateComponent } from '../dialog-unit-pond-create/dialog-unit-pond-create.component';
 
 @Component({
@@ -61,8 +61,8 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
 
     this._authService.getUser$().subscribe((user) => {
       if (
-        user && user.role === UserRoleEnum.ADMIN ||
-        user && user.role === UserRoleEnum.MODERATOR
+        user && user.role === UserRole.ADMIN ||
+        user && user.role === UserRole.MODERATOR
       ) {
         this.disabled = false;
       } else {
@@ -103,9 +103,6 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
               ) as string;
             };
             reader.readAsDataURL(next);
-          },
-          (error) => {
-            console.log(error);
           }
         );
     }

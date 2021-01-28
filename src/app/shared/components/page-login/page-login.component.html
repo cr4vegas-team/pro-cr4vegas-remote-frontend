@@ -53,14 +53,13 @@
       </div>
 
       <div class="col-sm-6 text-center">
-        <form class="login-form" [formGroup]="signinForm" autocomplete="off">
+        <form id="login-form" class="login-form" [formGroup]="signinForm" autocomplete="off">
           <h3>Registro</h3>
 
           <mat-form-field appearance="fill">
             <mat-label>Usuario</mat-label>
             <input matInput placeholder="Usuario" formControlName="signinUser" tabindex="4" required />
           </mat-form-field>
-
 
           <mat-form-field appearance="fill">
             <mat-label>Introduzca su email</mat-label>
@@ -94,10 +93,7 @@
             </button>
           </mat-form-field>
 
-          <button id="button-signin" class="mb-3" mat-raised-button color="primary" (click)="signin()" tabindex="9"
-            type="submit">
-            Registrar
-          </button>
+          <button class="mb-3" mat-raised-button color="primary" tabindex="9" onclick="signin()" type="submit">Registrar</button>
         </form>
       </div>
     </div>

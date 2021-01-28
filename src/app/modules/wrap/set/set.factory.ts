@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SetCreateDto } from './dto/set-create.dto';
 import { SetUpdateDto } from './dto/set-update.dto';
-import { SetWSDto } from './dto/set-ws.dto';
 import { SetEntity } from './set.entity';
 
 @Injectable({
@@ -65,18 +64,5 @@ export class SetFactory {
     setUpdateDto.active = set.active;
     setUpdateDto.image = set.image;
     return setUpdateDto;
-  }
-
-  public getSetWSDto(set: any): SetWSDto {
-    const setWSDto: SetWSDto = new SetWSDto();
-    setWSDto.id = set.id;
-    setWSDto.code = set.code;
-    setWSDto.name = set.name;
-    setWSDto.description = set.description;
-    setWSDto.setType = set.setType.name;
-    setWSDto.units = set.units ? set.units : [];
-    setWSDto.active = set.active;
-    setWSDto.image = set.image;
-    return setWSDto;
   }
 }

@@ -1,0 +1,20 @@
+<div class="container">
+  <h1>Usuarios</h1>
+
+  <div class="row align-items-center mb-2">
+    <div class="col">
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input class="d-flex" matInput (keyup.enter)="applyFilter(input.value)"
+          placeholder="Introduzca datos a filtrar..." #input />
+      </mat-form-field>
+    </div>
+    <div class="col d-flex gap-3">
+      <mat-checkbox [(ngModel)]="checkedActive">Activos</mat-checkbox>
+      <mat-checkbox [(ngModel)]="checkedCommunication">Comunicación</mat-checkbox>
+    </div>
+  </div>
+
+
+
+</div>

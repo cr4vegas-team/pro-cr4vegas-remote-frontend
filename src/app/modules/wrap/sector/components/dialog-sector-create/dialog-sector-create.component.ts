@@ -3,15 +3,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { UnitService } from 'src/app/modules/unit/unit/unit.service';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { UploadService } from 'src/app/shared/services/upload.service';
@@ -93,9 +90,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        },
-        (error) => {
-          console.log(error);
         }
       );
     }
@@ -122,13 +116,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
         html += '<li>El nombre debe estar entre 3 y 45 caracteres</li>';
       }
       html += '</ul>';
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     }
   }
 
@@ -151,19 +139,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
         );
         this._sectorService.getSectors().value.push(newSector);
         this._sectorService.refresh();
-        this._sectorSocketService.sendChange(
-          this._sectorFactory.getSectorWSDto(newSector)
-        );
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
       }
     );
   }
@@ -176,17 +152,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       (sectorRO) => {
         this._sectorFactory.copySector(this.sector, sectorRO.sector);
         this._sectorService.refresh();
-        this._sectorSocketService.sendChange(this.sector);
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
       }
     );
   }
@@ -201,15 +167,6 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
             this.sectorForm.value.image = next.filename;
             this.createOrUpdateSector();
           }
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
         }
       );
     } else {
@@ -247,13 +204,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     }
     html += '</ul>';
     if (!validImage) {
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     } else {
       const reader = new FileReader();
       reader.onload = () => {

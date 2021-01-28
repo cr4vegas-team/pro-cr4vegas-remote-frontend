@@ -5,44 +5,70 @@ import { MQTTTopics } from './../../../shared/constants/mqtt-topics.enum';
 import { MqttEventService } from './../../../shared/services/mqtt-event.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnitGenericMqttService {
+  private _testCommunication: boolean = false;
 
-  constructor(
-    private readonly _mqttEventService: MqttEventService,
-  ) { }
+  constructor(private readonly _mqttEventService: MqttEventService) {}
 
   // ==================================================
   //  PUBLISH
   // ==================================================
   public publishGETCommunication(unitGeneric: UnitGenericEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `1`);
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      `1`
+    );
   }
 
   public publishGETData(unitGeneric: UnitGenericEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `2`)
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      `2`
+    );
   }
 
   public publishGETSIMData(unitGeneric: UnitGenericEntity): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `3`)
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      `3`
+    );
   }
 
-  public publishSendSpeed(unitGeneric: UnitGenericEntity, sendSpeed: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `8,${sendSpeed}`);
+  public publishSendSpeed(
+    unitGeneric: UnitGenericEntity,
+    sendSpeed: number
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      `8,${sendSpeed}`
+    );
   }
 
-  public publishConfiguration(unitGeneric: UnitGenericEntity, reading: number): void {
-    this._mqttEventService.unsafePublish(MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code, `9,${reading}`);
+  public publishConfiguration(
+    unitGeneric: UnitGenericEntity,
+    reading: number
+  ): void {
+    this._mqttEventService.unsafePublish(
+      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      `9,${reading}`
+    );
   }
 
   // ==================================================
   //  SUBSCRIPTIONS
   // ==================================================
-  public subscribeMQTT(unitGeneric: UnitGenericEntity) {
-    unitGeneric.mqttSubscription = this._mqttEventService.observe(MQTTTopics.OBSERVE_UNIT_GENERIC).subscribe((mqttMSG: IMqttMessage) => {
-      this.updateProperties(unitGeneric, mqttMSG.payload.toString());
-    });
+  public subscribeToMQTT(unitGeneric: UnitGenericEntity) {
+    this.subscribeToNodeTopics(unitGeneric);
+  }
+
+  private subscribeToNodeTopics(unitGeneric: UnitGenericEntity) {
+    unitGeneric.mqttNodeSubscription = this._mqttEventService
+      .observe(MQTTTopics.OBSERVE_UNIT_GENERIC)
+      .subscribe((mqttMSG: IMqttMessage) => {
+        this.updateProperties(unitGeneric, mqttMSG.payload.toString());
+      });
   }
 
   public updateProperties(
@@ -89,7 +115,6 @@ export class UnitGenericMqttService {
         default:
       }
     }
-    unitGeneric.setMarkerColourAccourdingState();
+    unitGeneric.checkStatus();
   }
-
 }

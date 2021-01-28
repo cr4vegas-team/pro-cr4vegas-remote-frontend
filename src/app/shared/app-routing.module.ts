@@ -13,6 +13,7 @@ import { PageSectorComponent } from '../modules/wrap/sector/components/page-sect
 import { PageSetComponent } from '../modules/wrap/set/components/page-set/page-set.component';
 import { LoginComponent } from './components/page-login/page-login.component';
 import { MapComponent } from './components/page-map/page-map.component';
+import { PageUserComponent } from '../modules/auth/user/components/page-user/page-user.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -33,6 +34,11 @@ const routes: Routes = [
   {
     path: 'units-ponds',
     component: PageUnitPondComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'users',
+    component: PageUserComponent,
     canActivate: [AuthGuard],
   },
   {

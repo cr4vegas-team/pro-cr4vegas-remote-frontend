@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SectorCreateDto } from './dto/sector-create.dto';
 import { SectorUpdateDto } from './dto/sector-update.dto';
-import { SectorWSDto } from './dto/sector-ws.dto';
 import { SectorEntity } from './sector.entity';
 
 @Injectable({
@@ -67,17 +66,5 @@ export class SectorFactory {
       ? sector.units.map((unit) => unit.id)
       : [];
     return sectorUpdateDto;
-  }
-
-  public getSectorWSDto(sector: any): SectorWSDto {
-    const sectorWSDto: SectorWSDto = new SectorWSDto();
-    sectorWSDto.id = sector.id;
-    sectorWSDto.code = sector.code;
-    sectorWSDto.name = sector.name;
-    sectorWSDto.description = sector.description;
-    sectorWSDto.active = sector.active;
-    sectorWSDto.image = sector.image;
-    sectorWSDto.units = sector.units ? sector.units : [];
-    return sectorWSDto;
   }
 }

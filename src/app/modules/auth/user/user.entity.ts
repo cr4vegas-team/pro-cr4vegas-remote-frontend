@@ -1,11 +1,11 @@
 import { SessionEntity } from './../../session/session/session.entity';
-import { UserRoleEnum } from './enum/user-role.enum';
+import { UserRole } from './enum/user-role.enum';
 
 export class UserEntity {
   id: number;
   username: string;
   email: string;
   active: number;
-  role: UserRoleEnum;
+  role: UserRole;
   session: SessionEntity;
 }

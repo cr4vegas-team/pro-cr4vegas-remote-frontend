@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <div  *ngIf="!showLoader">
+  <div *ngIf="!showLoader">
 
   </div>
   <div
@@ -85,7 +85,7 @@
           </div>
 
           <div class="col-md">
-            Tanda: <span class="fw-bold">{{ unitHydrant.batch }}</span> m3
+            Tanda: <span class="fw-bold">{{ (unitHydrant.reading$ | async) - unitHydrant.initBatch }}</span> m3
           </div>
 
         </div>

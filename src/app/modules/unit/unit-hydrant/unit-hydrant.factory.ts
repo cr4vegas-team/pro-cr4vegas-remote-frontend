@@ -6,7 +6,6 @@ import { UnitFactory } from '../unit/unit.factory';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitHydrantCreateDto } from './dto/unit-hydrant-create.dto';
 import { UnitHydrantUpdateDto } from './dto/unit-hydrant-update.dto';
-import { UnitHydrantWSDto } from './dto/unit-hydrant-ws.dto';
 import { UnitHydrantMqttService } from './unit-hydrant-mqtt.service';
 import { UnitHydrantEntity } from './unit-hydrant.entity';
 
@@ -30,7 +29,7 @@ export class UnitHydrantFactory {
   constructor(
     private readonly _unitFactory: UnitFactory,
     private readonly _mapService: MapService,
-    private readonly _unitHydrantMQTTService: UnitHydrantMqttService,
+    private readonly _unitHydrantMQTTService: UnitHydrantMqttService
   ) {
     this._mapService.map.subscribe((map) => {
       if (map) {
@@ -56,8 +55,9 @@ export class UnitHydrantFactory {
       newUnitHydrant.unit = this._unitFactory.createUnit(unitHydrant.unit);
       newUnitHydrant.unit.unitTypeTable = UnitTypeTableEnum.UNIT_HYDRANT;
       this.createMarker(newUnitHydrant);
-      this._unitHydrantMQTTService.subscribeMQTT(newUnitHydrant);
+      this._unitHydrantMQTTService.subscribeToTopicsMQTT(newUnitHydrant);
     }
+    newUnitHydrant.checkStatus();
     return newUnitHydrant;
   }
 
@@ -70,6 +70,7 @@ export class UnitHydrantFactory {
     target.diameter = source.diameter;
     target.unit = this._unitFactory.createUnit(source.unit);
     this.createMarker(target);
+    target.checkStatus();
   }
 
   // ==================================================
@@ -79,11 +80,11 @@ export class UnitHydrantFactory {
     const unitHydrantCreateDto: UnitHydrantCreateDto = new UnitHydrantCreateDto();
     unitHydrantCreateDto.filter = unitHydrant.filter;
     unitHydrantCreateDto.diameter = unitHydrant.diameter;
+    unitHydrantCreateDto.initBatch = unitHydrant.initBatch;
     unitHydrantCreateDto.unit = this._unitFactory.getUnitCreateDto(
       unitHydrant.unit
     );
     unitHydrantCreateDto.unit.unitTypeTable = UnitTypeTableEnum.UNIT_HYDRANT;
-
     return unitHydrantCreateDto;
   }
 
@@ -92,20 +93,11 @@ export class UnitHydrantFactory {
     unitHydrantUpdateDto.id = unitHydrant.id;
     unitHydrantUpdateDto.filter = unitHydrant.filter;
     unitHydrantUpdateDto.diameter = unitHydrant.diameter;
+    unitHydrantUpdateDto.initBatch = unitHydrant.initBatch;
     unitHydrantUpdateDto.unit = this._unitFactory.getUnitUpdateDto(
       unitHydrant.unit
     );
     return unitHydrantUpdateDto;
-  }
-
-  public getUnitHydrantWSDto(unitHydrant: any): UnitHydrantWSDto {
-    const unitHydrantWSDto: UnitHydrantWSDto = new UnitHydrantWSDto();
-    unitHydrantWSDto.id = unitHydrant.id;
-    unitHydrantWSDto.initBatch = unitHydrant.initBatch;
-    unitHydrantWSDto.filter = unitHydrant.filter;
-    unitHydrantWSDto.diameter = unitHydrant.diameter;
-    unitHydrantWSDto.unit = this._unitFactory.getUnitWSDto(unitHydrant.unit);
-    return unitHydrantWSDto;
   }
 
   // ==================================================
@@ -162,5 +154,4 @@ export class UnitHydrantFactory {
       unitHydrant.marker.addTo(this._map);
     }
   }
-
 }

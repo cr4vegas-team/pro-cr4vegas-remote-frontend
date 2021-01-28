@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
-import { WSEndPoints } from 'src/app/shared/constants/ws-endpoints.enum';
+import { UnitEvent } from 'src/app/shared/constants/event.enum';
 import { WebsocketService } from 'src/app/shared/services/websocket.service';
-import { UnitHydrantWSDto } from './dto/unit-hydrant-ws.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -15,21 +14,14 @@ export class UnitHydrantSocketService {
     this._webSocketService.subscribeReceived().subscribe((received) => {
       if (received) {
         const event = received.event;
-        const data = JSON.parse(received.data);
-        if (event === WSEndPoints.EVENT_UNIT_HYDRANT) {
-          this._unitHydrantService.createOrUpdateWS(data);
+        const data = received.data;
+        if (event === UnitEvent.EVENT_UNIT_HYDRANT_CREATE) {
+          this._unitHydrantService.createWS(data);
+        }
+        if (event === UnitEvent.EVENT_UNIT_HYDRANT_UPDATE) {
+          this._unitHydrantService.updateWS(data);
         }
       }
     });
   }
-
-  public sendChange(unitHydrant: UnitHydrantWSDto): void {
-    this._webSocketService.send(
-      JSON.stringify({
-        event: WSEndPoints.EVENT_UNIT_HYDRANT,
-        data: JSON.stringify(unitHydrant),
-      })
-    );
-  }
-
 }

@@ -16,7 +16,7 @@ import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { SectorEntity } from './../../sector.entity';
 import { DialogSectorCreateComponent } from './../dialog-sector-create/dialog-sector-create.component';
-import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
+import { UserRole } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { DialogUnitStationPechinaComponent } from 'src/app/modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
 
@@ -49,8 +49,8 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        (user && user.role === UserRoleEnum.ADMIN) ||
-        (user && user.role === UserRoleEnum.MODERATOR)
+        (user && user.role === UserRole.ADMIN) ||
+        (user && user.role === UserRole.MODERATOR)
       ) {
         this.disabled = false;
       } else {
@@ -77,9 +77,6 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        },
-        (error) => {
-          console.log(error);
         }
       );
     }

@@ -5,16 +5,16 @@ import {
   FormControl,
   FormGroup,
   ValidatorFn,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../modules/auth/auth/auth.service';
-import { UserRoleEnum } from '../../../modules/auth/user/enum/user-role.enum';
-import { ErrorTypeEnum } from '../../constants/error-type.enum';
+import { UserCreateDto } from '../../../modules/auth/user/dto/user-create.dto';
+import { UserRole } from '../../../modules/auth/user/enum/user-role.enum';
+import { ErrorTypeEnum } from '../../handlers/error-type.enum';
 import { DialogInfoTitleEnum } from '../dialog-info/dialog-info-title.enum';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
-import { UserCreateDto } from '../../../modules/auth/user/dto/user-create.dto';
 
 export function validateEmailAndPass(
   otherControl: AbstractControl
@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit {
     private readonly _router: Router,
     private readonly _matDialog: MatDialog,
     private readonly _formBuilder: FormBuilder
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this._authService.getUser$().subscribe(
@@ -70,19 +70,8 @@ export class LoginComponent implements OnInit {
           this.init = false;
           this.loginMessage = '---';
         }
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: { title: 'Error', html: error },
-        });
       }
     );
-
-    document.body.addEventListener('keyup', (event) => {
-      if (event.code === 'Enter') {
-        document.getElementById('button-login').click();
-      }
-    });
 
     this.loginForm = this._formBuilder.group({
       loginUser: new FormControl('', Validators.required),
@@ -110,8 +99,8 @@ export class LoginComponent implements OnInit {
       );
   }
 
-  private checkRolePermission(userRole: UserRoleEnum): void {
-    if (userRole && userRole !== UserRoleEnum.NONE) {
+  private checkRolePermission(userRole: UserRole): void {
+    if (userRole && userRole !== UserRole.NONE) {
       this.userRolePermission = true;
       this._router.navigate(['/map']);
     } else {
@@ -124,44 +113,14 @@ export class LoginComponent implements OnInit {
       this._authService.login(
         this.loginForm.get('loginUser').value,
         this.loginForm.get('loginPassword').value
-      ).subscribe(
-        (res) => {
-          localStorage.setItem('access', JSON.stringify(res as any));
-          this._authService.saveAccessOnStorage(JSON.stringify(res as any));
-          this._authService.getUser$().next((res as any).user);
-        },
-        error => {
-          this._authService.clearAccessFromStorage();
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.ERROR,
-              html: error,
-            },
-          });
-        });
+      );
     } else {
       this.loginMessage = this.MESSAGE_AUTH_ERR;
     }
   }
 
   logout(): void {
-    this._authService.logout().subscribe((res) => {
-      if (res) {
-        this._authService.clearAccessFromStorage();
-        this._authService.getUser$().next(null);
-        this._router.navigateByUrl('/');
-      }
-    },
-      error => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.ERROR,
-            html: error,
-          },
-        });
-      });
+    this._authService.logout();
   }
 
   signin(): void {

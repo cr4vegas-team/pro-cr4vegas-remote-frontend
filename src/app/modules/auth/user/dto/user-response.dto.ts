@@ -1,10 +1,10 @@
-import { UserRoleEnum } from '../enum/user-role.enum';
+import { UserRole } from '../enum/user-role.enum';
 
 export class UserDto {
   id: number;
   username: string;
   email: string;
-  role: UserRoleEnum;
+  role: UserRole;
   active: number;
 }
 

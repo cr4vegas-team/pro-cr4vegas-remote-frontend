@@ -1,14 +1,14 @@
 import { Directive, ElementRef, Input, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
-import { UserRoleEnum } from '../enum/user-role.enum';
+import { UserRole } from '../enum/user-role.enum';
 
 @Directive({
   selector: '[appRole]',
 })
 export class RoleDirective implements OnInit {
-  @Input('appRole') requiredRoles: UserRoleEnum[];
+  @Input('appRole') requiredRoles: UserRole[];
 
-  userRole: UserRoleEnum = UserRoleEnum.NONE;
+  userRole: UserRole = UserRole.NONE;
   el: ElementRef = null;
 
   constructor(el: ElementRef, private readonly _authService: AuthService) {

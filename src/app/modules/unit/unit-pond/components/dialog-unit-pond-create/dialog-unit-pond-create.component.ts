@@ -7,7 +7,6 @@ import {
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { UnitPondEntity } from '../../../../../modules/unit/unit-pond/unit-pond.entity';
 import { UnitPondFactory } from '../../../../../modules/unit/unit-pond/unit-pond.factory';
@@ -22,7 +21,6 @@ import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitPondCreateDto } from '../../dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from '../../dto/unit-pond-update.dto';
 import { UnitPondSocketService } from '../../unit-pond-socket.service';
-import { ErrorTypeEnum } from './../../../../../shared/constants/error-type.enum';
 
 @Component({
   selector: 'app-dialog-unit-pond-create',
@@ -120,9 +118,6 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        },
-        (error) => {
-          console.log(error);
         }
       );
     }
@@ -167,13 +162,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
         html += '<li>Debe seleccionar un sector</li>';
       }
       html += '</ul>';
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     }
   }
 
@@ -200,19 +189,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
         );
         this._unitPondService.getUnitsPonds().value.push(newUnitPond);
         this._unitPondService.refresh();
-        this._unitPondSocketService.sendChange(
-          this._unitPondFactory.getUnitPondWSDto(newUnitPond)
-        );
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
       }
     );
   }
@@ -230,19 +207,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
           unitGenericRO.unitPond
         );
         this._unitPondService.refresh();
-        this._unitPondSocketService.sendChange(
-          this._unitPondFactory.getUnitPondWSDto(this.unitPond)
-        );
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
       }
     );
   }
@@ -259,15 +224,6 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
             this.unitPondForm.value.unit.image = next.filename;
             this.createOrUpdateUnitPond();
           }
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
         }
       );
     } else {
@@ -291,13 +247,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     }
     html += '</ul>';
     if (!validImage) {
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     } else {
       const reader = new FileReader();
       reader.onload = () => {

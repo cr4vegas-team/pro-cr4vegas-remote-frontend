@@ -32,7 +32,9 @@ export class MapComponent implements OnInit, OnDestroy {
       });
       this._mapService.map.next(this._map);
     } catch (error) {
-      console.log('Error al cargar el mapa');
+      throw new Error(
+        'Ocurrió un error al carga el mapa. Pruebe a recargar la página o contacte con el administrador'
+      );
     }
   }
 

@@ -1,15 +1,21 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { UserSocketService } from 'src/app/modules/auth/user/user-socket.service';
 import { DialogUnitGenericComponent } from 'src/app/modules/unit/unit-generic/components/dialog-unit-generic/dialog-unit-generic.component';
+import { UnitGenericSocketService } from 'src/app/modules/unit/unit-generic/unit-generic-socket.service';
 import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant/dialog-unit-hydrant.component';
+import { UnitHydrantSocketService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant-socket.service';
 import { UnitHydrantFactory } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.factory';
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
+import { UnitPondSocketService } from 'src/app/modules/unit/unit-pond/unit-pond-socket.service';
 import { UnitPondFactory } from 'src/app/modules/unit/unit-pond/unit-pond.factory';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { UnitStationPechinaSocketService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina-socket.service';
+import { UnitMqttService } from 'src/app/modules/unit/unit/unit-mqtt.service';
 import { SectorService } from 'src/app/modules/wrap/sector/sector.service';
 import { SetService } from 'src/app/modules/wrap/set/set.service';
 import { DialogUnitStationPechinaComponent } from './../../modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
@@ -38,6 +44,7 @@ export class StartService implements OnDestroy {
   // ==================================================
   constructor(
     private readonly _matDialog: MatDialog,
+    private readonly _unitMqttServie: UnitMqttService,
     // Services
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitHydrantService: UnitHydrantService,
@@ -49,8 +56,15 @@ export class StartService implements OnDestroy {
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _unitGenericFactory: UnitGenericFactory,
     private readonly _unitPondFactory: UnitPondFactory,
-    private readonly _unitStationPechinaFactory: UnitStationPechinaFactoryService
+    private readonly _unitStationPechinaFactory: UnitStationPechinaFactoryService,
+    // WebSockets
+    private readonly _userSocketService: UserSocketService,
+    private readonly _unitHydrantSocketService: UnitHydrantSocketService,
+    private readonly _unitGenericSocketService: UnitGenericSocketService,
+    private readonly _unitPondSocketService: UnitPondSocketService,
+    private readonly _unitStationPechinaSocketService: UnitStationPechinaSocketService
   ) {
+    this._unitMqttServie.subscribeToServerTopic();
     this.subscribeToUnitsGenerics();
     this.subscribeToUnitsHydrants();
     this.subscribeToUnitsPonds();

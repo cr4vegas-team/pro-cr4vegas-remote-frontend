@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { WSEndPoints } from 'src/app/shared/constants/ws-endpoints.enum';
+import { UnitEvent } from 'src/app/shared/constants/event.enum';
 import { WebsocketService } from 'src/app/shared/services/websocket.service';
-import { UnitGenericWSDto } from './dto/unit-generic-ws.dto';
 import { UnitGenericService } from './unit-generic.service';
 
 @Injectable({
@@ -15,20 +14,14 @@ export class UnitGenericSocketService {
     this._webSocketService.subscribeReceived().subscribe((received) => {
       if (received) {
         const event = received.event;
-        const data = JSON.parse(received.data);
-        if (event == WSEndPoints.EVENT_UNIT_GENERIC) {
-          this._unitGenericService.createOrUpdateWS(data);
+        const data = received.data;
+        if (event == UnitEvent.EVENT_UNIT_GENERIC_CREATE) {
+          this._unitGenericService.createWS(data);
+        }
+        if (event == UnitEvent.EVENT_UNIT_GENERIC_UPDATE) {
+          this._unitGenericService.updateWS(data);
         }
       }
     });
-  }
-
-  public sendChange(unitGenericWSDto: UnitGenericWSDto): void {
-    this._webSocketService.send(
-      JSON.stringify({
-        event: WSEndPoints.EVENT_UNIT_GENERIC,
-        data: JSON.stringify(unitGenericWSDto),
-      })
-    );
   }
 }

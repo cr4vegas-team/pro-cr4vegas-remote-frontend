@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
 import { DialogUnitGenericComponent } from 'src/app/modules/unit/unit-generic/components/dialog-unit-generic/dialog-unit-generic.component';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant/dialog-unit-hydrant.component';
@@ -13,8 +12,6 @@ import { DialogUnitStationPechinaComponent } from 'src/app/modules/unit/unit-sta
 import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
-import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
-import { TableEmptyMSGEnum } from 'src/app/shared/constants/table-empty-msg.enum';
 import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { SetEntity } from '../../set.entity';
 import { SetService } from '../../set.service';

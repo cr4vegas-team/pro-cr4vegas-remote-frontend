@@ -13,11 +13,6 @@ export class WebsocketService implements OnDestroy {
     this._webSocket = new WebSocket(environment.ws.url);
     this._webSocket.onopen = () => {
       console.log('¡Conexión con websocket exitosa!');
-      this.send(
-        JSON.stringify({
-          event: 'client',
-        })
-      );
     };
 
     this._webSocket.onmessage = (message) => {
@@ -36,12 +31,10 @@ export class WebsocketService implements OnDestroy {
     };
 
     this._webSocket.onerror = (err) => {
-      console.error(
-        'Websocket encontró un error: ',
-        err,
-        'Cerrando la conexión de websockets... (Recarge la página)'
-      );
       this._webSocket.close();
+      throw new Error(
+        'Ocurrio un error de Sockets con el servidor. Pruebe a recargar la página'
+      );
     };
   }
 
@@ -50,9 +43,7 @@ export class WebsocketService implements OnDestroy {
   }
 
   send(data: string): void {
-    this._webSocket.onopen = () => {
-      this._webSocket.send(data);
-    };
+    this._webSocket.send(data);
   }
 
   ngOnDestroy(): void {

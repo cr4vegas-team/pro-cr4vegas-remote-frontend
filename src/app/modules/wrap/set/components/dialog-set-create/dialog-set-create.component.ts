@@ -3,17 +3,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { UnitService } from 'src/app/modules/unit/unit/unit.service';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { UploadService } from 'src/app/shared/services/upload.service';
-import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { SetCreateDto } from '../../dto/set-create.dto';
 import { SetUpdateDto } from '../../dto/set-update.dto';
@@ -98,26 +95,15 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       this.set.image !== null &&
       this.set.image !== ''
     ) {
-      this._uploadService.getImage(this.set.image).subscribe(
-        (next) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            this.imageUrl = this._sanitizer.bypassSecurityTrustResourceUrl(
-              reader.result as string
-            ) as string;
-          };
-          reader.readAsDataURL(next);
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.FRONT_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              error,
-            },
-          });
-        }
-      );
+      this._uploadService.getImage(this.set.image).subscribe((next) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.imageUrl = this._sanitizer.bypassSecurityTrustResourceUrl(
+            reader.result as string
+          ) as string;
+        };
+        reader.readAsDataURL(next);
+      });
     }
   }
 
@@ -142,13 +128,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
         html += '<li>El nombre debe estar entre 3 y 45 caracteres</li>';
       }
       html += '</ul>';
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     }
   }
 
@@ -168,24 +148,12 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
     const setCreateDto: SetCreateDto = this._setFactory.getSetCreateDto(
       this.setForm.value
     );
-    this._setService.create(setCreateDto).subscribe(
-      (setRO) => {
-        const newSet: SetEntity = this._setFactory.createSet(setRO.set);
-        this._setService.getSets().value.push(newSet);
-        this._setService.refresh();
-        this._setSocketService.sendChange(this._setFactory.getSetWSDto(newSet));
-        this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
-      }
-    );
+    this._setService.create(setCreateDto).subscribe((setRO) => {
+      const newSet: SetEntity = this._setFactory.createSet(setRO.set);
+      this._setService.getSets().value.push(newSet);
+      this._setService.refresh();
+      this.close();
+    });
   }
 
   // ==================================================
@@ -194,25 +162,11 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
     const setUpdateDto: SetUpdateDto = this._setFactory.getSetUpdateDto(
       this.setForm.value
     );
-    this._setService.update(setUpdateDto).subscribe(
-      (setRO) => {
-        this._setFactory.copySet(this.set, setRO.set);
-        this._setService.refresh();
-        this._setSocketService.sendChange(
-          this._setFactory.getSetWSDto(this.set)
-        );
-        this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
-      }
-    );
+    this._setService.update(setUpdateDto).subscribe((setRO) => {
+      this._setFactory.copySet(this.set, setRO.set);
+      this._setService.refresh();
+      this.close();
+    });
   }
 
   // ==================================================
@@ -221,23 +175,12 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
     if (this.file !== undefined && this.file !== null) {
       const formData = new FormData();
       formData.append('file', this.file, this.file.name);
-      this._uploadService.uploadImage(formData).subscribe(
-        (next) => {
-          if (next) {
-            this.setForm.value.image = next.filename;
-            this.createOrUpdateSet();
-          }
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
+      this._uploadService.uploadImage(formData).subscribe((next) => {
+        if (next) {
+          this.setForm.value.image = next.filename;
+          this.createOrUpdateSet();
         }
-      );
+      });
     } else {
       this.createOrUpdateSet();
     }
@@ -287,13 +230,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
     }
     html += '</ul>';
     if (!validImage) {
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     } else {
       const reader = new FileReader();
       reader.onload = () => {
@@ -388,6 +325,4 @@ export class DialogSetTypeDeleteComponent {
   onNoClick(): void {
     this.dialogRef.close();
   }
-
-
 }

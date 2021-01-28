@@ -48,9 +48,6 @@ export class SetService {
           setsFounded.push(newSet);
         });
         this._sets.next(setsFounded);
-      },
-      (error) => {
-        throw new Error(error);
       }
     );
   }
@@ -127,16 +124,18 @@ export class SetService {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createOrUpdateWS(setWSString: string): void {
-    const setWS = this._setFactory.createSet(setWSString);
+  public updateWS(set: any): void {
     const setFound = this._sets.value.filter(
-      (station) => (station.id = setWS.id)
+      (station) => (station.id = set.id)
     )[0];
     if (setFound) {
-      this._setFactory.copySet(setFound, setWS);
-    } else {
-      this._sets.value.push(setWS);
+      this._setFactory.copySet(setFound, set);
+      this.refresh();
     }
+  }
+
+  public createWS(set: any): void {
+    this._sets.value.push(set);
     this.refresh();
   }
 }

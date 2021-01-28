@@ -6,15 +6,13 @@ import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum
 import { MapService } from 'src/app/shared/services/map.service';
 import { UnitFactory } from '../unit/unit.factory';
 import { UnitStationPechinaUpdateDto } from './dto/unit-station-pechina-update.dto';
-import { UnitStationPechinaWSDto } from './dto/unit-station-pechina-ws.dto';
 import { UnitStationPechinaMqttService } from './unit-station-pechina-mqtt.service';
 import { UnitStationPechinaEntity } from './unit-station-pechina.entity';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnitStationPechinaFactoryService {
-
   // ==================================================
   //  VARS
   // ==================================================
@@ -31,7 +29,7 @@ export class UnitStationPechinaFactoryService {
   constructor(
     private readonly _unitFactory: UnitFactory,
     private readonly _mapService: MapService,
-    private readonly _unitStationPechinaMQTTService: UnitStationPechinaMqttService,
+    private readonly _unitStationPechinaMQTTService: UnitStationPechinaMqttService
   ) {
     this._mapService.map.subscribe((map) => {
       if (map) {
@@ -47,20 +45,29 @@ export class UnitStationPechinaFactoryService {
   // ==================================================
   //  FACTORY FUNCTIONS
   // ==================================================
-  public createUnitStationPechina(unitStationPechina: any): UnitStationPechinaEntity {
+  public createUnitStationPechina(
+    unitStationPechina: any
+  ): UnitStationPechinaEntity {
     const newUnitStationPechina: UnitStationPechinaEntity = new UnitStationPechinaEntity();
     if (unitStationPechina) {
       newUnitStationPechina.id = unitStationPechina.id;
       newUnitStationPechina.readingBatch = unitStationPechina.readingBatch;
-      newUnitStationPechina.unit = this._unitFactory.createUnit(unitStationPechina.unit);
+      newUnitStationPechina.unit = this._unitFactory.createUnit(
+        unitStationPechina.unit
+      );
       newUnitStationPechina.unit.unitTypeTable = UnitTypeTableEnum.UNIT_POND;
       this.createMarker(newUnitStationPechina);
-      this._unitStationPechinaMQTTService.subscribeMQTT(newUnitStationPechina);
+      this._unitStationPechinaMQTTService.subscribeToMQTT(
+        newUnitStationPechina
+      );
     }
     return newUnitStationPechina;
   }
 
-  public copyUnitStationPechina(target: UnitStationPechinaEntity, source: UnitStationPechinaEntity): void {
+  public copyUnitStationPechina(
+    target: UnitStationPechinaEntity,
+    source: UnitStationPechinaEntity
+  ): void {
     target.readingBatch = source.readingBatch;
     target.unit = this._unitFactory.createUnit(source.unit);
     target.marker.setLngLat([target.unit.longitude, target.unit.latitude]);
@@ -70,19 +77,15 @@ export class UnitStationPechinaFactoryService {
   // ==================================================
   //  DTO FUNCTIONS
   // ==================================================
-  public getUnitStationUpdateDto(unitStationPechina: any): UnitStationPechinaUpdateDto {
+  public getUnitStationUpdateDto(
+    unitStationPechina: any
+  ): UnitStationPechinaUpdateDto {
     const unitStationPechinaDto: UnitStationPechinaUpdateDto = new UnitStationPechinaUpdateDto();
     unitStationPechinaDto.id = unitStationPechina.id;
     unitStationPechinaDto.readingBatch = unitStationPechina.readingBatch;
-    unitStationPechinaDto.unit = this._unitFactory.getUnitUpdateDto(unitStationPechina.unit);
-    return unitStationPechinaDto;
-  }
-
-  public getUnitStationPechinaWSDto(unitStationPechina: any): UnitStationPechinaWSDto {
-    const unitStationPechinaDto: UnitStationPechinaWSDto = new UnitStationPechinaWSDto();
-    unitStationPechinaDto.id = unitStationPechina.id;
-    unitStationPechinaDto.readingBatch = unitStationPechina.readingBatch;
-    unitStationPechinaDto.unit = this._unitFactory.getUnitWSDto(unitStationPechina.unit);
+    unitStationPechinaDto.unit = this._unitFactory.getUnitUpdateDto(
+      unitStationPechina.unit
+    );
     return unitStationPechinaDto;
   }
 

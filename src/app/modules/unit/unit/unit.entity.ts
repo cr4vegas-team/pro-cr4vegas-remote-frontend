@@ -1,3 +1,4 @@
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { SectorEntity } from '../../wrap/sector/sector.entity';
 import { SetEntity } from '../../wrap/set/set.entity';
 import { UnitTypeTableEnum } from './../../../shared/constants/unit-type-table.enum';
@@ -29,6 +30,7 @@ export class UnitEntity {
   //  MQTT PROPERTIES
   // ==================================================
   communication: number;
+  received: number;
   operator: string;
   signal: number;
   ip: string;

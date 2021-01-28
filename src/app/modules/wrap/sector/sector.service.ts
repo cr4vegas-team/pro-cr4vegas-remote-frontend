@@ -49,9 +49,6 @@ export class SectorService {
           sectorsFounded.push(newSector);
         });
         this._sectors.next(sectorsFounded);
-      },
-      (error) => {
-        throw new Error(error);
       }
     );
   }
@@ -97,16 +94,18 @@ export class SectorService {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createOrUpdateWS(sectorWSString: string): void {
-    const sectorWS = this._sectorFactory.createSector(sectorWSString);
+  public updateWS(sector: any): void {
     const sectorFound = this._sectors.value.filter(
-      (station) => (station.id = sectorWS.id)
+      (station) => (station.id = sector.id)
     )[0];
     if (sectorFound) {
-      this._sectorFactory.copySector(sectorFound, sectorWS);
-    } else {
-      this._sectors.value.push(sectorWS);
+      this._sectorFactory.copySector(sectorFound, sector);
+      this.refresh();
     }
+  }
+
+  public createWS(sector: any): void {
+    this._sectors.value.push(sector);
     this.refresh();
   }
 }

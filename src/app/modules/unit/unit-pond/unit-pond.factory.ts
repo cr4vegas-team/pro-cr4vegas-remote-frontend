@@ -6,7 +6,6 @@ import { UnitFactory } from '../unit/unit.factory';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitPondCreateDto } from './dto/unit-pond-create.dto';
 import { UnitPondUpdateDto } from './dto/unit-pond-update.dto';
-import { UnitPondWSDto } from './dto/unit-pond-ws.dto';
 import { UnitPondMqttService } from './unit-pond-mqtt.service';
 import { UnitPondEntity } from './unit-pond.entity';
 
@@ -30,7 +29,7 @@ export class UnitPondFactory {
   constructor(
     private readonly _unitFactory: UnitFactory,
     private readonly _mapService: MapService,
-    private readonly _unitPondMQTTService: UnitPondMqttService,
+    private readonly _unitPondMQTTService: UnitPondMqttService
   ) {
     this._mapService.map.subscribe((map) => {
       if (map) {
@@ -55,7 +54,7 @@ export class UnitPondFactory {
       newUnitPond.unit = this._unitFactory.createUnit(unitPond.unit);
       newUnitPond.unit.unitTypeTable = UnitTypeTableEnum.UNIT_POND;
       this.createMarker(newUnitPond);
-      this._unitPondMQTTService.subscribeMQTT(newUnitPond);
+      this._unitPondMQTTService.subscribeToMQTT(newUnitPond);
     }
     return newUnitPond;
   }
@@ -87,15 +86,6 @@ export class UnitPondFactory {
     unitPondUpdateDto.height = unitPond.height;
     unitPondUpdateDto.unit = this._unitFactory.getUnitUpdateDto(unitPond.unit);
     return unitPondUpdateDto;
-  }
-
-  public getUnitPondWSDto(unitPond: any): UnitPondWSDto {
-    const unitPondWSDto: UnitPondWSDto = new UnitPondWSDto();
-    unitPondWSDto.id = unitPond.id;
-    unitPondWSDto.m3 = unitPond.m3;
-    unitPondWSDto.height = unitPond.height;
-    unitPondWSDto.unit = this._unitFactory.getUnitWSDto(unitPond.unit);
-    return unitPondWSDto;
   }
 
   // ==================================================

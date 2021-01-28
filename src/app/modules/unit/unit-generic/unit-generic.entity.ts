@@ -29,10 +29,11 @@ export class UnitGenericEntity {
   // ==================================================
   // FRONTEND PROPERTIES
   // ==================================================
-  mqttSubscription: Subscription;
+  mqttNodeSubscription: Subscription;
+  mqttServerSubscription: Subscription;
   marker: Marker;
 
-  public setMarkerColourAccourdingState(): void {
+  public checkStatus(): void {
     this.marker
       .getElement()
       .getElementsByTagName(

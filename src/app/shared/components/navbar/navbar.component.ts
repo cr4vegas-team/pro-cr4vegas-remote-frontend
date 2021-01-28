@@ -4,10 +4,11 @@ import { MatRadioChange } from '@angular/material/radio';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { UserSocketService } from 'src/app/modules/auth/user/user-socket.service';
 import { UserEntity } from 'src/app/modules/auth/user/user.entity';
 import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { AuthService } from '../../../modules/auth/auth/auth.service';
-import { UserRoleEnum } from '../../../modules/auth/user/enum/user-role.enum';
+import { UserRole } from '../../../modules/auth/user/enum/user-role.enum';
 import { DialogUnitGenericCreateComponent } from '../../../modules/unit/unit-generic/components/dialog-unit-generic-create/dialog-unit-generic-create.component';
 import { UnitGenericService } from '../../../modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantCreateComponent } from '../../../modules/unit/unit-hydrant/components/dialog-unit-hydrant-create/dialog-unit-hydrant-create.component';
@@ -17,10 +18,8 @@ import { UnitPondService } from '../../../modules/unit/unit-pond/unit-pond.servi
 import { DialogSectorCreateComponent } from '../../../modules/wrap/sector/components/dialog-sector-create/dialog-sector-create.component';
 import { DialogSetCreateComponent } from '../../../modules/wrap/set/components/dialog-set-create/dialog-set-create.component';
 import { MapboxStyleEnum } from '../../../shared/constants/mapbox-style.enum';
-import { ErrorTypeEnum } from '../../constants/error-type.enum';
 import { GLOBAL } from '../../constants/global.constant';
 import { MapService } from '../../services/map.service';
-import { DialogInfoTitleEnum } from '../dialog-info/dialog-info-title.enum';
 import { DialogInfoComponent } from '../dialog-info/dialog-info.component';
 import { DialogSettingComponent } from './../../../modules/general/setting/components/dialog-setting/dialog-setting.component';
 import { DialogOrderCreateComponent } from './../../../modules/session/order/components/dialog-order-create/dialog-order-create.component';
@@ -32,7 +31,7 @@ import { StartService } from './../../services/start.service';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  userRole: UserRoleEnum = null;
+  userRole: UserRole = null;
   mapboxStyleEnum = MapboxStyleEnum;
   mapboxStyleSelected: MapboxStyleEnum;
   consDialogInfo = GLOBAL;
@@ -40,6 +39,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   hidden = true;
   user: UserEntity;
   sessionCardHidden = true;
+  usersSockets: Set<string> = new Set();
 
   // ==================================================
   //  SHOWING CHECKBOX
@@ -73,7 +73,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private readonly _unitPondService: UnitPondService,
     private readonly _unitStationPechinaService: UnitStationPechinaService,
     private readonly _mapService: MapService,
-    private readonly _startService: StartService
+    private readonly _startService: StartService,
+    private readonly _userSocketService: UserSocketService
   ) {}
 
   // ==================================================
@@ -82,7 +83,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._authService.getUser$().subscribe((user) => {
       if (user) {
-        if (user.role !== UserRoleEnum.NONE) {
+        if (user.role !== UserRole.NONE) {
           this.hidden = false;
         } else {
           this.hidden = true;
@@ -93,6 +94,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
     this._authService.getUser$().subscribe((user) => {
       this.user = user;
+    });
+    this._userSocketService.getUsers$().subscribe((users) => {
+      this.usersSockets.clear();
+      users.forEach((user) => {
+        this.usersSockets.add(user);
+      });
     });
   }
 
@@ -192,6 +199,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   goUnitsPonds(): void {
     this._router.navigate(['/units-ponds']);
+  }
+
+  openPageUsers(): void {
+    this._router.navigate(['/users']);
   }
 
   openPageSession(): void {
@@ -308,31 +319,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   //  LOGOUT & CLOSE
   // ==================================================
   logout(): void {
-    this._authService.logout().subscribe(
-      (res) => {
-        if (res) {
-          this._authService.clearAccessFromStorage();
-          this._authService.getUser$().next(null);
-          this._router.navigateByUrl('/');
-          this.sessionCardHidden = true;
-        }
-      },
-      (error) => {
-        this._authService.clearAccessFromStorage();
-        this._authService.getUser$().next(null);
-        this._router.navigateByUrl('/');
-        this.sessionCardHidden = true;
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.FRONT_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: `
-              <h3>Su sesión a expirado, vuelva a conectarse</h3>
-            `,
-          },
-        });
-      }
-    );
+    this._authService.logout();
+    this.sessionCardHidden = true;
   }
 
   close(reason: string): void {

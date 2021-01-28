@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { UnitGenericFactory } from 'src/app/modules/unit/unit-generic/unit-generic.factory';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { AuthService } from 'src/app/modules/auth/auth/auth.service';
-import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
+import { UserRole } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { UploadService } from 'src/app/shared/services/upload.service';
@@ -42,8 +42,8 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        user && user.role === UserRoleEnum.ADMIN ||
-        user && user.role === UserRoleEnum.MODERATOR
+        user && user.role === UserRole.ADMIN ||
+        user && user.role === UserRole.MODERATOR
       ) {
         this.disabled = false;
       } else {
@@ -71,9 +71,6 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
               ) as string;
             };
             reader.readAsDataURL(next);
-          },
-          (error) => {
-            console.log(error);
           }
         );
     }

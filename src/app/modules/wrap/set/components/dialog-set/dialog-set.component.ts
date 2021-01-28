@@ -3,7 +3,7 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/modules/auth/auth/auth.service';
-import { UserRoleEnum } from 'src/app/modules/auth/user/enum/user-role.enum';
+import { UserRole } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { DialogUnitGenericComponent } from 'src/app/modules/unit/unit-generic/components/dialog-unit-generic/dialog-unit-generic.component';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant/dialog-unit-hydrant.component';
@@ -47,8 +47,8 @@ export class DialogSetComponent implements OnInit, OnDestroy {
   ) {
     this._authService.getUser$().subscribe((user) => {
       if (
-        user && user.role === UserRoleEnum.ADMIN ||
-        user && user.role === UserRoleEnum.MODERATOR
+        user && user.role === UserRole.ADMIN ||
+        user && user.role === UserRole.MODERATOR
       ) {
         this.disabled = false;
       } else {
@@ -75,9 +75,6 @@ export class DialogSetComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        },
-        (error) => {
-          console.log(error);
         }
       );
     }

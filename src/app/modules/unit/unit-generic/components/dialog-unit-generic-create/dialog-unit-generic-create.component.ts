@@ -12,7 +12,6 @@ import { SectorEntity } from '../../../../../modules/wrap/sector/sector.entity';
 import { SectorService } from '../../../../../modules/wrap/sector/sector.service';
 import { SetEntity } from '../../../../../modules/wrap/set/set.entity';
 import { SetService } from '../../../../../modules/wrap/set/set.service';
-import { DialogInfoComponent } from '../../../../../shared/components/dialog-info/dialog-info.component';
 import { GLOBAL } from '../../../../../shared/constants/global.constant';
 import { UnitEntity } from '../../../unit/unit.entity';
 import { UnitGenericCreateDto } from '../../dto/unit-generic-create.dto';
@@ -20,8 +19,6 @@ import { UnitGenericUpdateDto } from '../../dto/unit-generic-update.dto';
 import { UnitGenericEntity } from '../../unit-generic.entity';
 import { UnitGenericFactory } from '../../unit-generic.factory';
 import { UnitGenericService } from '../../unit-generic.service';
-import { DialogInfoTitleEnum } from './../../../../../shared/components/dialog-info/dialog-info-title.enum';
-import { ErrorTypeEnum } from './../../../../../shared/constants/error-type.enum';
 import { UnitGenericSocketService } from './../../unit-generic-socket.service';
 
 @Component({
@@ -123,9 +120,6 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        },
-        (error) => {
-          console.log(error);
         }
       );
     }
@@ -164,13 +158,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
         html += '<li>Debe seleccionar un sector</li>';
       }
       html += '</ul>';
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     }
   }
 
@@ -197,19 +185,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
         );
         this._unitGenericService.getUnitsGeneric().value.push(newUnitGeneric);
         this._unitGenericService.refresh();
-        this._unitGenericSockerService.sendChange(
-          this._unitGenericFactory.getUnitGenericWSDto(newUnitGeneric)
-        );
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
       }
     );
   }
@@ -227,19 +203,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
           unitGenericRO.unitGeneric
         );
         this._unitGenericService.refresh();
-        this._unitGenericSockerService.sendChange(
-          this._unitGenericFactory.getUnitGenericWSDto(this.unitGeneric)
-        );
         this.close();
-      },
-      (error) => {
-        this._matDialog.open(DialogInfoComponent, {
-          data: {
-            errorType: ErrorTypeEnum.API_ERROR,
-            title: DialogInfoTitleEnum.WARNING,
-            html: error,
-          },
-        });
       }
     );
   }
@@ -256,15 +220,6 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
             this.unitGenericForm.value.unit.image = next.filename;
             this.createOrUpdateUnitGeneric();
           }
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
         }
       );
     } else {
@@ -288,13 +243,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     }
     html += '</ul>';
     if (!validImage) {
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     } else {
       const reader = new FileReader();
       reader.onload = () => {

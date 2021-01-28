@@ -1,13 +1,11 @@
+import { AllErrorHandler } from './shared/handlers/all-error-handler';
 import { registerLocaleData } from '@angular/common';
 // ==================================================
 // MODULES
 // ==================================================
 import { HttpClientModule } from '@angular/common/http';
 import localeEs from '@angular/common/locales/es';
-import {
-  LOCALE_ID,
-  NgModule
-} from '@angular/core';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { JwtModule } from '@auth0/angular-jwt';
 import { MqttModule } from 'ngx-mqtt';
@@ -52,12 +50,13 @@ registerLocaleData(localeEs, 'es');
     WrapModule,
     SessionModule,
     GeneralModule,
-    AuthModule
+    AuthModule,
   ],
 
   providers: [
     { provide: LOCALE_ID, useValue: 'es' },
-    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { maxWidth: '100%'} }
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { maxWidth: '100%' } },
+    { provide: ErrorHandler, useClass: AllErrorHandler },
   ],
 
   bootstrap: [AppComponent],

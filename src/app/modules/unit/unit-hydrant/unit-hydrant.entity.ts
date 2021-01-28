@@ -33,8 +33,8 @@ export class UnitHydrantEntity {
   );
   bouyWarning$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   mqttSubscription: Subscription;
+  mqttServerSubscription: Subscription;
   marker: Marker;
-  batch: number;
 
   // ==================================================
   //  STATUS

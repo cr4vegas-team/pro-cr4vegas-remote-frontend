@@ -112,7 +112,7 @@
     </mat-menu>
 
     <br />
-
+    <!-- Menu Crear -->
     <button mat-button color="primary" class="fs-5 w-100 text-start mb-2" [matMenuTriggerFor]="create"
       [disabled]="disabled">
       <div class="icon-link fas fa-plus"></div>
@@ -136,6 +136,13 @@
       </button>
       <button class="fs-5" mat-menu-item (click)="openDialogUnitPondCreate()">Balsa</button>
     </mat-menu>
+
+    <!-- Start Users -->
+    <button mat-button color="primary" class="fs-5 w-100 text-start mb-2" (click)="openPageUsers()">
+      <div class="icon-link fas fa-users"></div>
+      &nbsp;&nbsp;Usuarios
+    </button>
+
   </mat-sidenav>
 
   <mat-sidenav-content>
@@ -147,7 +154,7 @@
     <div *ngIf="user" id="user" class="superponer position-fixed top-0 end-0 m-sm-2 text-end">
       <button class="opacity-50 bg-white-70 p-2 rounded border-0 mb-2" (click)="sessionCardHidden = !sessionCardHidden">
         <span class="text-primary">{{ user.username }}</span>&nbsp;&nbsp;<span class="text-secondary">Inicio: {{
-          user.session.started | date: "short" }}</span>
+          user.session.started | date: "short" }} <span class="fas fa-users"></span> {{ usersSockets.size }}</span>
       </button>
 
       <div>
@@ -158,12 +165,17 @@
               <div class="text-success mb-2">{{ user.role }}</div>
               <div class="text-secondary mb-2">{{ user.email }}</div>
               <div class="text-secondary mb-2">
-                Sesión {{ user.session.id }}
+                Sesión {{ user.sessionNumber }}
               </div>
             </div>
             <div class="col d-flex justify-content-center align-items-center">
               <div class="icon fas fa-user"></div>
             </div>
+          </div>
+
+          <div class="row p-2">
+            <div class="bg-secondary text-white rounded-3 p-1">Usuarios conectados</div>
+            <div class="text-success" *ngFor="let userSocket of usersSockets">{{ userSocket }}</div>
           </div>
 
           <button mat-raised-button class="mt-1" color="warn" (click)="logout()">

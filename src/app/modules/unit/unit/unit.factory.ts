@@ -8,6 +8,7 @@ import { UnitEntity } from './unit.entity';
   providedIn: 'root',
 })
 export class UnitFactory {
+  constructor() {}
   // ==================================================
   //  FACTORY FUNCTIONS
   // ==================================================

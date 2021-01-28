@@ -99,9 +99,6 @@ export class UnitGenericService implements OnDestroy {
           }
         );
         this._unitsGenerics.next(unitGenericsFounded);
-      },
-      (error) => {
-        throw new Error(error);
       }
     );
   }
@@ -159,24 +156,26 @@ export class UnitGenericService implements OnDestroy {
     if (unitGeneric.marker) {
       unitGeneric.marker.remove();
     }
-    if (unitGeneric.mqttSubscription) {
-      unitGeneric.mqttSubscription.unsubscribe();
+    if (unitGeneric.mqttNodeSubscription) {
+      unitGeneric.mqttNodeSubscription.unsubscribe();
     }
   }
 
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createOrUpdateWS(unitGenericWSString: string): void {
-    const unitGenericWS = this._unitGenericFactory.createUnitGeneric(unitGenericWSString);
+  public updateWS(unitGeneric: any): void {
     const unitGenericFound = this._unitsGenerics.value.filter(
-      (station) => (station.id = unitGenericWS.id)
+      (station) => (station.id = unitGeneric.id)
     )[0];
     if (unitGenericFound) {
-      this._unitGenericFactory.copyUnitGeneric(unitGenericFound, unitGenericWS);
-    } else {
-      this._unitsGenerics.value.push(unitGenericWS);
+      this._unitGenericFactory.copyUnitGeneric(unitGenericFound, unitGeneric);
+      this.refresh();
     }
+  }
+
+  public createWS(unitGeneric: any): void {
+    this._unitsGenerics.value.push(unitGeneric);
     this.refresh();
   }
 }

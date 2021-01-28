@@ -98,9 +98,6 @@ export class UnitPondService implements OnDestroy {
           unitsPondsFounded.push(newUnitPond);
         });
         this._unitsPonds.next(unitsPondsFounded);
-      },
-      (error) => {
-        throw new Error(error);
       }
     );
   }
@@ -156,24 +153,26 @@ export class UnitPondService implements OnDestroy {
     if (unitPond.marker) {
       unitPond.marker.remove();
     }
-    if (unitPond.mqttSubscription) {
-      unitPond.mqttSubscription.unsubscribe();
+    if (unitPond.mqttNodeSubscription) {
+      unitPond.mqttNodeSubscription.unsubscribe();
     }
   }
 
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createOrUpdateWS(unitPondWSString: string): void {
-    const unitPondWS = this._unitPondFactory.createUnitPond(unitPondWSString);
+  public updateWS(unitPond: any): void {
     const unitPondFound = this._unitsPonds.value.filter(
-      (station) => (station.id = unitPondWS.id)
+      (station) => (station.id = unitPond.id)
     )[0];
     if (unitPondFound) {
-      this._unitPondFactory.copyUnitPond(unitPondFound, unitPondWS);
-    } else {
-      this._unitsPonds.value.push(unitPondWS);
+      this._unitPondFactory.copyUnitPond(unitPondFound, unitPond);
+      this.refresh();
     }
+  }
+
+  public crateWS(unitPond: any): void {
+    this._unitsPonds.value.push(unitPond);
     this.refresh();
   }
 }

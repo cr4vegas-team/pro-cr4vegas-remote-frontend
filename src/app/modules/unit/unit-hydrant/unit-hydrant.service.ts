@@ -5,6 +5,7 @@ import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../auth/auth/auth.service';
 import { MapService } from './../../../shared/services/map.service';
 import { UnitHydrantCreateDto } from './dto/unit-hydrant-create.dto';
+import { UnitHydrantUpdateInitBatchDto } from './dto/unit-hydrant-update-initbatch.dto';
 import { UnitHydrantUpdateDto } from './dto/unit-hydrant-update.dto';
 import { UnitHydrantEntity } from './unit-hydrant.entity';
 import { UnitHydrantFactory } from './unit-hydrant.factory';
@@ -36,7 +37,7 @@ export class UnitHydrantService implements OnDestroy {
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
     private readonly _unitHydrantFactory: UnitHydrantFactory,
-    private readonly _mapService: MapService,
+    private readonly _mapService: MapService
   ) {
     this._unitsHydrants = new BehaviorSubject<UnitHydrantEntity[]>(
       Array<UnitHydrantEntity>()
@@ -83,28 +84,25 @@ export class UnitHydrantService implements OnDestroy {
   // ==================================================
   // API FUNCTIONS
   // ==================================================
-  public findAll(): void {
-    /* const httpOptions = this._authService.getHttpOptions({});
-    return this._httpClient.get<UnitsHydrantsRO>(this._url, httpOptions); */
+  async findAll(): Promise<void> {
     const httpOptions = this._authService.getHttpOptions({});
-    this._httpClient.get<UnitsHydrantsRO>(this._url, httpOptions).subscribe(
-      (unitHydrantsRO) => {
-        this.cleanAll();
-        const unitHydrantsFounded: UnitHydrantEntity[] = [];
-        unitHydrantsRO.unitsHydrants.forEach(
-          (unitHydrant: UnitHydrantEntity) => {
-            const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
-              unitHydrant
-            );
-            unitHydrantsFounded.push(newUnitHydrant);
-          }
-        );
-        this._unitsHydrants.next(unitHydrantsFounded);
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
+    await this._httpClient
+      .get<UnitsHydrantsRO>(this._url, httpOptions)
+      .subscribe(
+        (unitHydrantsRO) => {
+          this.cleanAll();
+          const unitHydrantsFounded: UnitHydrantEntity[] = [];
+          unitHydrantsRO.unitsHydrants.forEach(
+            (unitHydrant: UnitHydrantEntity) => {
+              const newUnitHydrant: UnitHydrantEntity = this._unitHydrantFactory.createUnitHydrant(
+                unitHydrant
+              );
+              unitHydrantsFounded.push(newUnitHydrant);
+            }
+          );
+          this._unitsHydrants.next(unitHydrantsFounded);
+        }
+      );
   }
 
   create(
@@ -125,6 +123,17 @@ export class UnitHydrantService implements OnDestroy {
     return this._httpClient.put<UnitHydrantRO>(
       this._url,
       unitHydrantUpdateDto,
+      httpOptions
+    );
+  }
+
+  updateInitBatch(
+    unitHydrantUpdateInitBatchDto: UnitHydrantUpdateInitBatchDto
+  ): Observable<number> {
+    const httpOptions = this._authService.getHttpOptions({});
+    return this._httpClient.put<number>(
+      this._url + '/initBatch',
+      unitHydrantUpdateInitBatchDto,
       httpOptions
     );
   }
@@ -170,16 +179,18 @@ export class UnitHydrantService implements OnDestroy {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createOrUpdateWS(unitHydrantWSString: string): void {
-    const unitHydrantWS = this._unitHydrantFactory.createUnitHydrant(unitHydrantWSString);
+  public updateWS(unitHydrant: any): void {
     const unitHydrantFound = this._unitsHydrants.value.filter(
-      (station) => (station.id = unitHydrantWS.id)
+      (station) => (station.id = unitHydrant.id)
     )[0];
     if (unitHydrantFound) {
-      this._unitHydrantFactory.copyUnitHydrant(unitHydrantFound, unitHydrantWS);
-    } else {
-      this._unitsHydrants.value.push(unitHydrantWS);
+      this._unitHydrantFactory.copyUnitHydrant(unitHydrantFound, unitHydrant);
+      this.refresh();
     }
+  }
+
+  public createWS(unitHydrant: any): void {
+    this._unitsHydrants.value.push(unitHydrant);
     this.refresh();
   }
 }

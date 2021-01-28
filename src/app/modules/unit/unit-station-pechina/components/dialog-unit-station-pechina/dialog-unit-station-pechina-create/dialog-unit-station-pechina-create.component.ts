@@ -1,9 +1,9 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -11,9 +11,6 @@ import { SectorEntity } from 'src/app/modules/wrap/sector/sector.entity';
 import { SectorService } from 'src/app/modules/wrap/sector/sector.service';
 import { SetEntity } from 'src/app/modules/wrap/set/set.entity';
 import { SetService } from 'src/app/modules/wrap/set/set.service';
-import { DialogInfoTitleEnum } from 'src/app/shared/components/dialog-info/dialog-info-title.enum';
-import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
-import { ErrorTypeEnum } from 'src/app/shared/constants/error-type.enum';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { UnitStationPechinaUpdateDto } from '../../../dto/unit-station-pechina-update.dto';
@@ -116,9 +113,6 @@ export class DialogUnitStationPechinaCreateComponent
               ) as string;
             };
             reader.readAsDataURL(next);
-          },
-          (error) => {
-            console.log(error);
           }
         );
     }
@@ -147,13 +141,7 @@ export class DialogUnitStationPechinaCreateComponent
         html += '<li>Debe seleccionar un sector</li>';
       }
       html += '</ul>';
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     }
   }
 
@@ -170,21 +158,7 @@ export class DialogUnitStationPechinaCreateComponent
             unitStationPechina
           );
           this._unitStationPechinaService.refresh();
-          this._unitStationPechinaSockerService.sendChange(
-            this._unitStationPechinaFactoryService.getUnitStationPechinaWSDto(
-              this.unitStationPechina
-            )
-          );
           this.close();
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
         }
       );
   }
@@ -199,15 +173,6 @@ export class DialogUnitStationPechinaCreateComponent
             this.unitStationPechinaForm.value.unit.image = next.filename;
             this.updateUnitStationPechina();
           }
-        },
-        (error) => {
-          this._matDialog.open(DialogInfoComponent, {
-            data: {
-              errorType: ErrorTypeEnum.API_ERROR,
-              title: DialogInfoTitleEnum.WARNING,
-              html: error,
-            },
-          });
         }
       );
     } else {
@@ -229,13 +194,7 @@ export class DialogUnitStationPechinaCreateComponent
     }
     html += '</ul>';
     if (!validImage) {
-      this._matDialog.open(DialogInfoComponent, {
-        data: {
-          errorType: ErrorTypeEnum.FRONT_ERROR,
-          title: DialogInfoTitleEnum.WARNING,
-          html,
-        },
-      });
+      throw new Error(html);
     } else {
       const reader = new FileReader();
       reader.onload = () => {

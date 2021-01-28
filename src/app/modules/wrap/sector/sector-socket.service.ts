@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { WSEndPoints } from 'src/app/shared/constants/ws-endpoints.enum';
+import { UnitEvent } from 'src/app/shared/constants/event.enum';
 import { WebsocketService } from './../../../shared/services/websocket.service';
-import { SectorWSDto } from './dto/sector-ws.dto';
 import { SectorService } from './sector.service';
 
 @Injectable({
@@ -16,19 +15,13 @@ export class SectorSocketService {
       if (received) {
         const event = received.event;
         const data = JSON.parse(received.data);
-        if (event == WSEndPoints.EVENT_SECTOR) {
-          this._sectorService.createOrUpdateWS(data);
+        if (event == UnitEvent.EVENT_UNIT_SECTOR_CREATE) {
+          this._sectorService.createWS(data);
+        }
+        if (event == UnitEvent.EVENT_UNIT_SECTOR_UPDATE) {
+          this._sectorService.updateWS(data);
         }
       }
     });
-  }
-
-  public sendChange(dto: SectorWSDto): void {
-    this._webSocketService.send(
-      JSON.stringify({
-        event: WSEndPoints.EVENT_SECTOR,
-        data: JSON.stringify(dto),
-      })
-    );
   }
 }

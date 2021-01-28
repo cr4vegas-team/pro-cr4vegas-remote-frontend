@@ -69,13 +69,46 @@ export class UnitStationPechinaMqttService {
   // ==================================================
   //  SUBSCRIPTIONS
   // ==================================================
-  public subscribeMQTT(unitStationPechina: UnitStationPechinaEntity): void {
-    unitStationPechina.mqttSubscription = this._mqttEventService
+  public subscribeToMQTT(unitStationPechina: UnitStationPechinaEntity): void {
+    this.subscribeToNodeTopics(unitStationPechina);
+    //this.subscribeToServerTopics(unitStationPechina);
+  }
+
+  private subscribeToNodeTopics(
+    unitStationPechina: UnitStationPechinaEntity
+  ): void {
+    unitStationPechina.mqttNodeSubscription = this._mqttEventService
       .observe(
         MQTTTopics.OBSERVE_UNIT_STATION_PECHINA + unitStationPechina.unit.code
       )
       .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitStationPechina, mqttMSG.payload.toString());
+      });
+  }
+
+  private subscribeToServerTopics(
+    unitStationPechina: UnitStationPechinaEntity
+  ): void {
+    unitStationPechina.mqttServerSubscription = this._mqttEventService
+      .observe(
+        MQTTTopics.OBSERVE_UNIT_STATION_PECHINA_TEST +
+          unitStationPechina.unit.code
+      )
+      .subscribe((mqttMSG: IMqttMessage) => {
+        const dataSplit: string[] = mqttMSG.payload.toString().split(',');
+        if (dataSplit.length > 0) {
+          if (dataSplit[0] == '2') {
+            unitStationPechina.unit.received = 0;
+            setTimeout(() => {
+              if (unitStationPechina.unit.received == 1) {
+                unitStationPechina.unit.communication = 1;
+              } else {
+                unitStationPechina.unit.communication = 0;
+              }
+              unitStationPechina.checkStatus();
+            }, 30000);
+          }
+        }
       });
   }
 

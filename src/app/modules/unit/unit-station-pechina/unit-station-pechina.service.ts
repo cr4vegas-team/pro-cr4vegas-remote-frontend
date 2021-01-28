@@ -9,10 +9,9 @@ import { UnitStationPechinaFactoryService } from './unit-station-pechina-factory
 import { UnitStationPechinaEntity } from './unit-station-pechina.entity';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnitStationPechinaService implements OnDestroy {
-
   // ==================================================
   //  VARS CONSTANTS
   // ==================================================
@@ -39,7 +38,9 @@ export class UnitStationPechinaService implements OnDestroy {
     private readonly _mapService: MapService,
     private readonly _unitStationPechinaFactoryService: UnitStationPechinaFactoryService
   ) {
-    this._unitStationPechina = new BehaviorSubject<UnitStationPechinaEntity>(null);
+    this._unitStationPechina = new BehaviorSubject<UnitStationPechinaEntity>(
+      null
+    );
     this.subscribeToMap();
     this.subscribeToHiddenMarker();
   }
@@ -59,7 +60,10 @@ export class UnitStationPechinaService implements OnDestroy {
 
   private subscribeToHiddenMarker(): void {
     this._subHiddenMarker = this._hiddenMarker.subscribe((hidden) => {
-      if (this._unitStationPechina.value && this._unitStationPechina.value.marker) {
+      if (
+        this._unitStationPechina.value &&
+        this._unitStationPechina.value.marker
+      ) {
         this._unitStationPechina.value.marker.getElement().hidden = hidden;
       }
     });
@@ -70,21 +74,27 @@ export class UnitStationPechinaService implements OnDestroy {
   // ==================================================
   public find(): void {
     const httpOptions = this._authService.getHttpOptions({});
-    this._httpClient.get<UnitStationPechinaEntity>(this._url, httpOptions).subscribe(
-      (unitStationPechina) => {
-        this.clean();
-        if (unitStationPechina) {
-          const newUnitStationPechina = this._unitStationPechinaFactoryService.createUnitStationPechina(unitStationPechina);
-          this._unitStationPechina.next(newUnitStationPechina);
+    this._httpClient
+      .get<UnitStationPechinaEntity>(this._url, httpOptions)
+      .subscribe(
+        (unitStationPechina) => {
+          this.clean();
+          if (unitStationPechina) {
+            const newUnitStationPechina = this._unitStationPechinaFactoryService.createUnitStationPechina(
+              unitStationPechina
+            );
+            this._unitStationPechina.next(newUnitStationPechina);
+          }
+        },
+        (error) => {
+          throw new Error(error);
         }
-      },
-      (error) => {
-        throw new Error(error);
-      }
-    );
+      );
   }
 
-  update(unitStationPechinaUpdateDto: UnitStationPechinaUpdateDto): Observable<UnitStationPechinaEntity> {
+  update(
+    unitStationPechinaUpdateDto: UnitStationPechinaUpdateDto
+  ): Observable<UnitStationPechinaEntity> {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.put<UnitStationPechinaEntity>(
       this._url,
@@ -113,8 +123,8 @@ export class UnitStationPechinaService implements OnDestroy {
       if (this._unitStationPechina.value.marker) {
         this._unitStationPechina.value.marker.remove();
       }
-      if (this._unitStationPechina.value.mqttSubscription) {
-        this._unitStationPechina.value.mqttSubscription.unsubscribe();
+      if (this._unitStationPechina.value.mqttNodeSubscription) {
+        this._unitStationPechina.value.mqttNodeSubscription.unsubscribe();
       }
     }
   }
@@ -122,11 +132,11 @@ export class UnitStationPechinaService implements OnDestroy {
   // ==================================================
   //  WS FUNCTIONS
   // ==================================================
-  public createOrUpdateWS(unitStationPechinaWSString: string): void {
-    const unitStationPechinaWS = this._unitStationPechinaFactoryService.createUnitStationPechina(unitStationPechinaWSString);
-    if (this._unitStationPechina.value) {
-      this._unitStationPechinaFactoryService.copyUnitStationPechina(this._unitStationPechina.value, unitStationPechinaWS);
-    }
+  public updateWS(unitStationPechina: any): void {
+    this._unitStationPechinaFactoryService.copyUnitStationPechina(
+      this._unitStationPechina.value,
+      unitStationPechina
+    );
     this.refresh();
   }
 
