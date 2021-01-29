@@ -1,1 +1,24 @@
-<p>dialog-user-create works!</p>
+<h1 mat-dialog-title>Modificar {{data.username}}</h1>
+<div mat-dialog-content [formGroup]="userForm">
+  <mat-checkbox formControlName="active">Activo</mat-checkbox>
+  <mat-form-field appearance="fill">
+    <mat-label>Nombre de usuario</mat-label>
+    <input matInput formControlName="username">
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email">
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Rol</mat-label>
+    <mat-select formControlName="role">
+      <mat-option *ngFor="let role of userRole | enumToArray" [value]="role">
+        {{role}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cerrar</button>
+  <button mat-button (click)="accept()">Aceptar</button>
+</div>

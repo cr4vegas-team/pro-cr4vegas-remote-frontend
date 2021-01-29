@@ -2,23 +2,23 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/modules/auth/auth/auth.service';
+import { UserRole } from 'src/app/modules/auth/user/enum/user-role.enum';
 import { DialogUnitGenericComponent } from 'src/app/modules/unit/unit-generic/components/dialog-unit-generic/dialog-unit-generic.component';
 import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
 import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/components/dialog-unit-hydrant/dialog-unit-hydrant.component';
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { DialogUnitStationPechinaComponent } from 'src/app/modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
+import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
-import { AuthService } from 'src/app/modules/auth/auth/auth.service';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { SectorEntity } from './../../sector.entity';
 import { DialogSectorCreateComponent } from './../dialog-sector-create/dialog-sector-create.component';
-import { UserRole } from 'src/app/modules/auth/user/enum/user-role.enum';
-import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
-import { DialogUnitStationPechinaComponent } from 'src/app/modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
 
 @Component({
   selector: 'app-dialog-sector',
@@ -27,11 +27,9 @@ import { DialogUnitStationPechinaComponent } from 'src/app/modules/unit/unit-sta
 export class DialogSectorComponent implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
 
-  units: UnitEntity[] = [];
   subUnits: Subscription;
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
-  disabled = false;
 
   // ==================================================
 
@@ -46,30 +44,19 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
     private readonly _authService: AuthService,
     @Inject(MAT_DIALOG_DATA)
     public sector: SectorEntity
-  ) {
-    this._authService.getUser$().subscribe((user) => {
-      if (
-        (user && user.role === UserRole.ADMIN) ||
-        (user && user.role === UserRole.MODERATOR)
-      ) {
-        this.disabled = false;
-      } else {
-        this.disabled = true;
-      }
-    });
-  }
+  ) {}
 
   // ==================================================
 
   ngOnInit(): void {
-    this.units = this.sector.units;
     if (
       this.sector.image !== undefined &&
       this.sector.image !== null &&
       this.sector.image !== ''
     ) {
-      this.subImage = this._uploadService.getImage(this.sector.image).subscribe(
-        (next) => {
+      this.subImage = this._uploadService
+        .getImage(this.sector.image)
+        .subscribe((next) => {
           const reader = new FileReader();
           reader.onload = () => {
             this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
@@ -77,8 +64,7 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        }
-      );
+        });
     }
   }
 
@@ -91,11 +77,11 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
       filterValue !== null &&
       filterValue !== ''
     ) {
-      this.units = this.sector.units.filter(
+      this.sector.units = this.sector.units.filter(
         (unit) => String(unit.code) === filterValue
       );
     } else {
-      this.units = this.sector.units;
+      this.sector.units = this.sector.units;
     }
   }
 
@@ -123,8 +109,8 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
       DialogSectorCreateComponent,
       { data: this.sector }
     );
-    refDialogSectorCreate.afterClosed().subscribe(() => {
-      this.units = this.sector.units;
+    refDialogSectorCreate.afterClosed().subscribe((sector: SectorEntity) => {
+      this.sector = sector;
     });
   }
 
@@ -148,7 +134,7 @@ export class DialogSectorComponent implements OnInit, OnDestroy {
     }
     if (unit.unitTypeTable === UnitTypeTableEnum.UNIT_STATION_PECHINA) {
       this._matDialog.open(DialogUnitStationPechinaComponent, {
-        data: this._unitPondService.getOneByUnitId(unit.id),
+        data: this._unitStationPechinaService.getUnitStationPechina(),
       });
     }
   }

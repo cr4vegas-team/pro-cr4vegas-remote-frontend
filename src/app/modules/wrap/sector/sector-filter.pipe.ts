@@ -9,7 +9,6 @@ export class SectorFilterPipe implements PipeTransform {
     if (!searchText) return items;
 
     return items.filter((item) => {
-      console.log(item);
       let cadena = JSON.stringify(item).toLowerCase();
       let busqueda = searchText.toLowerCase();
       return cadena.includes(busqueda);

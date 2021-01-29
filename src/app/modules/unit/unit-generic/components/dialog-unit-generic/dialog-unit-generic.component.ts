@@ -15,7 +15,6 @@ import { DialogUnitGenericCreateComponent } from '../dialog-unit-generic-create/
 @Component({
   selector: 'app-dialog-unit-generic',
   templateUrl: './dialog-unit-generic.component.html',
-  styleUrls: ['dialog-unit-generic.component.css'],
 })
 export class DialogUnitGenericComponent implements OnInit, OnDestroy {
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
@@ -24,7 +23,6 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
 
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
-  disabled = false;
 
   tanda = 0;
 
@@ -39,18 +37,7 @@ export class DialogUnitGenericComponent implements OnInit, OnDestroy {
     private readonly _unitGenericFactory: UnitGenericFactory,
     @Inject(MAT_DIALOG_DATA)
     public unitGeneric: UnitGenericEntity
-  ) {
-    this._authService.getUser$().subscribe((user) => {
-      if (
-        user && user.role === UserRole.ADMIN ||
-        user && user.role === UserRole.MODERATOR
-      ) {
-        this.disabled = false;
-      } else {
-        this.disabled = true;
-      }
-    });
-  }
+  ) {}
 
   // ==================================================
 

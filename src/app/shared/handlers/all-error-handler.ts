@@ -16,6 +16,7 @@ export class AllErrorHandler implements ErrorHandler {
   ) {}
 
   handleError(error: any): void {
+    console.log(error);
     const iError = this.checkErrorType(error);
 
     if (iError.statusCode === 401) {

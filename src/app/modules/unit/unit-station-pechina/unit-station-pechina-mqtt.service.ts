@@ -17,21 +17,27 @@ export class UnitStationPechinaMqttService {
     unitStationPechina: UnitStationPechinaEntity
   ): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
+      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitStationPechina.unit.code,
       `1`
     );
   }
 
   public publishGETData(unitStationPechina: UnitStationPechinaEntity): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
+      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitStationPechina.unit.code,
       `2`
     );
   }
 
   public publishGETSIMData(unitStationPechina: UnitStationPechinaEntity): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
+      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitStationPechina.unit.code,
       `3`
     );
   }
@@ -41,7 +47,9 @@ export class UnitStationPechinaMqttService {
     electrovalvula: number
   ): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
+      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitStationPechina.unit.code,
       `5,${electrovalvula}`
     );
   }
@@ -51,7 +59,9 @@ export class UnitStationPechinaMqttService {
     sendSpeed: number
   ): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
+      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitStationPechina.unit.code,
       `8,${sendSpeed}`
     );
   }
@@ -61,7 +71,9 @@ export class UnitStationPechinaMqttService {
     reading: number
   ): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA + unitStationPechina.unit.code,
+      MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
+      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitStationPechina.unit.code,
       `9,${reading}`
     );
   }
@@ -79,7 +91,9 @@ export class UnitStationPechinaMqttService {
   ): void {
     unitStationPechina.mqttNodeSubscription = this._mqttEventService
       .observe(
-        MQTTTopics.OBSERVE_UNIT_STATION_PECHINA + unitStationPechina.unit.code
+        MQTTTopics.OBSERVE_UNIT_STATION_PECHINA +
+        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitStationPechina.unit.code
       )
       .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitStationPechina, mqttMSG.payload.toString());

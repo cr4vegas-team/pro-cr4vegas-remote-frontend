@@ -1,9 +1,13 @@
 <div class="fs-5">
 
   <div mat-dialog-content>
+
     <!-- head -->
+
     <div class="row mb-2">
+
       <!-- title -->
+
       <div (click)="openDialogImage()">
         <h1 mat-dialog-title><span class="unit-icon fas fa-faucet"></span> Hidrante
           {{ unitHydrant.unit.sector ? unitHydrant.unit.sector.code : "" }}-{{ unitHydrant.unit.code }} <span
@@ -32,8 +36,11 @@
     </div>
 
     <!-- content -->
+
     <div class="row mb-2">
+
       <!-- left column -->
+
       <div class="col-md-6 col-12">
 
         <div>
@@ -118,7 +125,7 @@
                     ==================================== -->
   <div mat-dialog-actions>
     <button mat-raised-button mat-dialog-close>Cerrar</button>
-    <button mat-raised-button color="primary" (click)="openDialogHydrantCreate()" [disabled]="disabled">
+    <button appRoleModerator mat-raised-button color="primary" (click)="openDialogHydrantCreate()">
       Modificar
     </button>
   </div>

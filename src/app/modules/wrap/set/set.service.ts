@@ -1,8 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { SetEntity } from '../../../modules/wrap/set/set.entity';
-import { SetFactory } from '../../../modules/wrap/set/set.factory';
+import { Observable } from 'rxjs';
 import { GLOBAL } from '../../../shared/constants/global.constant';
 import { AuthService } from '../../auth/auth/auth.service';
 import { SetCreateDto } from './dto/set-create.dto';
@@ -18,10 +16,6 @@ export class SetService {
   //  VARS CONSTANTS
   // ==================================================
   private _url: string = GLOBAL.API + 'set';
-  // ==================================================
-  //  VARS SUBJETS
-  // ==================================================
-  private _sets: BehaviorSubject<SetEntity[]>;
 
   // ==================================================
   //  CONSTRUCTOR
@@ -29,27 +23,14 @@ export class SetService {
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
-    private readonly _setFactory: SetFactory
-  ) {
-    this._sets = new BehaviorSubject<SetEntity[]>(Array<SetEntity>());
-  }
+  ) {}
 
   // ==================================================
   // API FUNCTIONS - SET
   // ==================================================
-  public findAll(): void {
+  public findAll(): Observable<SetsRO> {
     const httpOptions = this._authService.getHttpOptions({});
-    this._httpClient.get<SetsRO>(this._url + '/all', httpOptions).subscribe(
-      (setsRO) => {
-        this.cleanAll();
-        const setsFounded: SetEntity[] = [];
-        setsRO.sets.forEach((set: SetEntity) => {
-          const newSet: SetEntity = this._setFactory.createSet(set);
-          setsFounded.push(newSet);
-        });
-        this._sets.next(setsFounded);
-      }
-    );
+    return this._httpClient.get<SetsRO>(this._url + '/all', httpOptions);
   }
 
   public create(setCreateDto: SetCreateDto): Observable<SetRO> {
@@ -99,43 +80,5 @@ export class SetService {
       this._url + `/set-type/${setType.name}`,
       httpOptions
     );
-  }
-
-  // ==================================================
-  // FRONTEND FUNCTIONS
-  // ==================================================
-  public getSets(): BehaviorSubject<SetEntity[]> {
-    return this._sets;
-  }
-
-  public refresh(): void {
-    this._sets.next(this._sets.value);
-  }
-
-  public getOne(id: number): SetEntity {
-    return this._sets.value.filter((set) => set.id === id)[0];
-  }
-
-  public cleanAll(): void {
-    this._sets.value.splice(0);
-    this._sets.next([]);
-  }
-
-  // ==================================================
-  //  WS FUNCTIONS
-  // ==================================================
-  public updateWS(set: any): void {
-    const setFound = this._sets.value.filter(
-      (station) => (station.id = set.id)
-    )[0];
-    if (setFound) {
-      this._setFactory.copySet(setFound, set);
-      this.refresh();
-    }
-  }
-
-  public createWS(set: any): void {
-    this._sets.value.push(set);
-    this.refresh();
   }
 }

@@ -39,16 +39,23 @@ export class PageSectorComponent implements OnInit {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
     private readonly _unitStationPechinaService: UnitStationPechinaService
-  ) {
-    this._sectorService.getSectors().subscribe((unitsPonds) => {
-      this.sectors = unitsPonds;
+  ) {}
+
+  ngOnInit() {
+    this._sectorService.findAll().subscribe((sectorsRO) => {
+      this.sectors = sectorsRO.sectors;
     });
   }
 
-  ngOnInit() {}
-
   openDialogSector(sector: SectorEntity): void {
-    this._matDialog.open(DialogSectorComponent, { data: sector });
+    const dialogRef = this._matDialog.open(DialogSectorComponent, {
+      data: sector,
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this._sectorService.findAll().subscribe((sectorsRO) => {
+        this.sectors = sectorsRO.sectors;
+      });
+    });
   }
 
   openDialog(unit: UnitEntity): void {

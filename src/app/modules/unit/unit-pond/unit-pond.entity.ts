@@ -68,7 +68,7 @@ export class UnitPondEntity {
       .getElement()
       .getElementsByTagName(
         'div'
-      )[1].style.backgroundColor = this.getMarkerColour();
+      )[1].style.color = this.getMarkerColour();
   }
 
   public getMarkerColour(this: UnitPondEntity): string {

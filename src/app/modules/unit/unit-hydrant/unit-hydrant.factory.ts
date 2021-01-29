@@ -105,12 +105,16 @@ export class UnitHydrantFactory {
   // ==================================================
   private createMarker(unitHydrant: UnitHydrantEntity): void {
     const divCode = document.createElement('div');
+    divCode.classList.add('marker');
     divCode.style.display = 'block';
     divCode.style.padding = '2px';
     divCode.style.borderRadius = '5px';
     divCode.style.border = '1px solid black';
     divCode.style.backgroundColor = 'rgba(255,255,255,1)';
+    divCode.style.display = 'flex';
+    divCode.style.flexDirection = 'column';
     divCode.style.justifyContent = 'center';
+    divCode.style.alignItems = 'center';
     divCode.style.zIndex = '1';
     divCode.onmouseover = () => {
       (divCode.children[0] as HTMLElement).style.display = 'block';
@@ -128,18 +132,28 @@ export class UnitHydrantFactory {
     const title = document.createElement('div');
     title.innerHTML = `
         Hidrante<br>
-        <b>${unitHydrant.unit.sector.code} - ${unitHydrant.unit.code}</b>
+        <b>${unitHydrant.unit.sector ? unitHydrant.unit.sector.code : 'NA'} - ${unitHydrant.unit.code}</b>
     `;
     title.style.fontSize = '1em';
     title.style.display = 'none';
     title.style.textAlign = 'center';
 
-    const point = document.createElement('div');
+    /* const point = document.createElement('div');
     point.style.width = '1.8em';
     point.style.height = '1.8em';
     point.style.backgroundColor = unitHydrant.getMarkerColour();
     point.style.margin = '0px auto';
-    point.style.borderRadius = '50%';
+    point.style.borderRadius = '50%'; */
+
+    const point = document.createElement('div');
+    point.innerHTML = '<span class="fas fa-circle" style="width: 1.8em; height: 1.8em"></span>';
+    point.style.width = '1.8em';
+    point.style.height = '1.8em';
+    point.style.display = 'flex';
+    point.style.flexFlow = 'row wrap';
+    point.style.justifyContent = 'center';
+    point.style.alignItems = 'center';
+    point.style.color = unitHydrant.getMarkerColour();
 
     divCode.appendChild(title);
     divCode.appendChild(point);

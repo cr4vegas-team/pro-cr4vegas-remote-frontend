@@ -7,17 +7,16 @@ import { UnitFactory } from './unit.factory';
 import { UnitsRO } from './unit.interfaces';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UnitService {
-
   private _url: string = GLOBAL.API + 'unit';
 
   constructor(
     private readonly _httpClient: HttpClient,
     private readonly _authService: AuthService,
-    private readonly _unitFactory: UnitFactory,
-  ) { }
+    private readonly _unitFactory: UnitFactory
+  ) {}
 
   public get unitFactory(): UnitFactory {
     return this._unitFactory;
@@ -41,5 +40,4 @@ export class UnitService {
     const httpOptions = this._authService.getHttpOptions(false);
     return this._httpClient.patch<boolean>(this._url + `/${id}`, httpOptions);
   }
-
 }

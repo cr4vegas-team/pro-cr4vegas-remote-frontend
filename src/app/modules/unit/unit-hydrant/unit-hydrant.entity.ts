@@ -107,7 +107,7 @@ export class UnitHydrantEntity {
   private setMarkerColourAccourdingState(): void {
     this.marker
       .getElement()
-      .getElementsByTagName('div')[1].style.background = this.getMarkerColour();
+      .getElementsByTagName('div')[1].style.color = this.getMarkerColour();
   }
 
   public getMarkerColour(): string {

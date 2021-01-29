@@ -23,7 +23,6 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
 
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
-  disabled = false;
   valve = 0;
 
   // ==================================================
@@ -41,18 +40,7 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
     private readonly _unitHydrantMQTTService: UnitHydrantMqttService,
     @Inject(MAT_DIALOG_DATA)
     public unitHydrant: UnitHydrantEntity
-  ) {
-    this._authService.getUser$().subscribe((user) => {
-      if (
-        (user && user.role === UserRole.ADMIN) ||
-        (user && user.role === UserRole.MODERATOR)
-      ) {
-        this.disabled = false;
-      } else {
-        this.disabled = true;
-      }
-    });
-  }
+  ) {}
 
   // ==================================================
 
@@ -77,12 +65,6 @@ export class DialogUnitHydrantComponent implements OnInit, OnDestroy {
         );
     }
   }
-
-  /*   task(i) {
-    setTimeout(function() {
-      // actions... increment, decrement, etc.
-    }, 500 * i);
-  } */
 
   // ==================================================
 

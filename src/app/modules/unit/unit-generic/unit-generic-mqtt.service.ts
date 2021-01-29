@@ -17,21 +17,27 @@ export class UnitGenericMqttService {
   // ==================================================
   public publishGETCommunication(unitGeneric: UnitGenericEntity): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      MQTTTopics.PUBLISH_UNIT_GENERIC +
+      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitGeneric.unit.code,
       `1`
     );
   }
 
   public publishGETData(unitGeneric: UnitGenericEntity): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      MQTTTopics.PUBLISH_UNIT_GENERIC +
+      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitGeneric.unit.code,
       `2`
     );
   }
 
   public publishGETSIMData(unitGeneric: UnitGenericEntity): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      MQTTTopics.PUBLISH_UNIT_GENERIC +
+      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitGeneric.unit.code,
       `3`
     );
   }
@@ -41,7 +47,9 @@ export class UnitGenericMqttService {
     sendSpeed: number
   ): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      MQTTTopics.PUBLISH_UNIT_GENERIC +
+      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitGeneric.unit.code,
       `8,${sendSpeed}`
     );
   }
@@ -51,7 +59,9 @@ export class UnitGenericMqttService {
     reading: number
   ): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_GENERIC + unitGeneric.unit.code,
+      MQTTTopics.PUBLISH_UNIT_GENERIC +
+      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitGeneric.unit.code,
       `9,${reading}`
     );
   }
@@ -65,7 +75,11 @@ export class UnitGenericMqttService {
 
   private subscribeToNodeTopics(unitGeneric: UnitGenericEntity) {
     unitGeneric.mqttNodeSubscription = this._mqttEventService
-      .observe(MQTTTopics.OBSERVE_UNIT_GENERIC)
+      .observe(
+        MQTTTopics.OBSERVE_UNIT_GENERIC +
+        (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitGeneric.unit.code
+      )
       .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitGeneric, mqttMSG.payload.toString());
       });

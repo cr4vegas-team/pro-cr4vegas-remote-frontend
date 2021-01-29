@@ -40,7 +40,6 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
 
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
-  disabled = false;
 
   // ==================================================
 
@@ -58,17 +57,6 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
         label: 'Nivel',
       },
     ];
-
-    this._authService.getUser$().subscribe((user) => {
-      if (
-        user && user.role === UserRole.ADMIN ||
-        user && user.role === UserRole.MODERATOR
-      ) {
-        this.disabled = false;
-      } else {
-        this.disabled = true;
-      }
-    });
   }
 
   // ==================================================
@@ -94,17 +82,15 @@ export class DialogUnitPondComponent implements OnInit, OnDestroy {
     ) {
       this.subImage = this._uploadService
         .getImage(this.unitPond.unit.image)
-        .subscribe(
-          (next) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
-                reader.result as string
-              ) as string;
-            };
-            reader.readAsDataURL(next);
-          }
-        );
+        .subscribe((next) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
+              reader.result as string
+            ) as string;
+          };
+          reader.readAsDataURL(next);
+        });
     }
   }
 

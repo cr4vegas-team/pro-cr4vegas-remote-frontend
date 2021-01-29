@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -31,8 +31,8 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
   create = true;
   loading = false;
 
-  sectors: Observable<SectorEntity[]>;
-  sets: Observable<SetEntity[]>;
+  sectors: SectorEntity[];
+  sets: SetEntity[];
 
   unitPondForm: FormGroup;
 
@@ -59,8 +59,16 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   ngOnInit(): void {
-    this.sectors = this._sectorService.getSectors();
-    this.sets = this._setService.getSets();
+    this._sectorService.findAll().subscribe((sectorsRO) => {
+      if (sectorsRO) {
+        this.sectors = sectorsRO.sectors;
+      }
+    });
+    this._setService.findAll().subscribe((setsRO) => {
+      if (setsRO) {
+        this.sets = setsRO.sets;
+      }
+    });
 
     if (this.unitPond) {
       this.initUnitPondUpdate();
@@ -109,8 +117,9 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
       this.unitPond.unit.image !== null &&
       this.unitPond.unit.image !== ''
     ) {
-      this._uploadService.getImage(this.unitPond.unit.image).subscribe(
-        (next) => {
+      this._uploadService
+        .getImage(this.unitPond.unit.image)
+        .subscribe((next) => {
           const reader = new FileReader();
           reader.onload = () => {
             this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
@@ -118,8 +127,7 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        }
-      );
+        });
     }
   }
 
@@ -182,16 +190,14 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     const unitPondCreateDto: UnitPondCreateDto = this._unitPondFactory.getUnitPondCreateDto(
       this.unitPondForm.value
     );
-    this._unitPondService.create(unitPondCreateDto).subscribe(
-      (unitPondRO) => {
-        const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(
-          unitPondRO.unitPond
-        );
-        this._unitPondService.getUnitsPonds().value.push(newUnitPond);
-        this._unitPondService.refresh();
-        this.close();
-      }
-    );
+    this._unitPondService.create(unitPondCreateDto).subscribe((unitPondRO) => {
+      const newUnitPond: UnitPondEntity = this._unitPondFactory.createUnitPond(
+        unitPondRO.unitPond
+      );
+      this._unitPondService.getUnitsPonds().value.push(newUnitPond);
+      this._unitPondService.refresh();
+      this.close();
+    });
   }
 
   // ==================================================
@@ -200,16 +206,16 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     const unitPondUpdateDto: UnitPondUpdateDto = this._unitPondFactory.getUnitPondUpdateDto(
       this.unitPondForm.value
     );
-    this._unitPondService.update(unitPondUpdateDto).subscribe(
-      (unitGenericRO) => {
+    this._unitPondService
+      .update(unitPondUpdateDto)
+      .subscribe((unitGenericRO) => {
         this._unitPondFactory.copyUnitPond(
           this.unitPond,
           unitGenericRO.unitPond
         );
         this._unitPondService.refresh();
         this.close();
-      }
-    );
+      });
   }
 
   // ==================================================
@@ -218,14 +224,12 @@ export class DialogUnitPondCreateComponent implements OnInit, OnDestroy {
     if (this.file !== undefined && this.file !== null) {
       const formData = new FormData();
       formData.append('file', this.file, this.file.name);
-      this._uploadService.uploadImage(formData).subscribe(
-        (next) => {
-          if (next) {
-            this.unitPondForm.value.unit.image = next.filename;
-            this.createOrUpdateUnitPond();
-          }
+      this._uploadService.uploadImage(formData).subscribe((next) => {
+        if (next) {
+          this.unitPondForm.value.unit.image = next.filename;
+          this.createOrUpdateUnitPond();
         }
-      );
+      });
     } else {
       this.createOrUpdateUnitPond();
     }

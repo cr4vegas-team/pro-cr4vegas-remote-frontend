@@ -5,7 +5,7 @@ import { GLOBAL } from 'src/app/shared/constants/global.constant';
 import { AuthService } from '../auth/auth.service';
 import { UserRO, UsersRO } from './dto/user-response.dto';
 import { UserRoleUpdateDto } from './dto/user-role-update.dto';
-import { UpdateUserDto } from './dto/user-update.dto';
+import { UserUpdateDto } from './dto/user-update.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +33,7 @@ export class UserService {
     return this._httpClient.get<UserRO>(this._url + '/' + id, httpOptions);
   }
 
-  public update(userDto: UpdateUserDto): Observable<UserRO> {
+  public update(userDto: UserUpdateDto): Observable<UserRO> {
     const httpOptions = this._authService.getHttpOptions({});
     return this._httpClient.put<UserRO>(this._url, userDto, httpOptions);
   }

@@ -1,47 +1,41 @@
-<!-- ====================================
-      TITLE
-     ==================================== -->
-<h1 mat-dialog-title>{{ sector.name }} - {{ sector.code }}</h1>
-
-<!-- ====================================
-            CONTENT
-           ==================================== -->
 <div mat-dialog-content>
-  <div class="row">
-    <div class="col-sm mr-3">
-      <mat-checkbox class="example-margin" [checked]="sector.active" disabled>Activo</mat-checkbox>
-    </div>
+
+  <!-- title -->
+
+  <div (click)="openDialogImage()">
+    <h1 mat-dialog-title><span class="unit-icon fas fa-map"></span>
+      &nbsp;Sector
+      &nbsp;{{ sector.name }}
+      &nbsp;{{ sector.code }}
+    </h1>
   </div>
 
   <div class="row">
-    <!-- ====================================
-                LEFT COLUMN
-               ==================================== -->
-    <div class="col-md dialog-col-mw">
-      <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
-      <br /><br />
 
-      <div class="container-fluid">
+    <!-- LEFT COL -->
 
-        Descripción: {{ sector.description }}
+    <div class="col-md-6 col-12 text-center">
+      <mat-checkbox class="mb-2" [checked]="sector.active" disabled>Activo</mat-checkbox>
 
-      </div>
+      <img (click)="openDialogImage()" class="unit-image mb-2" [src]="imageURL" />
+
+      <div *ngIf="sector.description" class="mt-2">{{ sector.description }}</div>
     </div>
-    <!-- ====================================
-                RIGTH COLUMN
-               ==================================== -->
-    <div class="col-sm dialog-col-mw">
-      <h3>Unidades de control</h3>
+
+    <!-- right column -->
+
+    <div class="col-md-6 col-12">
       <mat-form-field>
-        <mat-label>Filter</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input />
+        <mat-label>Filtrar</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Búsqueda" #input />
       </mat-form-field>
 
       <mat-selection-list [multiple]="false">
-        <mat-list-option *ngFor="let unit of units" role="listitem" (click)="openDialogUnit(unit)">{{
+        <mat-list-option *ngFor="let unit of sector.units" role="listitem" (click)="openDialogUnit(unit)">{{
           getType(unit.unitTypeTable) }} - {{ unit.code }}</mat-list-option>
       </mat-selection-list>
     </div>
+
   </div>
 </div>
 
@@ -52,7 +46,7 @@
            ==================================== -->
 <div mat-dialog-actions>
   <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button mat-raised-button (click)="openDialogSectorCreate()" [disabled]="disabled">
+  <button appRoleModerator mat-raised-button (click)="openDialogSectorCreate()">
     Modificar
   </button>
 </div>

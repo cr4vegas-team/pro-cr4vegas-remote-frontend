@@ -3,10 +3,9 @@ import { IMqttMessage, MqttService } from 'ngx-mqtt';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MqttEventService {
-
   constructor(private readonly _mqttService: MqttService) {
     this._mqttService.onConnect.asObservable().subscribe(() => {
       console.log('¡Conexión con MQTT exitosa!');
@@ -26,5 +25,4 @@ export class MqttEventService {
   public observe(topic: string): Observable<IMqttMessage> {
     return this._mqttService.observeRetained(topic);
   }
-
 }

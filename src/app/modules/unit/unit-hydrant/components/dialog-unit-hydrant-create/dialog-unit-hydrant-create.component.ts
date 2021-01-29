@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -30,8 +30,8 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   create = true;
   loading = false;
 
-  sectors: Observable<SectorEntity[]>;
-  sets: Observable<SetEntity[]>;
+  sectors: SectorEntity[];
+  sets: SetEntity[];
 
   unitHydrantForm: FormGroup;
 
@@ -58,8 +58,16 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   ngOnInit(): void {
-    this.sectors = this._sectorService.getSectors();
-    this.sets = this._setService.getSets();
+    this._sectorService.findAll().subscribe((sectorsRO) => {
+      if (sectorsRO) {
+        this.sectors = sectorsRO.sectors;
+      }
+    });
+    this._setService.findAll().subscribe((setsRO) => {
+      if (setsRO) {
+        this.sets = setsRO.sets;
+      }
+    });
 
     if (this.unitHydrant) {
       this.initUnitHydrantUpdate();
@@ -110,8 +118,9 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
       this.unitHydrant.unit.image !== null &&
       this.unitHydrant.unit.image !== ''
     ) {
-      this._uploadService.getImage(this.unitHydrant.unit.image).subscribe(
-        (next) => {
+      this._uploadService
+        .getImage(this.unitHydrant.unit.image)
+        .subscribe((next) => {
           const reader = new FileReader();
           reader.onload = () => {
             this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
@@ -119,8 +128,7 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        }
-      );
+        });
     }
   }
 
@@ -213,14 +221,12 @@ export class DialogUnitHydrantCreateComponent implements OnInit, OnDestroy {
     if (this.file !== undefined && this.file !== null) {
       const formData = new FormData();
       formData.append('file', this.file, this.file.name);
-      this._uploadService.uploadImage(formData).subscribe(
-        (next) => {
-          if (next) {
-            this.unitHydrantForm.value.unit.image = next.filename;
-            this.createOrUpdateUnitHydrant();
-          }
+      this._uploadService.uploadImage(formData).subscribe((next) => {
+        if (next) {
+          this.unitHydrantForm.value.unit.image = next.filename;
+          this.createOrUpdateUnitHydrant();
         }
-      );
+      });
     } else {
       this.createOrUpdateUnitHydrant();
     }

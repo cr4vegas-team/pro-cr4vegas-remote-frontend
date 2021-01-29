@@ -10,6 +10,8 @@ import { DialogUnitHydrantComponent } from 'src/app/modules/unit/unit-hydrant/co
 import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
 import { DialogUnitPondComponent } from 'src/app/modules/unit/unit-pond/components/dialog-unit-pond/dialog-unit-pond.component';
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { DialogUnitStationPechinaComponent } from 'src/app/modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
+import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { DialogImageComponent } from 'src/app/shared/components/dialog-image/dialog-image.component';
 import { DialogInfoComponent } from 'src/app/shared/components/dialog-info/dialog-info.component';
@@ -30,7 +32,6 @@ export class DialogSetComponent implements OnInit, OnDestroy {
   subUnits: Subscription;
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
-  disabled = false;
 
   // ==================================================
 
@@ -39,23 +40,13 @@ export class DialogSetComponent implements OnInit, OnDestroy {
     private readonly _unitGenericService: UnitGenericService,
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
+    private readonly _unitStationPechinaService: UnitStationPechinaService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
     private readonly _authService: AuthService,
     @Inject(MAT_DIALOG_DATA)
     public set: SetEntity
-  ) {
-    this._authService.getUser$().subscribe((user) => {
-      if (
-        user && user.role === UserRole.ADMIN ||
-        user && user.role === UserRole.MODERATOR
-      ) {
-        this.disabled = false;
-      } else {
-        this.disabled = true;
-      }
-    });
-  }
+  ) {}
 
   // ==================================================
 
@@ -66,8 +57,9 @@ export class DialogSetComponent implements OnInit, OnDestroy {
       this.set.image !== null &&
       this.set.image !== ''
     ) {
-      this.subImage = this._uploadService.getImage(this.set.image).subscribe(
-        (next) => {
+      this.subImage = this._uploadService
+        .getImage(this.set.image)
+        .subscribe((next) => {
           const reader = new FileReader();
           reader.onload = () => {
             this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
@@ -75,8 +67,7 @@ export class DialogSetComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        }
-      );
+        });
     }
   }
 
@@ -117,6 +108,11 @@ export class DialogSetComponent implements OnInit, OnDestroy {
     if (unit.unitTypeTable === UnitTypeTableEnum.UNIT_POND) {
       this._matDialog.open(DialogUnitPondComponent, {
         data: this._unitPondService.getOneByUnitId(unit.id),
+      });
+    }
+    if (unit.unitTypeTable === UnitTypeTableEnum.UNIT_STATION_PECHINA) {
+      this._matDialog.open(DialogUnitStationPechinaComponent, {
+        data: this._unitStationPechinaService.getUnitStationPechina(),
       });
     }
   }

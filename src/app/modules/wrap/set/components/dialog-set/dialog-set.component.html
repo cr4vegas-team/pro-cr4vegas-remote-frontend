@@ -1,7 +1,7 @@
 <!-- ====================================
       TITLE
      ==================================== -->
-     <h1 mat-dialog-title>{{ set.name }}</h1>
+<h1 mat-dialog-title>{{ set.name }}</h1>
 <!-- ====================================
             CONTENT
            ==================================== -->
@@ -35,21 +35,12 @@
     <div class="col dialog-col-mw">
       <mat-form-field>
         <mat-label>Filter</mat-label>
-        <input
-          matInput
-          (keyup)="applyFilter($event)"
-          placeholder="Ex. ium"
-          #input
-        />
+        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input />
       </mat-form-field>
 
       <mat-selection-list [multiple]="false">
-        <mat-list-option
-          *ngFor="let unit of units"
-          role="listitem"
-          (click)="openDialogUnit(unit)"
-          >{{ unit.code }} {{ getType(unit) }}</mat-list-option
-        >
+        <mat-list-option *ngFor="let unit of units" role="listitem" (click)="openDialogUnit(unit)">{{ unit.code }} {{
+          getType(unit) }}</mat-list-option>
       </mat-selection-list>
     </div>
   </div>
@@ -62,11 +53,7 @@
            ==================================== -->
 <div mat-dialog-actions>
   <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button
-    mat-raised-button
-    (click)="openDialogSetCreate()"
-    [disabled]="disabled"
-  >
+  <button appRoleModerator mat-raised-button (click)="openDialogSetCreate()">
     Modificar
   </button>
 </div>

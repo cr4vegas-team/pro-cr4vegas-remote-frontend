@@ -1,12 +1,12 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import {
-  MatDialog,
-  MatDialogRef,
-  MAT_DIALOG_DATA
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
+import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
+import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { UnitService } from 'src/app/modules/unit/unit/unit.service';
 import { GLOBAL } from 'src/app/shared/constants/global.constant';
@@ -17,7 +17,6 @@ import { SectorUpdateDto } from '../../dto/sector-update.dto';
 import { SectorEntity } from '../../sector.entity';
 import { SectorFactory } from '../../sector.factory';
 import { SectorService } from '../../sector.service';
-import { SectorSocketService } from './../../sector-socket.service';
 
 @Component({
   selector: 'app-dialog-sector-create',
@@ -39,7 +38,10 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
   file: File;
 
   constructor(
-    private readonly _matDialog: MatDialog,
+    private readonly _unitGenericService: UnitGenericService,
+    private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _unitPondService: UnitPondService,
+    private readonly _unitStationPechinaService: UnitStationPechinaService,
     private readonly _sectorService: SectorService,
     private readonly _sectorFactory: SectorFactory,
     private readonly _formBuilder: FormBuilder,
@@ -47,7 +49,7 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     private readonly _unitService: UnitService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
-    private readonly _sectorSocketService: SectorSocketService,
+    public dialogRef: MatDialogRef<DialogSectorCreateComponent>,
     @Inject(MAT_DIALOG_DATA)
     public sector: SectorEntity
   ) {}
@@ -81,17 +83,15 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
       this.sector.image !== null &&
       this.sector.image !== ''
     ) {
-      this._uploadService.getImage(this.sector.image).subscribe(
-        (next) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
-              reader.result as string
-            ) as string;
-          };
-          reader.readAsDataURL(next);
-        }
-      );
+      this._uploadService.getImage(this.sector.image).subscribe((next) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
+            reader.result as string
+          ) as string;
+        };
+        reader.readAsDataURL(next);
+      });
     }
   }
 
@@ -128,53 +128,48 @@ export class DialogSectorCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  createSector(): void {
+  private createSector(): void {
     const sectorCreateDto: SectorCreateDto = this._sectorFactory.getSectorCreateDto(
       this.sectorForm.value
     );
-    this._sectorService.create(sectorCreateDto).subscribe(
-      (sectorRO) => {
-        const newSector: SectorEntity = this._sectorFactory.createSector(
-          sectorRO.sector
-        );
-        this._sectorService.getSectors().value.push(newSector);
-        this._sectorService.refresh();
-        this.close();
-      }
-    );
+    this._sectorService.create(sectorCreateDto).subscribe((sectorRO) => {
+      this._unitGenericService.findAll();
+      this._unitHydrantService.findAll();
+      this._unitPondService.findAll();
+      this._unitStationPechinaService.find();
+      this._dialogRef.close(sectorRO.sector);
+    });
   }
 
   private updateSector(): void {
     const sectorUpdateDto: SectorUpdateDto = this._sectorFactory.getSectorUpdateDto(
       this.sectorForm.value
     );
-    this._sectorService.update(sectorUpdateDto).subscribe(
-      (sectorRO) => {
-        this._sectorFactory.copySector(this.sector, sectorRO.sector);
-        this._sectorService.refresh();
-        this.close();
-      }
-    );
+    this._sectorService.update(sectorUpdateDto).subscribe((sectorRO) => {
+      this._unitGenericService.findAll();
+      this._unitHydrantService.findAll();
+      this._unitPondService.findAll();
+      this._unitStationPechinaService.find();
+      this._dialogRef.close(sectorRO.sector);
+    });
   }
 
   private uploadImage(): void {
     if (this.file !== undefined && this.file !== null) {
       const formData = new FormData();
       formData.append('file', this.file, this.file.name);
-      this._uploadService.uploadImage(formData).subscribe(
-        (next) => {
-          if (next) {
-            this.sectorForm.value.image = next.filename;
-            this.createOrUpdateSector();
-          }
+      this._uploadService.uploadImage(formData).subscribe((next) => {
+        if (next) {
+          this.sectorForm.value.image = next.filename;
+          this.createOrUpdateSector();
         }
-      );
+      });
     } else {
       this.createOrUpdateSector();
     }
   }
 
-  compareUnitGeneric(d1: any, d2: any): boolean {
+  compareUnitSector(d1: any, d2: any): boolean {
     return d1 && d2 && d1.id === d2.id;
   }
 

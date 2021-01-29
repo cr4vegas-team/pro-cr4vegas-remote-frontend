@@ -16,17 +16,14 @@ import { DialogUnitStationPechinaCreateComponent } from './../dialog-unit-statio
 @Component({
   selector: 'app-dialog-unit-station-pechina',
   templateUrl: './dialog-unit-station-pechina.component.html',
-  styleUrls: ['./dialog-unit-station-pechina.component.css']
 })
 export class DialogUnitStationPechinaComponent implements OnInit, OnDestroy {
-
   consDialogInfo = GLOBAL.FUNCTION_NOT_ALLOWED;
 
   private _subReading$: Subscription;
 
   imageURL = GLOBAL.IMAGE_DEFAULT;
   subImage: Subscription;
-  disabled = false;
   tanda = 0;
 
   constructor(
@@ -38,18 +35,7 @@ export class DialogUnitStationPechinaComponent implements OnInit, OnDestroy {
     private readonly _authService: AuthService,
     @Inject(MAT_DIALOG_DATA)
     public unitStationPechina: UnitStationPechinaEntity
-  ) {
-    this._authService.getUser$().subscribe((user) => {
-      if (
-        user && user.role === UserRole.ADMIN ||
-        user && user.role === UserRole.MODERATOR
-      ) {
-        this.disabled = false;
-      } else {
-        this.disabled = true;
-      }
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     if (
@@ -59,34 +45,39 @@ export class DialogUnitStationPechinaComponent implements OnInit, OnDestroy {
     ) {
       this.subImage = this._uploadService
         .getImage(this.unitStationPechina.unit.image)
-        .subscribe(
-          (next) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
-                reader.result as string
-              ) as string;
-            };
-            reader.readAsDataURL(next);
-          }
-        );
+        .subscribe((next) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
+              reader.result as string
+            ) as string;
+          };
+          reader.readAsDataURL(next);
+        });
     }
 
-    this._subReading$ = this.unitStationPechina.reading$.subscribe((reading) => {
-      this.calculateBatch(reading);
-    });
+    this._subReading$ = this.unitStationPechina.reading$.subscribe(
+      (reading) => {
+        this.calculateBatch(reading);
+      }
+    );
   }
 
   calculateBatch(reading: number): void {
     const initBatch = this.unitStationPechina.readingBatch;
-    if (!isNaN(reading) && reading !== null && !isNaN(initBatch) && initBatch !== null) {
+    if (
+      !isNaN(reading) &&
+      reading !== null &&
+      !isNaN(initBatch) &&
+      initBatch !== null
+    ) {
       this.tanda = reading - initBatch;
     } else {
       this.tanda = 0;
     }
   }
 
-  openDialogUnitGenericCreate(): void {
+  openDialogUnitStationPechinaCreate(): void {
     this._matDialog.open(DialogUnitStationPechinaCreateComponent, {
       data: this.unitStationPechina,
     });
@@ -118,5 +109,4 @@ export class DialogUnitStationPechinaComponent implements OnInit, OnDestroy {
         this.calculateBatch(null);
       });
   }
-
 }

@@ -24,24 +24,21 @@
 
       <div class="w-100 mb-3 p-2 rounded border border-secondary">
 
-        <div class="gap-3 d-flex flex-row align-items-center mb-2" (click)="openDialogSector(sector)">
-          <span>
-            <span class="unit-icon fas fa-faucet"></span>
-            {{ sector.name ? sector.name : "" }}-{{ sector.code }}
-          </span>
+        <div class="d-flex flex-row gap-3 align-items-center mb-2" (click)="openDialogSector(sector)">
+          <span class="fs-3 unit-icon fas fa-map"></span>
+          <span class="fs-5">{{ sector.name ? sector.name : "" }}-{{ sector.code }}</span>
 
-          <mat-checkbox class="me-3" [checked]="sector.active" disabled>Activo</mat-checkbox>
+          <mat-checkbox [checked]="sector.active" disabled>Activo</mat-checkbox>
 
-          <span class="fw-bold">{{ sector.description ? sector.height : 0 }}</span>
-
+          <span class="fw-bold">{{ sector.description ? sector.description : 0 }}</span>
         </div>
 
-        <div class="d-flex flex-row flex-wrap gap-1 p-1 me-md-2">
+        <div class="d-flex flex-row flex-wrap gap-1 p-1 me-md-2 justify-content-evenly">
 
           <div *ngFor="let unit of sector.units; let i = index">
 
             <button mat-stroked-button (click)="openDialog(unit)">{{ unit.code }}
-              {{  getType(unit) }}
+              {{ getType(unit) }}
             </button>
           </div>
 

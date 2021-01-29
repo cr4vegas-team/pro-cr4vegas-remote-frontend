@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { ChartsModule } from 'ng2-charts';
-import { AuthModule } from '../modules/auth/auth.module';
 import { AuthService } from '../modules/auth/auth/auth.service';
 import { AppRoutingModule } from './app-routing.module';
 import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
@@ -12,9 +11,14 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { LoginComponent } from './components/page-login/page-login.component';
 import { MapComponent } from './components/page-map/page-map.component';
 import { MaterialModule } from './material.module';
+import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
+import { FilterActivePipe } from './pipes/filter-active.pipe';
+import { FilterTextPipe } from './pipes/filter-text.pipe';
 import { MapService } from './services/map.service';
+import { RoleAdminDirective } from './directives/role-admin.directive';
+import { RoleModeratorDirective } from './directives/role-moderator.directive';
 
-const modules = [MaterialModule, ChartsModule, AppRoutingModule, AuthModule];
+const modules = [MaterialModule, ChartsModule, AppRoutingModule];
 
 @NgModule({
   declarations: [
@@ -26,6 +30,11 @@ const modules = [MaterialModule, ChartsModule, AppRoutingModule, AuthModule];
     DialogImageComponent,
     DialogConfirmComponent,
     PondComponent,
+    FilterActivePipe,
+    FilterTextPipe,
+    EnumToArrayPipe,
+    RoleAdminDirective,
+    RoleModeratorDirective,
   ],
   // ===========================================================
   //  IMPORTS
@@ -43,6 +52,11 @@ const modules = [MaterialModule, ChartsModule, AppRoutingModule, AuthModule];
     DialogInfoComponent,
     DialogResultComponent,
     PondComponent,
+    FilterActivePipe,
+    FilterTextPipe,
+    EnumToArrayPipe,
+    RoleAdminDirective,
+    RoleModeratorDirective,
   ],
 
   // ===========================================================

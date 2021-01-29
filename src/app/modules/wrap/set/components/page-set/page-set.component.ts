@@ -39,16 +39,25 @@ export class PageSetComponent implements OnInit {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
     private readonly _unitStationPechinaService: UnitStationPechinaService
-  ) {
-    this._setService.getSets().subscribe((unitsPonds) => {
-      this.sets = unitsPonds;
+  ) {}
+
+  ngOnInit() {
+    this._setService.findAll().subscribe((setsRO) => {
+      if (setsRO) {
+        this.sets = setsRO.sets;
+      }
     });
   }
 
-  ngOnInit() {}
-
   openDialogSet(set: SetEntity): void {
-    this._matDialog.open(DialogSetComponent, { data: set });
+    const dialogRef = this._matDialog.open(DialogSetComponent, { data: set });
+    dialogRef.afterClosed().subscribe((res) => {
+      this._setService.findAll().subscribe((setsRO) => {
+        if (setsRO) {
+          this.sets = setsRO.sets;
+        }
+      });
+    });
   }
 
   openDialog(unit: UnitEntity): void {

@@ -55,7 +55,7 @@ registerLocaleData(localeEs, 'es');
 
   providers: [
     { provide: LOCALE_ID, useValue: 'es' },
-    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { maxWidth: '100%' } },
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { maxWidth: '860px' } },
     { provide: ErrorHandler, useClass: AllErrorHandler },
   ],
 

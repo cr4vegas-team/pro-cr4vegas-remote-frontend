@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -30,8 +30,8 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
   create = true;
   loading = false;
 
-  sectors: Observable<SectorEntity[]>;
-  sets: Observable<SetEntity[]>;
+  sectors: SectorEntity[];
+  sets: SetEntity[];
 
   unitGenericForm: FormGroup;
 
@@ -58,8 +58,16 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   ngOnInit(): void {
-    this.sectors = this._sectorService.getSectors();
-    this.sets = this._setService.getSets();
+    this._sectorService.findAll().subscribe((sectorsRO) => {
+      if (sectorsRO) {
+        this.sectors = sectorsRO.sectors;
+      }
+    });
+    this._setService.findAll().subscribe((setsRO) => {
+      if (setsRO) {
+        this.sets = setsRO.sets;
+      }
+    });
 
     if (this.unitGeneric) {
       this.initUnitGenericUpdate();
@@ -111,8 +119,9 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
       this.unitGeneric.unit.image !== null &&
       this.unitGeneric.unit.image !== ''
     ) {
-      this._uploadService.getImage(this.unitGeneric.unit.image).subscribe(
-        (next) => {
+      this._uploadService
+        .getImage(this.unitGeneric.unit.image)
+        .subscribe((next) => {
           const reader = new FileReader();
           reader.onload = () => {
             this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
@@ -120,8 +129,7 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
             ) as string;
           };
           reader.readAsDataURL(next);
-        }
-      );
+        });
     }
   }
 
@@ -178,16 +186,16 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     const unitGenericCreateDto: UnitGenericCreateDto = this._unitGenericFactory.getUnitGenericCreateDto(
       this.unitGenericForm.value
     );
-    this._unitGenericService.create(unitGenericCreateDto).subscribe(
-      (unitGenericRO) => {
+    this._unitGenericService
+      .create(unitGenericCreateDto)
+      .subscribe((unitGenericRO) => {
         const newUnitGeneric: UnitGenericEntity = this._unitGenericFactory.createUnitGeneric(
           unitGenericRO.unitGeneric
         );
         this._unitGenericService.getUnitsGeneric().value.push(newUnitGeneric);
         this._unitGenericService.refresh();
         this.close();
-      }
-    );
+      });
   }
 
   // ==================================================
@@ -196,16 +204,16 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     const unitGenericUpdateDto: UnitGenericUpdateDto = this._unitGenericFactory.getUnitGenericUpdateDto(
       this.unitGenericForm.value
     );
-    this._unitGenericService.update(unitGenericUpdateDto).subscribe(
-      (unitGenericRO) => {
+    this._unitGenericService
+      .update(unitGenericUpdateDto)
+      .subscribe((unitGenericRO) => {
         this._unitGenericFactory.copyUnitGeneric(
           this.unitGeneric,
           unitGenericRO.unitGeneric
         );
         this._unitGenericService.refresh();
         this.close();
-      }
-    );
+      });
   }
 
   // ==================================================
@@ -214,14 +222,12 @@ export class DialogUnitGenericCreateComponent implements OnInit, OnDestroy {
     if (this.file !== undefined && this.file !== null) {
       const formData = new FormData();
       formData.append('file', this.file, this.file.name);
-      this._uploadService.uploadImage(formData).subscribe(
-        (next) => {
-          if (next) {
-            this.unitGenericForm.value.unit.image = next.filename;
-            this.createOrUpdateUnitGeneric();
-          }
+      this._uploadService.uploadImage(formData).subscribe((next) => {
+        if (next) {
+          this.unitGenericForm.value.unit.image = next.filename;
+          this.createOrUpdateUnitGeneric();
         }
-      );
+      });
     } else {
       this.createOrUpdateUnitGeneric();
     }

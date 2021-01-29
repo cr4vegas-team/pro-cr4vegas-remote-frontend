@@ -1,30 +1,40 @@
-<!-- ====================================
-      TITLE
-     ==================================== -->
-<h1 mat-dialog-title>Balsa {{ unitPond.unit.code }}</h1>
-<!-- ====================================
-          CONTENT
-          ==================================== -->
 <div mat-dialog-content>
-  <div class="row">
-    <div class="col-sm mr-3">
+
+  <!-- head -->
+
+  <div class="row mb-2">
+
+    <!-- title -->
+
+    <div (click)="openDialogImage()">
+      <h1 mat-dialog-title><span class="unit-icon fas fa-water"></span> Balsa
+        {{ unitPond.unit.sector ? unitPond.unit.sector.code : "" }}-{{ unitPond.unit.code }} <span
+          *ngFor="let set of unitPond.unit.sets; let i = index"><span *ngIf="i > 0"><b>, </b></span><b>{{
+            set.name }}</b></span></h1>
+    </div>
+
+    <div class="col-md mr-3">
       <mat-checkbox class="example-margin" [checked]="unitPond.unit.active" disabled>Activo</mat-checkbox>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <mat-checkbox class="example-margin" [checked]="unitPond.unit.communication" disabled>Comunicación</mat-checkbox>
+      <mat-checkbox class="example-margin" [checked]="unitPond.unit.communication" disabled>Comunicación
+      </mat-checkbox>
+    </div>
+  </div>
+
+  <div class="d-flex flex-row flex-wrap gap-3 mb-2">
+    <div>
+      Altitud: {{ unitPond.unit.altitude }}
+    </div>
+    <div>
+      Latitud: {{ unitPond.unit.latitude }}
+    </div>
+    <div>
+      Longitud: {{ unitPond.unit.longitude }}
     </div>
   </div>
 
   <div class="row">
-    <!-- ====================================
-            LEFT COLUMN
-            ==================================== -->
-    <div class="col dialog-col-mw">
-      <img class="unit-image" [src]="imageURL" (click)="openDialogImage()" />
-      <br /><br />
-    </div>
-    <!-- ====================================
-                        RIGTH COLUMN
-                       ==================================== -->
+
     <div class="col dialog-col-mw">
       <div class="container-fluid">
         <div class="text-center">
@@ -43,63 +53,28 @@
   </div>
 
   <div class="row">
-    <div class="col dialog-col-mw">
-      <div class="row">
-        <div class="col-3">
-          Sector:
-          <br />
-          Estación:
-          <br />
-          Conjuntos:
-        </div>
-        <div class="col">
-          <b>{{ unitPond.unit.sector ? unitPond.unit.sector.name : "---" }}</b>
-          <br />
-          <br />
-          <span *ngIf="unitPond.unit.sets.length === 0"><b>---</b></span>
-          <span *ngFor="let set of unitPond.unit.sets; let i = index"><span *ngIf="i > 0"><b>, </b></span><b>{{ set.name
-              }}</b></span>
-        </div>
-      </div>
 
-      <hr />
-
-      <div class="row">
-        <div class="col-3">
-          Altitud:
-          <br />
-          Latitud:
-          <br />
-          Longitud:
-        </div>
-        <div class="col">
-          <b>{{ unitPond.unit.altitude || 0 }} m</b>
-          <br />
-          <b>{{ unitPond.unit.latitude || 0.0 }} </b>
-          <br />
-          <b>{{ unitPond.unit.longitude || 0.0 }}</b>
-        </div>
+    <div class="row mb-2">
+      <div class="col-md-6 col">Capacidad:</div>
+      <div class="col-md-6 col fw-bold">
+        {{ unitPond.m3 }} m3
       </div>
     </div>
 
-    <div class="col dialog-col-mw">
-      <div class="row">
-        <div class="col-4">
-          Metros cúbicos:
-          <br />
-          Altura:
-          <br />
-          Descripción:
-        </div>
-        <div class="col">
-          <b>{{ unitPond.m3 || 0 }} m3</b>
-          <br />
-          <b>{{ unitPond.height || 0 }} m</b>
-          <br />
-          {{ unitPond.unit.description }}
-        </div>
+    <div class="row mb-2">
+      <div class="col-md-6 col">Altura:</div>
+      <div class="col-md-6 col fw-bold">
+        {{ unitPond.height }} m
       </div>
     </div>
+
+    <div class="row mb-2">
+      <div class="col-md-6 col">Descripción:</div>
+      <div class="col-md-6 col fw-bold">
+        {{ unitPond.unit.description }}
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -110,7 +85,7 @@
                    ==================================== -->
 <div mat-dialog-actions>
   <button mat-raised-button mat-dialog-close>Cerrar</button>
-  <button mat-raised-button (click)="openDialogUnitPondCreate()" [disabled]="disabled">
+  <button appRoleModerator mat-raised-button (click)="openDialogUnitPondCreate()">
     Modificar
   </button>
 </div>

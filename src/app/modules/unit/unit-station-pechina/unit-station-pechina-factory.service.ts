@@ -55,7 +55,8 @@ export class UnitStationPechinaFactoryService {
       newUnitStationPechina.unit = this._unitFactory.createUnit(
         unitStationPechina.unit
       );
-      newUnitStationPechina.unit.unitTypeTable = UnitTypeTableEnum.UNIT_POND;
+      newUnitStationPechina.unit.unitTypeTable =
+        UnitTypeTableEnum.UNIT_STATION_PECHINA;
       this.createMarker(newUnitStationPechina);
       this._unitStationPechinaMQTTService.subscribeToMQTT(
         newUnitStationPechina
@@ -97,6 +98,7 @@ export class UnitStationPechinaFactoryService {
       unitStationPechina.marker.remove();
     }
     const divCode = document.createElement('div');
+    divCode.classList.add('marker');
     divCode.style.padding = '3px';
     divCode.style.borderRadius = '10px';
     divCode.style.border = '1px solid black';
@@ -126,12 +128,23 @@ export class UnitStationPechinaFactoryService {
     title.style.borderRadius = '5px';
     title.style.display = 'none';
 
-    const point = document.createElement('div');
+    /* const point = document.createElement('div');
     point.style.width = '2.0em';
     point.style.height = '2.0em';
     point.style.backgroundColor = MarkerColourEnum.STATION;
     point.style.margin = '1px auto';
-    point.style.borderRadius = '2px';
+    point.style.borderRadius = '2px'; */
+
+    // <span class="unit-icon fas fa-home"></span>
+    const point = document.createElement('div');
+    point.innerHTML = '<span class="icon-map fas fa-home" style="width: 2em; height: 2em"></span>';
+    point.style.width = '2em';
+    point.style.height = '2em';
+    point.style.display = 'flex';
+    point.style.flexFlow = 'row wrap';
+    point.style.justifyContent = 'center';
+    point.style.alignItems = 'center';
+    point.style.color = MarkerColourEnum.STATION;
 
     divCode.appendChild(title);
     divCode.appendChild(point);

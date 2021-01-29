@@ -96,21 +96,25 @@ export class UnitPondFactory {
       unitPond.marker.remove();
     }
     const divCode = document.createElement('div');
+    divCode.classList.add('marker');
     divCode.style.display = 'block';
     divCode.style.padding = '3px';
     divCode.style.borderRadius = '10px';
     divCode.style.border = '1px solid black';
     divCode.style.backgroundColor = 'rgba(255,255,255,0.8)';
+    divCode.style.display = 'flex';
+    divCode.style.flexDirection = 'column';
     divCode.style.justifyContent = 'center';
+    divCode.style.alignItems = 'center';
 
     const title = document.createElement('div');
-    title.innerText = unitPond.unit.sector.code + '-' + unitPond.unit.code;
+    title.innerText = (unitPond.unit.sector ? unitPond.unit.sector.code : 'NA') + '-' + unitPond.unit.code;
     title.style.fontWeight = 'bold';
     title.style.fontSize = '1em';
     title.style.padding = '1px';
     title.style.borderRadius = '5px';
 
-    const point = document.createElement('div');
+    /* const point = document.createElement('div');
     point.style.width = '2.0em';
     point.style.height = '2.0em';
     point.style.backgroundColor = unitPond.getMarkerColour();
@@ -119,7 +123,17 @@ export class UnitPondFactory {
     point.style.borderBottomRightRadius = '0%';
     point.style.borderBottomLeftRadius = '50%';
     point.style.borderTopRightRadius = '50%';
-    point.style.borderTopLeftRadius = '50%';
+    point.style.borderTopLeftRadius = '50%'; */
+
+    const point = document.createElement('div');
+    point.innerHTML = '<span class="fas fa-water" style="width: 1.8em; height: 1.8em"></span>';
+    point.style.width = '1.8em';
+    point.style.height = '1.8em';
+    point.style.display = 'flex';
+    point.style.flexFlow = 'row wrap';
+    point.style.justifyContent = 'center';
+    point.style.alignItems = 'center';
+    point.style.color = unitPond.getMarkerColour();
 
     divCode.appendChild(title);
     divCode.appendChild(point);

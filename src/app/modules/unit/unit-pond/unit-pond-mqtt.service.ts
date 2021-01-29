@@ -15,7 +15,9 @@ export class UnitPondMqttService {
   // ==================================================
   public publishGETCommunication(unitPond: UnitPondEntity): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code,
+      MQTTTopics.PUBLISH_UNIT_POND +
+      (unitPond.unit.sector ? unitPond.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitPond.unit.code,
       `1`
     );
   }
@@ -29,28 +31,36 @@ export class UnitPondMqttService {
 
   public publishGETSIMData(unitPond: UnitPondEntity): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code,
+      MQTTTopics.PUBLISH_UNIT_POND +
+      (unitPond.unit.sector ? unitPond.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitPond.unit.code,
       `3`
     );
   }
 
   public publishOrders(unitPond: UnitPondEntity, electrovalvula: number): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code,
+      MQTTTopics.PUBLISH_UNIT_POND +
+      (unitPond.unit.sector ? unitPond.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitPond.unit.code,
       `5,${electrovalvula}`
     );
   }
 
   public publishSendSpeed(unitPond: UnitPondEntity, sendSpeed: number): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code,
+      MQTTTopics.PUBLISH_UNIT_POND +
+      (unitPond.unit.sector ? unitPond.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitPond.unit.code,
       `8,${sendSpeed}`
     );
   }
 
   public publishConfiguration(unitPond: UnitPondEntity, reading: number): void {
     this._mqttEventService.unsafePublish(
-      MQTTTopics.PUBLISH_UNIT_POND + unitPond.unit.code,
+      MQTTTopics.PUBLISH_UNIT_POND +
+      (unitPond.unit.sector ? unitPond.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitPond.unit.code,
       `9,${reading}`
     );
   }
@@ -64,7 +74,10 @@ export class UnitPondMqttService {
 
   private subscribeToNodeTopics(unitPond: UnitPondEntity) {
     unitPond.mqttNodeSubscription = this._mqttEventService
-      .observe(MQTTTopics.OBSERVE_UNIT_HYDRANT + unitPond.unit.code)
+      .observe(
+        MQTTTopics.OBSERVE_UNIT_POND +
+        (unitPond.unit.sector ? unitPond.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitPond.unit.code)
       .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitPond, mqttMSG.payload.toString());
       });

@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container mt-5">
   <h1>Usuarios</h1>
 
   <div class="row align-items-center mb-2">
@@ -11,8 +11,26 @@
     </div>
     <div class="col d-flex gap-3">
       <mat-checkbox [(ngModel)]="checkedActive">Activos</mat-checkbox>
-      <mat-checkbox [(ngModel)]="checkedCommunication">Comunicación</mat-checkbox>
     </div>
+  </div>
+
+
+  <div *ngIf="!showLoader">
+
+  </div>
+  <div *ngFor="let user of users | filterActive: checkedActive  | filterText: searchText" class="mb-2" role="listitem">
+
+    <div *ngIf="user" class="row border border-1 rounded p-2 align-items-center" (click)="openDialogUser(user)">
+      <div class="col-md-8 col-12 row">
+        <div class="col-md-4 col-12 text-primary">{{ user.username }}</div>
+        <div class="col-md-8 col-12">{{ user.email }}</div>
+      </div>
+      <div class="col-md-4 col-12 row">
+        <div class="col-md-6 col-12 text-success">{{ user.role }}</div>
+        <mat-checkbox class="col-md-6 col-12" [disabled]="true" [checked]="user.active">Activo</mat-checkbox>
+      </div>
+    </div>
+
   </div>
 
 

@@ -1,102 +1,97 @@
 <div class="fs-5">
 
-  <!-- title -->
-  <h1 mat-dialog-title><span class="unit-icon fas fa-home"></span> Estación Pechina
-    {{ unitStationPechina.unit.code }}</h1>
-
   <div mat-dialog-content>
+
     <!-- head -->
+
     <div class="row mb-2">
-      <div class="col-sm mr-3">
-        <mat-checkbox [checked]="unitStationPechina.unit.active" class="example-margin" disabled>Activo</mat-checkbox>
+
+      <!-- title -->
+
+      <div (click)="openDialogImage()">
+        <h1 mat-dialog-title><span class="unit-icon fas fa-home"></span>
+          &nbsp;{{ unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code : "" }}
+          &nbsp;Estación Pechina
+          &nbsp;{{unitStationPechina.unit.code }}
+          <span *ngFor="let set of unitStationPechina.unit.sets; let i = index"><span *ngIf="i > 0"><b>,
+              </b></span><b>{{
+              set.name }}</b></span>
+        </h1>
+      </div>
+
+      <div class="col-md mr-3">
+        <mat-checkbox class="example-margin" [checked]="unitStationPechina.unit.active" disabled>Activo</mat-checkbox>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <mat-checkbox [checked]="unitStationPechina.unit.communication" class="example-margin" disabled>Comunicación
+        <mat-checkbox class="example-margin" [checked]="unitStationPechina.unit.communication" disabled>Comunicación
         </mat-checkbox>
       </div>
     </div>
 
-    <!-- content -->
-    <div class="row mb-2">
-      <!-- left column -->
-      <div class="col-sm col">
-        <img (click)="openDialogImage()" [src]="imageURL" class="unit-image image-fluid rounded" />
-        <br /><br />
-        <div class="row mb-2">
-          <div class="col-sm-6 col">Sector:</div>
-          <div class="col-sm-6 col">
-            {{ unitStationPechina.unit.sector ? unitStationPechina.unit.sector.name : "" }}
-          </div>
-        </div>
-        <div class="row mb-2">
-          <div class="col-sm-6 col">Conjuntos:</div>
-          <div class="col-sm-6 col">
-            <span *ngFor="let set of unitStationPechina.unit.sets; let i = index">
-              <span *ngIf="i > 0">,
-              </span>
-              {{ set.name }}</span>
-          </div>
-        </div>
-
-        <div class="row mb-2">
-          <div class="col-sm-6 col">Altitud:</div>
-          <div class="col-sm-6 col">
-            {{ unitStationPechina.unit.altitude }} m
-          </div>
-        </div>
-        <div class="row mb-2">
-          <div class="col-sm-6 col">Latitud:</div>
-          <div class="col-sm-6 col">
-            {{ unitStationPechina.unit.latitude }}
-          </div>
-        </div>
-        <div class="row mb-2">
-          <div class="col-sm-6 col">Longitud:</div>
-          <div class="col-sm-6 col">
-            {{ unitStationPechina.unit.longitude }}
-          </div>
-        </div>
+    <div class="d-flex flex-row flex-wrap gap-md-3 gap-2 mb-2">
+      <div>
+        Altitud: <span class="fw-bold">{{ unitStationPechina.unit.altitude }}</span>
       </div>
+      <div>
+        Latitud: <span class="fw-bold">{{ unitStationPechina.unit.latitude }}</span>
+      </div>
+      <div>
+        Longitud: <span class="fw-bold">{{ unitStationPechina.unit.longitude }}</span>
+      </div>
+    </div>
+
+    <!-- content -->
+
+    <div class="row mb-2">
 
       <!-- right column -->
-      <div class="col-sm">
+      <div class="col">
+
         <div class="row mb-2">
-          <div class="col-sm-6 col">Caudal:</div>
-          <div class="col-sm-6 col fw-bold">
-            {{ unitStationPechina.flow$ | async | number }}&nbsp;m3
+          <div class="col-md-6 col">Caudal:</div>
+          <div class="col-md-6 col fw-bold">
+            {{ unitStationPechina.flow$ | async }} l/s
           </div>
         </div>
+
         <div class="row mb-2">
-          <div class="col-sm-6 col">Lectura:</div>
-          <div class="col-sm-6 col fw-bold">
-            {{ unitStationPechina.reading$ | async | number }}&nbsp;m3
+          <div class="col-md-6 col">Lectura:</div>
+          <div class="col-md-6 col fw-bold">
+            {{ unitStationPechina.reading$ | async }} m3
           </div>
         </div>
+
         <div class="row mb-2">
-          <div class="col-sm-6 col">Inicio tanda:</div>
-          <div class="col-sm-6 col fw-bold">
-            {{ unitStationPechina.readingBatch | number }}&nbsp;m3
+          <div class="col-md-6 col">Lectura inicial:</div>
+          <div class="col-md-6 col fw-bold">
+            {{ unitStationPechina.readingBatch }} m3
           </div>
         </div>
+
         <div class="row mb-2">
-          <div class="col-sm-6 col">Tanda:</div>
-          <div class="col-sm-6 col fw-bold">
-            {{ tanda | number }}&nbsp;m3
+          <div class="col-md-6 col">Tanda:</div>
+          <div class="col-md-6 col fw-bold">
+            {{ (unitStationPechina.reading$ | async) - unitStationPechina.readingBatch }} m3
           </div>
         </div>
-        <div class="row mb-2">
-          <button (click)="batchReset()" color="primary" mat-raised-button>
+
+        <div class="row">
+          <button class="w-100" mat-raised-button color="warn" (click)="batchReset()">
             Reiniciar tanda
           </button>
         </div>
+
       </div>
+
     </div>
   </div>
 
-  <!-- Buttons -->
+  <!-- dialog actions -->
+
   <div mat-dialog-actions>
-    <button mat-dialog-close mat-raised-button>Cerrar</button>
-    <button (click)="openDialogUnitGenericCreate()" [disabled]="disabled" mat-raised-button color="primary">
+    <button mat-raised-button mat-dialog-close>Cerrar</button>
+    <button appRoleModerator mat-raised-button color="primary" (click)="openDialogUnitStationPechinaCreate()">
       Modificar
     </button>
   </div>
+
 </div>

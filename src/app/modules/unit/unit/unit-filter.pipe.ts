@@ -9,8 +9,8 @@ export class UnitFilterPipe implements PipeTransform {
     if (!searchText) return items;
 
     return items.filter((item) => {
-      console.log(item);
-      let cadena = JSON.stringify(item.unit).toLowerCase();
+      let unit = item.unit;
+      let cadena = JSON.stringify(unit).toLowerCase();
       let busqueda = searchText.toLowerCase();
       return cadena.includes(busqueda);
     });

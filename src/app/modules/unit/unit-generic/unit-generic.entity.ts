@@ -23,8 +23,6 @@ export class UnitGenericEntity {
   property3$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   property4$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   property5$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  temperature$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
-  humidity$: BehaviorSubject<string> = new BehaviorSubject<string>('0');
 
   // ==================================================
   // FRONTEND PROPERTIES
@@ -38,7 +36,7 @@ export class UnitGenericEntity {
       .getElement()
       .getElementsByTagName(
         'div'
-      )[1].style.backgroundColor = this.getMarkerColour();
+      )[1].style.color = this.getMarkerColour();
   }
 
   public getMarkerColour(): string {

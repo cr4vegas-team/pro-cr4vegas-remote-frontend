@@ -1,5 +1,4 @@
 import { Marker } from 'mapbox-gl';
-import { Behavior } from 'popper.js';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { MarkerColourEnum } from 'src/app/shared/constants/marker-colour.enum';
 import { UnitEntity } from '../unit/unit.entity';

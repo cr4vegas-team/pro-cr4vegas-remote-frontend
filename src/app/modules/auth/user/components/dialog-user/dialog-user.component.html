@@ -1,1 +1,10 @@
-<p>dialog-user works!</p>
+<h1 mat-dialog-title class="text-primary">{{data.username}}</h1>
+<div mat-dialog-content class="p-2">
+  <mat-checkbox class="col-md-6 col-12 mb-2" [disabled]="true" [checked]="data.active">Activo</mat-checkbox>
+  <div class="col-md-4 col-12  mb-2">{{ data.email }}</div>
+  <div class="col-md-8 col-12 text-success">{{ data.role }}</div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cerrar</button>
+  <button mat-button (click)="openDialogUserCreate()">Modificar</button>
+</div>

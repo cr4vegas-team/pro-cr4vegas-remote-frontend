@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   MatDialog,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
@@ -22,7 +22,6 @@ import { UnitStationPechinaService } from './../../../unit-station-pechina.servi
 @Component({
   selector: 'app-dialog-unit-station-pechina-create',
   templateUrl: './dialog-unit-station-pechina-create.component.html',
-  styleUrls: ['./dialog-unit-station-pechina-create.component.css'],
 })
 export class DialogUnitStationPechinaCreateComponent
   implements OnInit, OnDestroy {
@@ -30,8 +29,8 @@ export class DialogUnitStationPechinaCreateComponent
   create = true;
   loading = false;
 
-  sectors: Observable<SectorEntity[]>;
-  sets: Observable<SetEntity[]>;
+  sectors: SectorEntity[];
+  sets: SetEntity[];
 
   unitStationPechinaForm: FormGroup;
 
@@ -54,8 +53,16 @@ export class DialogUnitStationPechinaCreateComponent
   ) {}
 
   ngOnInit(): void {
-    this.sectors = this._sectorService.getSectors();
-    this.sets = this._setService.getSets();
+    this._sectorService.findAll().subscribe((sectorsRO) => {
+      if (sectorsRO) {
+        this.sectors = sectorsRO.sectors;
+      }
+    });
+    this._setService.findAll().subscribe((setsRO) => {
+      if (setsRO) {
+        this.sets = setsRO.sets;
+      }
+    });
 
     if (this.unitStationPechina) {
       this.initUnitStationPechinaUpdate();
@@ -104,17 +111,15 @@ export class DialogUnitStationPechinaCreateComponent
     ) {
       this._uploadService
         .getImage(this.unitStationPechina.unit.image)
-        .subscribe(
-          (next) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
-                reader.result as string
-              ) as string;
-            };
-            reader.readAsDataURL(next);
-          }
-        );
+        .subscribe((next) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.imageURL = this._sanitizer.bypassSecurityTrustResourceUrl(
+              reader.result as string
+            ) as string;
+          };
+          reader.readAsDataURL(next);
+        });
     }
   }
 
@@ -151,30 +156,26 @@ export class DialogUnitStationPechinaCreateComponent
     );
     this._unitStationPechinaService
       .update(unitStationPechinaUpdateDto)
-      .subscribe(
-        (unitStationPechina) => {
-          this._unitStationPechinaFactoryService.copyUnitStationPechina(
-            this.unitStationPechina,
-            unitStationPechina
-          );
-          this._unitStationPechinaService.refresh();
-          this.close();
-        }
-      );
+      .subscribe((unitStationPechina) => {
+        this._unitStationPechinaFactoryService.copyUnitStationPechina(
+          this.unitStationPechina,
+          unitStationPechina
+        );
+        this._unitStationPechinaService.refresh();
+        this.close();
+      });
   }
 
   private uploadImage(): void {
     if (this.file !== undefined && this.file !== null) {
       const formData = new FormData();
       formData.append('file', this.file, this.file.name);
-      this._uploadService.uploadImage(formData).subscribe(
-        (next) => {
-          if (next) {
-            this.unitStationPechinaForm.value.unit.image = next.filename;
-            this.updateUnitStationPechina();
-          }
+      this._uploadService.uploadImage(formData).subscribe((next) => {
+        if (next) {
+          this.unitStationPechinaForm.value.unit.image = next.filename;
+          this.updateUnitStationPechina();
         }
-      );
+      });
     } else {
       this.updateUnitStationPechina();
     }

@@ -1,6 +1,6 @@
 import { UserRole } from '../enum/user-role.enum';
 
-export class UpdateUserDto {
+export class UserUpdateDto {
   id: number;
   username?: string;
   email?: string;

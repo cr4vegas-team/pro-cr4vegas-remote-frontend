@@ -31,11 +31,10 @@ import { StartService } from './../../services/start.service';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  userRole: UserRole = null;
+  userRoles = UserRole;
   mapboxStyleEnum = MapboxStyleEnum;
   mapboxStyleSelected: MapboxStyleEnum;
   consDialogInfo = GLOBAL;
-  disabled = false;
   hidden = true;
   user: UserEntity;
   sessionCardHidden = true;

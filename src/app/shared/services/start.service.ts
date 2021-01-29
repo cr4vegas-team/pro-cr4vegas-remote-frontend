@@ -16,8 +16,6 @@ import { UnitPondFactory } from 'src/app/modules/unit/unit-pond/unit-pond.factor
 import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
 import { UnitStationPechinaSocketService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina-socket.service';
 import { UnitMqttService } from 'src/app/modules/unit/unit/unit-mqtt.service';
-import { SectorService } from 'src/app/modules/wrap/sector/sector.service';
-import { SetService } from 'src/app/modules/wrap/set/set.service';
 import { DialogUnitStationPechinaComponent } from './../../modules/unit/unit-station-pechina/components/dialog-unit-station-pechina/dialog-unit-station-pechina/dialog-unit-station-pechina.component';
 import { UnitStationPechinaFactoryService } from './../../modules/unit/unit-station-pechina/unit-station-pechina-factory.service';
 import { UnitStationPechinaService } from './../../modules/unit/unit-station-pechina/unit-station-pechina.service';
@@ -50,8 +48,6 @@ export class StartService implements OnDestroy {
     private readonly _unitHydrantService: UnitHydrantService,
     private readonly _unitPondService: UnitPondService,
     private readonly _unitStationPechinaService: UnitStationPechinaService,
-    private readonly _sectorService: SectorService,
-    private readonly _setService: SetService,
     // Factories
     private readonly _unitHydrantFactory: UnitHydrantFactory,
     private readonly _unitGenericFactory: UnitGenericFactory,
@@ -79,8 +75,6 @@ export class StartService implements OnDestroy {
     this._unitHydrantService.findAll();
     this._unitPondService.findAll();
     this._unitStationPechinaService.find();
-    this._sectorService.findAll();
-    this._setService.findAll();
   }
 
   // ==================================================

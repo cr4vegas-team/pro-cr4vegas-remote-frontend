@@ -108,12 +108,16 @@ export class UnitGenericFactory {
       unitGeneric.marker.remove();
     }
     const divCode = document.createElement('div');
+    divCode.classList.add('marker');
     divCode.style.display = 'block';
     divCode.style.padding = '2px';
     divCode.style.borderRadius = '5px';
     divCode.style.border = '1px solid black';
     divCode.style.backgroundColor = 'rgba(255,255,255,1)';
+    divCode.style.display = 'flex';
+    divCode.style.flexDirection = 'column';
     divCode.style.justifyContent = 'center';
+    divCode.style.alignItems = 'center';
     divCode.style.zIndex = '1';
     divCode.onmouseover = () => {
       (divCode.children[0] as HTMLElement).style.display = 'block';
@@ -130,20 +134,31 @@ export class UnitGenericFactory {
     const title = document.createElement('div');
     title.innerHTML = `
         Genérico<br>
-        <b>${unitGeneric.unit.sector.code} - ${unitGeneric.unit.code}</b>
+        <b>${unitGeneric.unit.sector ? unitGeneric.unit.sector.code : 'NA'} - ${unitGeneric.unit.code}</b>
     `;
     title.style.fontSize = '1em';
     title.style.display = 'none';
     title.style.textAlign = 'center';
 
-    const point = document.createElement('div');
+    /* const point = document.createElement('div');
     point.style.width = '1.8em';
     point.style.height = '1.8em';
     point.style.backgroundColor = unitGeneric.getMarkerColour();
     point.style.margin = '0px auto';
     point.style.borderTopLeftRadius = '50%';
     point.style.borderTopRightRadius = '50%';
-    point.style.borderBottomRightRadius = '50%';
+    point.style.borderBottomRightRadius = '50%'; */
+
+    const point = document.createElement('div');
+    point.innerHTML = '<span class="fas fa-dot-circle" style="width: 1.8em; height: 1.8em"></span>';
+    point.style.width = '1.8em';
+    point.style.height = '1.8em';
+    point.style.display = 'flex';
+    point.style.flexFlow = 'row wrap';
+    point.style.justifyContent = 'center';
+    point.style.alignItems = 'center';
+    point.style.color = unitGeneric.getMarkerColour();
+
     divCode.appendChild(title);
     divCode.appendChild(point);
 

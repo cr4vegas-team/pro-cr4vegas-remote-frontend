@@ -7,6 +7,10 @@ import {
 } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { UnitGenericService } from 'src/app/modules/unit/unit-generic/unit-generic.service';
+import { UnitHydrantService } from 'src/app/modules/unit/unit-hydrant/unit-hydrant.service';
+import { UnitPondService } from 'src/app/modules/unit/unit-pond/unit-pond.service';
+import { UnitStationPechinaService } from 'src/app/modules/unit/unit-station-pechina/unit-station-pechina.service';
 import { UnitEntity } from 'src/app/modules/unit/unit/unit.entity';
 import { UnitService } from 'src/app/modules/unit/unit/unit.service';
 import { UnitTypeTableEnum } from 'src/app/shared/constants/unit-type-table.enum';
@@ -17,7 +21,6 @@ import { SetUpdateDto } from '../../dto/set-update.dto';
 import { SetEntity } from '../../set.entity';
 import { SetFactory } from '../../set.factory';
 import { SetService } from '../../set.service';
-import { SetSocketService } from './../../set-socket.service';
 import { SetTypeEntity } from './../../set-type.entity';
 
 @Component({
@@ -45,6 +48,10 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
   // ==================================================
 
   constructor(
+    private readonly _unitGenericService: UnitGenericService,
+    private readonly _unitHydrantService: UnitHydrantService,
+    private readonly _unitPondService: UnitPondService,
+    private readonly _unitStationPechinaService: UnitStationPechinaService,
     private readonly _matDialog: MatDialog,
     private readonly _setService: SetService,
     private readonly _setFactory: SetFactory,
@@ -53,7 +60,6 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
     private readonly _unitService: UnitService,
     private readonly _uploadService: UploadService,
     private readonly _sanitizer: DomSanitizer,
-    private readonly _setSocketService: SetSocketService,
     @Inject(MAT_DIALOG_DATA)
     public set: SetEntity
   ) {}
@@ -149,10 +155,11 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       this.setForm.value
     );
     this._setService.create(setCreateDto).subscribe((setRO) => {
-      const newSet: SetEntity = this._setFactory.createSet(setRO.set);
-      this._setService.getSets().value.push(newSet);
-      this._setService.refresh();
-      this.close();
+      this._dialogRef.close(setRO.set);
+      this._unitGenericService.findAll();
+      this._unitHydrantService.findAll();
+      this._unitPondService.findAll();
+      this._unitStationPechinaService.find();
     });
   }
 
@@ -163,9 +170,7 @@ export class DialogSetCreateComponent implements OnInit, OnDestroy {
       this.setForm.value
     );
     this._setService.update(setUpdateDto).subscribe((setRO) => {
-      this._setFactory.copySet(this.set, setRO.set);
-      this._setService.refresh();
-      this.close();
+      this._dialogRef.close(setRO.set);
     });
   }
 

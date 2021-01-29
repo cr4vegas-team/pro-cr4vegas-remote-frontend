@@ -17,8 +17,7 @@
   <div *ngIf="!showLoader">
 
   </div>
-  <div *ngFor="let set of sets | setActiveFilter: checkedActive  | setFilter: searchText" class="mb-2"
-    role="listitem">
+  <div *ngFor="let set of sets | setActiveFilter: checkedActive  | setFilter: searchText" class="mb-2" role="listitem">
 
     <div *ngIf="set">
 
@@ -36,7 +35,7 @@
 
         </div>
 
-        <div class="d-flex flex-row flex-wrap gap-1 p-1 me-md-2">
+        <div class="d-flex flex-row flex-wrap gap-1 p-1 me-md-2 justify-content-evenly">
 
           <div *ngFor="let unit of set.units; let i = index">
 

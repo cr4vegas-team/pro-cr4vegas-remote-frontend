@@ -16,9 +16,8 @@ export class UnitHydrantMqttService {
   public publishGETCommunication(unitHydrant: UnitHydrantEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_HYDRANT +
-        unitHydrant.unit.sector.code.toLowerCase() +
-        '/' +
-        unitHydrant.unit.code,
+      (unitHydrant.unit.sector ? unitHydrant.unit.sector.code.toLowerCase() : 'na') + '/' +
+      unitHydrant.unit.code,
       `1`
     );
   }
@@ -26,8 +25,7 @@ export class UnitHydrantMqttService {
   public publishGETData(unitHydrant: UnitHydrantEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_HYDRANT +
-        unitHydrant.unit.sector.code.toLowerCase() +
-        '/' +
+      (unitHydrant.unit.sector ? unitHydrant.unit.sector.code.toLowerCase() : 'na') + '/' +
         unitHydrant.unit.code,
       `2`
     );
@@ -36,8 +34,7 @@ export class UnitHydrantMqttService {
   public publishGETSIMData(unitHydrant: UnitHydrantEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_HYDRANT +
-        unitHydrant.unit.sector.code.toLowerCase() +
-        '/' +
+      (unitHydrant.unit.sector ? unitHydrant.unit.sector.code.toLowerCase() : 'na') + '/' +
         unitHydrant.unit.code,
       `3`
     );
@@ -48,11 +45,9 @@ export class UnitHydrantMqttService {
     electrovalvula: number,
     manual: number
   ): void {
-    console.log(unitHydrant);
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_HYDRANT +
-        unitHydrant.unit.sector.code.toLowerCase() +
-        '/' +
+      (unitHydrant.unit.sector ? unitHydrant.unit.sector.code.toLowerCase() : 'na') + '/' +
         unitHydrant.unit.code,
       `5,${electrovalvula},${manual}`
     );
@@ -64,8 +59,7 @@ export class UnitHydrantMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_HYDRANT +
-        unitHydrant.unit.sector.code.toLowerCase() +
-        '/' +
+      (unitHydrant.unit.sector ? unitHydrant.unit.sector.code.toLowerCase() : 'na') + '/' +
         unitHydrant.unit.code,
       `8,${sendSpeed}`
     );
@@ -77,8 +71,7 @@ export class UnitHydrantMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_HYDRANT +
-        unitHydrant.unit.sector.code.toLowerCase() +
-        '/' +
+      (unitHydrant.unit.sector ? unitHydrant.unit.sector.code.toLowerCase() : 'na') + '/' +
         unitHydrant.unit.code,
       `9,${reading}`
     );
@@ -95,8 +88,7 @@ export class UnitHydrantMqttService {
     unitHydrant.mqttSubscription = this._mqttEventService
       .observe(
         MQTTTopics.OBSERVE_UNIT_HYDRANT +
-          unitHydrant.unit.sector.code.toLowerCase() +
-          '/' +
+        (unitHydrant.unit.sector ? unitHydrant.unit.sector.code.toLowerCase() : 'na') + '/' +
           unitHydrant.unit.code
       )
       .subscribe((mqttMSG: IMqttMessage) => {
