@@ -18,8 +18,8 @@ export class UnitStationPechinaMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
-      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitStationPechina.unit.code,
+        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitStationPechina.unit.code,
       `1`
     );
   }
@@ -27,8 +27,8 @@ export class UnitStationPechinaMqttService {
   public publishGETData(unitStationPechina: UnitStationPechinaEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
-      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitStationPechina.unit.code,
+        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitStationPechina.unit.code,
       `2`
     );
   }
@@ -36,8 +36,8 @@ export class UnitStationPechinaMqttService {
   public publishGETSIMData(unitStationPechina: UnitStationPechinaEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
-      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitStationPechina.unit.code,
+        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitStationPechina.unit.code,
       `3`
     );
   }
@@ -48,8 +48,8 @@ export class UnitStationPechinaMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
-      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitStationPechina.unit.code,
+        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitStationPechina.unit.code,
       `5,${electrovalvula}`
     );
   }
@@ -60,8 +60,8 @@ export class UnitStationPechinaMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
-      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitStationPechina.unit.code,
+        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitStationPechina.unit.code,
       `8,${sendSpeed}`
     );
   }
@@ -72,8 +72,8 @@ export class UnitStationPechinaMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_STATION_PECHINA +
-      //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitStationPechina.unit.code,
+        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+        unitStationPechina.unit.code,
       `9,${reading}`
     );
   }
@@ -92,8 +92,8 @@ export class UnitStationPechinaMqttService {
     unitStationPechina.mqttNodeSubscription = this._mqttEventService
       .observe(
         MQTTTopics.OBSERVE_UNIT_STATION_PECHINA +
-        //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
-        unitStationPechina.unit.code
+          //(unitStationPechina.unit.sector ? unitStationPechina.unit.sector.code.toLowerCase() : 'na') + '/' +
+          unitStationPechina.unit.code
       )
       .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitStationPechina, mqttMSG.payload.toString());
@@ -132,15 +132,9 @@ export class UnitStationPechinaMqttService {
   ): void {
     const dataSplit: string[] = topicMessage.toString().split(',');
     if (dataSplit.length > 0) {
+      unitStationPechina.unit.received = 1;
       switch (dataSplit[0]) {
-        case '0':
-          unitStationPechina.unit.communication = 0;
-          break;
-        case '1':
-          unitStationPechina.unit.communication = 1;
-          break;
         case '2':
-          unitStationPechina.unit.communication = 1;
           if (dataSplit[1]) {
             unitStationPechina.reading$.next(Number.parseInt(dataSplit[1], 10));
           }
@@ -152,7 +146,6 @@ export class UnitStationPechinaMqttService {
           }
           break;
         case '3':
-          unitStationPechina.unit.communication = 1;
           if (dataSplit[1]) {
             unitStationPechina.unit.operator = dataSplit[1];
           }

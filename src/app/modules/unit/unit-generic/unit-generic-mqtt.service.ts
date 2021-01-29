@@ -18,8 +18,11 @@ export class UnitGenericMqttService {
   public publishGETCommunication(unitGeneric: UnitGenericEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_GENERIC +
-      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitGeneric.unit.code,
+        (unitGeneric.unit.sector
+          ? unitGeneric.unit.sector.code.toLowerCase()
+          : 'na') +
+        '/' +
+        unitGeneric.unit.code,
       `1`
     );
   }
@@ -27,8 +30,11 @@ export class UnitGenericMqttService {
   public publishGETData(unitGeneric: UnitGenericEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_GENERIC +
-      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitGeneric.unit.code,
+        (unitGeneric.unit.sector
+          ? unitGeneric.unit.sector.code.toLowerCase()
+          : 'na') +
+        '/' +
+        unitGeneric.unit.code,
       `2`
     );
   }
@@ -36,8 +42,11 @@ export class UnitGenericMqttService {
   public publishGETSIMData(unitGeneric: UnitGenericEntity): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_GENERIC +
-      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitGeneric.unit.code,
+        (unitGeneric.unit.sector
+          ? unitGeneric.unit.sector.code.toLowerCase()
+          : 'na') +
+        '/' +
+        unitGeneric.unit.code,
       `3`
     );
   }
@@ -48,8 +57,11 @@ export class UnitGenericMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_GENERIC +
-      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitGeneric.unit.code,
+        (unitGeneric.unit.sector
+          ? unitGeneric.unit.sector.code.toLowerCase()
+          : 'na') +
+        '/' +
+        unitGeneric.unit.code,
       `8,${sendSpeed}`
     );
   }
@@ -60,8 +72,11 @@ export class UnitGenericMqttService {
   ): void {
     this._mqttEventService.unsafePublish(
       MQTTTopics.PUBLISH_UNIT_GENERIC +
-      (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
-      unitGeneric.unit.code,
+        (unitGeneric.unit.sector
+          ? unitGeneric.unit.sector.code.toLowerCase()
+          : 'na') +
+        '/' +
+        unitGeneric.unit.code,
       `9,${reading}`
     );
   }
@@ -77,8 +92,11 @@ export class UnitGenericMqttService {
     unitGeneric.mqttNodeSubscription = this._mqttEventService
       .observe(
         MQTTTopics.OBSERVE_UNIT_GENERIC +
-        (unitGeneric.unit.sector ? unitGeneric.unit.sector.code.toLowerCase() : 'na') + '/' +
-        unitGeneric.unit.code
+          (unitGeneric.unit.sector
+            ? unitGeneric.unit.sector.code.toLowerCase()
+            : 'na') +
+          '/' +
+          unitGeneric.unit.code
       )
       .subscribe((mqttMSG: IMqttMessage) => {
         this.updateProperties(unitGeneric, mqttMSG.payload.toString());
@@ -91,13 +109,8 @@ export class UnitGenericMqttService {
   ): void {
     const dataSplit: string[] = topicMessage.split(',');
     if (dataSplit.length > 0) {
+      unitGeneric.unit.received = 1;
       switch (dataSplit[0]) {
-        case '0':
-          unitGeneric.unit.communication = 0;
-          break;
-        case '1':
-          unitGeneric.unit.communication = 1;
-          break;
         case '2':
           if (dataSplit[1]) {
             unitGeneric.property1$.next(Number.parseFloat(dataSplit[1]));

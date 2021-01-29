@@ -104,8 +104,6 @@ export class UnitHydrantMqttService {
     if (dataSplit.length > 0) {
       unitHydrant.unit.received = 1;
       switch (dataSplit[0]) {
-        case '1':
-          break;
         case '2':
           if (dataSplit[1]) {
             unitHydrant.valve$.next(Number.parseInt(dataSplit[1], 10));

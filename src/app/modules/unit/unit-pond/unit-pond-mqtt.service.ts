@@ -89,13 +89,8 @@ export class UnitPondMqttService {
   ): void {
     const dataSplit: string[] = topicMessage.split(',');
     if (dataSplit.length > 0) {
+      unitPond.unit.received = 1;
       switch (dataSplit[0]) {
-        case '0':
-          unitPond.unit.communication = 0;
-          break;
-        case '1':
-          unitPond.unit.communication = 1;
-          break;
         case '2':
           if (dataSplit[1]) {
             unitPond.level$.next(Number.parseInt(dataSplit[1]));
